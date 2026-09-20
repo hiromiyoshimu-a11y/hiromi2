@@ -9,6 +9,7 @@ import { generateEcgSvg } from './ecg-draw.js';
 import { LITERATURE_DATABASE, getLiteratureForSite } from './literature.js';
 import { EcgImageAnalyzer } from './image-analyzer.js';
 import { METRIC_EXPLANATIONS } from './metric-explainer.js';
+import { checkAndShowMedicalDisclaimer, showDisclaimerModal } from './disclaimer-modal.js';
 
 // デフォルト状態
 const defaultState = {
@@ -84,6 +85,7 @@ const dom = {
   // アクション
   btnReset: document.getElementById('btn-reset'),
   btnShowAlgorithm: document.getElementById('btn-show-algorithm'),
+  btnShowDisclaimer: document.getElementById('btn-show-disclaimer'),
   modalCloseBtn: document.getElementById('modal-close-btn'),
   algorithmModal: document.getElementById('algorithm-modal'),
   heartMapRoot: document.getElementById('heart-map-root')
@@ -93,6 +95,16 @@ const dom = {
  * 初期化関数
  */
 function init() {
+  // 初回起動時の医療免責事項チェック (Apple Guideline 1.4.1)
+  checkAndShowMedicalDisclaimer();
+
+  // Service Worker 登録 (オフライン完全対応)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
   // 心臓解剖マップの初期化
   heartMapInstance = new HeartMap(dom.heartMapRoot, (site) => {
     showSiteModal(site);
@@ -116,6 +128,9 @@ function init() {
 
   // イベントリスナーのセットアップ
   setupEventListeners();
+
+  // iOSボトムタブバーのセットアップ
+  setupIosTabBar();
 
   // 初回解析実行
   runAnalysis();
@@ -415,6 +430,13 @@ function setupEventListeners() {
     runAnalysis();
   });
 
+  // 医療免責事項の確認モーダル
+  if (dom.btnShowDisclaimer) {
+    dom.btnShowDisclaimer.addEventListener('click', () => {
+      showDisclaimerModal();
+    });
+  }
+
   // モーダル
   dom.btnShowAlgorithm.addEventListener('click', () => {
     showFullLiteratureModal();
@@ -428,6 +450,35 @@ function setupEventListeners() {
     if (e.target === dom.algorithmModal) {
       dom.algorithmModal.classList.remove('open');
     }
+  });
+}
+
+/**
+ * iOS風ボトムナビゲーションバーのイベント設定
+ */
+function setupIosTabBar() {
+  const tabItems = document.querySelectorAll('.ios-tab-item');
+  if (!tabItems || tabItems.length === 0) return;
+
+  tabItems.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabItems.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const targetId = tab.dataset.target;
+      if (targetId === 'panel-step' || targetId === 'panel-matrix' || targetId === 'panel-image') {
+        // 入力タブの切り替え
+        const switchBtn = document.querySelector(`.input-switch-btn[data-panel="${targetId}"]`);
+        if (switchBtn) switchBtn.click();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (targetId) {
+        // 心臓マップまたは文献へのスクロール
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
   });
 }
 

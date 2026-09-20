@@ -120,6 +120,7 @@ export class EcgImageAnalyzer {
         <!-- ドロップゾーン & 画像Canvasプレビュー -->
         <div class="ia-dropzone" id="ia-dropzone">
           <input type="file" id="ia-file-input" accept="image/*" style="display: none;">
+          <input type="file" id="ia-camera-input" accept="image/*" capture="environment" style="display: none;">
           
           <div class="ia-drop-prompt" id="ia-drop-prompt">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -128,7 +129,15 @@ export class EcgImageAnalyzer {
               <polyline points="21 15 16 10 5 21"/>
             </svg>
             <p class="ia-prompt-main">心電図画像をドラッグ＆ドロップ または <span class="ia-link">ファイルを選択</span></p>
-            <p class="ia-prompt-sub">Ctrl + V でクリップボードのスクリーンショットを直接貼り付け可能</p>
+            <p class="ia-prompt-sub">Ctrl + V でクリップボード貼り付け、またはスマートフォンカメラで撮影</p>
+            
+            <button type="button" class="mobile-camera-btn" id="ia-btn-camera">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              カメラで心電図を直接撮影して解析
+            </button>
           </div>
 
           <!-- Canvasプレビュー -->
@@ -186,15 +195,34 @@ export class EcgImageAnalyzer {
   setupEvents() {
     const dropzone = this.container.querySelector('#ia-dropzone');
     const fileInput = this.container.querySelector('#ia-file-input');
+    const cameraInput = this.container.querySelector('#ia-camera-input');
+    const btnCamera = this.container.querySelector('#ia-btn-camera');
     const dropPrompt = this.container.querySelector('#ia-drop-prompt');
 
-    // クリックでファイル選択
-    dropPrompt.addEventListener('click', () => fileInput.click());
+    // クリックでファイル選択 (カメラボタン以外)
+    dropPrompt.addEventListener('click', (e) => {
+      if (e.target.closest('#ia-btn-camera')) return;
+      fileInput.click();
+    });
+
     fileInput.addEventListener('change', (e) => {
       if (e.target.files && e.target.files[0]) {
         this.loadImageFile(e.target.files[0]);
       }
     });
+
+    // カメラ撮影
+    if (btnCamera && cameraInput) {
+      btnCamera.addEventListener('click', (e) => {
+        e.stopPropagation();
+        cameraInput.click();
+      });
+      cameraInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          this.loadImageFile(e.target.files[0]);
+        }
+      });
+    }
 
     // ドラッグ＆ドロップ
     dropzone.addEventListener('dragover', (e) => {

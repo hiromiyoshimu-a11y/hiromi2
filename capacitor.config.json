@@ -1,0 +1,22 @@
+{
+  "appId": "com.cardioorigin.app",
+  "appName": "CardioOrigin",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "ios": {
+    "contentInset": "always",
+    "scheme": "CardioOrigin",
+    "preferredContentMode": "mobile",
+    "backgroundColor": "#070c18"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "backgroundColor": "#070c18",
+      "showSpinner": false
+    },
+    "Keyboard": {
+      "resize": "body"
+    }
+  }
+}

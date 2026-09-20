@@ -2,12 +2,22 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>CardioOrigin - 12誘導心電図 心室性期外収縮(PVC) 起源推定ナビゲーター</title>
   <meta name="description" content="12誘導心電図の情報から心室性期外収縮（PVC）の発生起源（RVOT、LVOT、LV Summit、乳頭筋、三尖弁輪、束枝系など）を高精度に推定・3D心臓解剖マップ上で可視化する臨床支援Webアプリケーション">
   
+  <!-- iOS App & PWA メタタグ -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CardioOrigin">
+  <meta name="theme-color" content="#070c18">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- スタイルシート -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/heart-map.css">
+  <link rel="stylesheet" href="css/ios-mobile.css">
 </head>
 <body>
   <div class="app-container">
@@ -30,6 +40,12 @@
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
           </svg>
           判定基準・文献
+        </button>
+        <button id="btn-show-disclaimer" class="btn-header" title="医療免責事項と利用規約">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          医療免責事項
         </button>
         <button id="btn-reset" class="btn-header" title="入力をリセット">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -376,6 +392,47 @@
       </div>
     </div>
   </div>
+
+  <!-- iOS風ボトムナビゲーションバー (親指操作) -->
+  <nav class="ios-tab-bar" id="ios-tab-bar">
+    <button class="ios-tab-item active" data-target="panel-step">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      </svg>
+      <span>ステップ</span>
+    </button>
+
+    <button class="ios-tab-item" data-target="panel-matrix">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      <span>12誘導</span>
+    </button>
+
+    <button class="ios-tab-item" data-target="panel-image">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+        <circle cx="12" cy="13" r="4"/>
+      </svg>
+      <span>撮影・読取</span>
+    </button>
+
+    <button class="ios-tab-item" data-target="heart-map-root">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>
+      </svg>
+      <span>3D心臓</span>
+    </button>
+
+    <button class="ios-tab-item" data-target="literature-container">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+      </svg>
+      <span>文献根拠</span>
+    </button>
+  </nav>
 
   <!-- メインJavaScript -->
   <script type="module" src="js/app.js"></script>

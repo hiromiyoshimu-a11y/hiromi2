@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "test": "node test_algorithm.js"
+    "test": "node test_algorithm.js",
+    "cap:sync": "cap sync",
+    "cap:open:ios": "cap open ios"
   },
   "keywords": [
     "ecg",

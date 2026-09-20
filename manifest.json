@@ -1,0 +1,25 @@
+{
+  "name": "CardioOrigin - 12誘導心電図 PVC起源推定",
+  "short_name": "CardioOrigin",
+  "description": "12誘導心電図から心室性期外収縮（PVC）の発生起源を高精度に推定・3D可視化する臨床支援アプリ",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070c18",
+  "theme_color": "#0284c7",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "education", "utilities"]
+}
