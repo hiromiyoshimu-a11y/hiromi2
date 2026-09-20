@@ -1,0 +1,23 @@
+{
+  "name": "cardio-origin",
+  "version": "1.0.0",
+  "description": "12誘導心電図 心室性期外収縮(PVC) 起源推定ナビゲーター",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node test_algorithm.js"
+  },
+  "keywords": [
+    "ecg",
+    "cardiology",
+    "pvc",
+    "electrophysiology",
+    "catheter-ablation",
+    "rvot",
+    "lvot"
+  ],
+  "author": "CardioOrigin Team",
+  "license": "MIT"
+}
