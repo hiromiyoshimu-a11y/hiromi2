@@ -20,9 +20,11 @@ html, body {
   padding-right: var(--sar);
 }
 
-/* アプリコンテナの下部にボトムタブバーの余白を確保 */
-.app-container {
-  padding-bottom: calc(var(--sab) + 72px) !important;
+/* アプリコンテナの下部にボトムタブバーの余白を確保（モバイル時のみ） */
+@media (max-width: 900px) {
+  .app-container {
+    padding-bottom: calc(var(--sab) + 72px) !important;
+  }
 }
 
 /* ================= 医療免責事項モーダル (Guideline 1.4.1) ================= */
@@ -39,18 +41,20 @@ html, body {
   padding: 1rem;
   opacity: 0;
   visibility: hidden;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .disclaimer-overlay.open {
   opacity: 1;
   visibility: visible;
+  pointer-events: auto;
 }
 
 .disclaimer-modal-card {
   width: 100%;
   max-width: 580px;
-  max-height: 90vh;
+  max-height: 85vh;
   background: #0d1527;
   border: 1px solid rgba(245, 158, 11, 0.4);
   border-radius: 20px;
@@ -58,27 +62,56 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  animation: modal-pop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @keyframes modal-pop {
-  0% { transform: scale(0.92); opacity: 0; }
+  0% { transform: scale(0.94); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
 .disclaimer-header {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 1.25rem 1.5rem;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 1rem 1.25rem;
   background: rgba(245, 158, 11, 0.08);
   border-bottom: 1px solid rgba(245, 158, 11, 0.2);
 }
 
+.disclaimer-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.disclaimer-close-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.25rem;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.disclaimer-close-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
 .disclaimer-icon-wrapper {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   background: rgba(245, 158, 11, 0.15);
   display: flex;
   justify-content: center;
@@ -87,25 +120,25 @@ html, body {
 }
 
 .disclaimer-header h3 {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 800;
   color: #f1f5f9;
   margin: 0;
 }
 
 .disclaimer-subtitle {
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   color: #fbbf24;
   margin: 2px 0 0 0;
   font-weight: 600;
 }
 
 .disclaimer-scroll-content {
-  padding: 1.25rem 1.5rem;
+  padding: 1.25rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -148,12 +181,12 @@ html, body {
 }
 
 .disclaimer-footer {
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   background: rgba(11, 19, 38, 0.95);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .disclaimer-checkbox-label {
@@ -161,9 +194,9 @@ html, body {
   align-items: flex-start;
   gap: 10px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: #94a3b8;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .disclaimer-checkbox-label input[type="checkbox"] {
@@ -177,11 +210,11 @@ html, body {
 
 .disclaimer-btn-primary {
   width: 100%;
-  height: 48px;
+  height: 44px;
   border-radius: 12px;
   background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff;
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
@@ -203,9 +236,9 @@ html, body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: calc(56px + var(--sab));
+  height: calc(52px + var(--sab));
   padding-bottom: var(--sab);
-  background: rgba(11, 19, 38, 0.92);
+  background: rgba(11, 19, 38, 0.94);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(56, 189, 248, 0.2);
@@ -220,13 +253,13 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
+  gap: 2px;
   background: transparent;
   border: none;
   color: #94a3b8;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  padding: 6px 0;
+  padding: 4px 0;
   cursor: pointer;
   transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
@@ -242,7 +275,7 @@ html, body {
 
 .ios-tab-item.active svg {
   stroke: #38bdf8;
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 /* ================= モバイルカメラ撮影ボタン ================= */
@@ -275,35 +308,128 @@ html, body {
     display: flex;
   }
 
-  /* 画面全体のグリッドを1カラムに */
-  .main-layout {
-    grid-template-columns: 1fr;
+  /* 画面全体のグリッドを1カラムに確実に展開 */
+  .main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
   }
 
-  /* ヘッダーのコンパクト化 */
+  /* ヘッダーのレスポンシブ配置 */
   .app-header {
-    padding: 0.75rem 1rem;
+    padding: 0.75rem 1rem !important;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .brand-section {
+    flex: 1 1 auto;
   }
 
   .brand-title-area h1 {
-    font-size: 1.15rem;
+    font-size: 1.15rem !important;
   }
 
   .brand-title-area p {
-    font-size: 0.72rem;
+    font-size: 0.72rem !important;
   }
 
-  /* 症例プリセットバーを横スクロール対応 */
-  .preset-scroll-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 6px;
+  .header-actions {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
   }
 
-  /* タッチターゲットの拡大 */
-  .custom-select,
-  .btn-header,
-  .input-switch-btn {
-    min-height: 44px;
+  .btn-header {
+    font-size: 0.75rem !important;
+    padding: 6px 10px !important;
+    min-height: 38px !important;
+    white-space: nowrap !important;
+  }
+
+  /* 症例プリセットバーの最適化：縦積み＆横スクロール */
+  .preset-bar {
+    padding: 0.85rem 1rem !important;
+  }
+
+  .preset-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  .preset-carousel {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    gap: 8px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .preset-carousel::-webkit-scrollbar {
+    height: 4px;
+  }
+  .preset-carousel::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.3);
+    border-radius: 4px;
+  }
+
+  .preset-chip {
+    flex: 0 0 auto !important;
+    min-width: 170px !important;
+    max-width: 220px !important;
+    padding: 8px 12px !important;
+  }
+
+  .preset-chip .preset-name {
+    font-size: 0.78rem !important;
+  }
+
+  /* パネルタブの最適化：3等分グリッドで全タブがピッタリ収まる */
+  .panel-tabs {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 4px !important;
+    padding: 4px !important;
+    overflow-x: visible !important;
+  }
+
+  .tab-btn {
+    padding: 8px 4px !important;
+    font-size: 0.72rem !important;
+    white-space: normal !important;
+    line-height: 1.25 !important;
+    text-align: center !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 4px !important;
+    justify-content: center !important;
+  }
+
+  .tab-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
+  /* ステップボタングループの折り返しとタッチ最適化 */
+  .step-card {
+    padding: 1rem !important;
+  }
+
+  .opt-btn {
+    min-height: 42px !important;
+    font-size: 0.82rem !important;
+    padding: 8px 10px !important;
+  }
+
+  /* 3D心臓ビューアーのスマホ表示 */
+  .heart-map-card {
+    padding: 1rem !important;
+  }
+
+  .heart-svg-container {
+    min-height: 300px !important;
   }
 }

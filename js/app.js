@@ -95,8 +95,8 @@ const dom = {
  * 初期化関数
  */
 function init() {
-  // 初回起動時の医療免責事項チェック (Apple Guideline 1.4.1)
-  checkAndShowMedicalDisclaimer();
+  // 初回起動時の医療免責事項モーダル強制表示は無効化（ヘッダーボタンから任意で確認可能）
+  // checkAndShowMedicalDisclaimer();
 
   // Service Worker 登録 (オフライン完全対応)
   if ('serviceWorker' in navigator) {
@@ -466,10 +466,14 @@ function setupIosTabBar() {
       tab.classList.add('active');
 
       const targetId = tab.dataset.target;
-      if (targetId === 'panel-step' || targetId === 'panel-matrix' || targetId === 'panel-image') {
-        // 入力タブの切り替え
-        const switchBtn = document.querySelector(`.input-switch-btn[data-panel="${targetId}"]`);
-        if (switchBtn) switchBtn.click();
+      if (targetId === 'panel-step') {
+        switchTab('wizard');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (targetId === 'panel-matrix') {
+        switchTab('matrix');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (targetId === 'panel-image') {
+        switchTab('image');
         window.scrollTo({ top: 0, behavior: 'smooth' });
       } else if (targetId) {
         // 心臓マップまたは文献へのスクロール

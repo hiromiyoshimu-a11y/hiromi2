@@ -23,19 +23,26 @@ export function showDisclaimerModal(onAccepted) {
     document.body.appendChild(modalEl);
   }
 
+  const closeModal = () => {
+    modalEl.classList.remove('open');
+  };
+
   modalEl.innerHTML = `
     <div class="disclaimer-modal-card">
       <div class="disclaimer-header">
-        <div class="disclaimer-icon-wrapper">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
+        <div class="disclaimer-header-left">
+          <div class="disclaimer-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div>
+            <h3>医療免責事項およびご利用上の注意</h3>
+            <p class="disclaimer-subtitle">Important Medical Disclaimer & Terms of Use</p>
+          </div>
         </div>
-        <div>
-          <h3>医療免責事項およびご利用上の注意</h3>
-          <p class="disclaimer-subtitle">Important Medical Disclaimer & Terms of Use</p>
-        </div>
+        <button type="button" class="disclaimer-close-btn" id="disclaimer-close-btn" aria-label="閉じる">✕</button>
       </div>
 
       <div class="disclaimer-scroll-content">
@@ -80,6 +87,18 @@ export function showDisclaimerModal(onAccepted) {
     </div>
   `;
 
+  const closeBtn = modalEl.querySelector('#disclaimer-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeModal);
+  }
+
+  // モーダル外側クリックで閉じる
+  modalEl.addEventListener('click', (e) => {
+    if (e.target === modalEl) {
+      closeModal();
+    }
+  });
+
   const checkbox = modalEl.querySelector('#disclaimer-agree-checkbox');
   const acceptBtn = modalEl.querySelector('#disclaimer-accept-btn');
 
@@ -89,7 +108,7 @@ export function showDisclaimerModal(onAccepted) {
 
   acceptBtn.addEventListener('click', () => {
     localStorage.setItem(STORAGE_KEY, 'true');
-    modalEl.classList.remove('open');
+    closeModal();
     if (onAccepted) onAccepted();
   });
 
