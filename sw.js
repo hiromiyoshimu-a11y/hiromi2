@@ -2,7 +2,7 @@
  * CardioOrigin - Service Worker (オフライン完全動作 & キャッシュ管理)
  */
 
-const CACHE_NAME = 'cardio-origin-cache-v2';
+const CACHE_NAME = 'cardio-origin-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

@@ -4,32 +4,26 @@
  */
 
 export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelected = false, showLabels = true, gain = 1.0, leadAngle = '') {
-  const width = 150;
-  const height = 96;
-  // ラベル表示時は上部テキスト領域を避けてY=56、非表示時(マトリックス)は完全中央Y=48
-  const baseline = showLabels ? 56 : 48;
-
   // 感度倍率 (標準: 1.0, 拡大: 1.5, 倍感度: 2.0, 半感度: 0.5)
   const currentGain = (typeof gain === 'number' && gain > 0) ? gain : 1.0;
   const rawAmp = Math.abs(amplitude) || 1.0;
   const effectiveAmp = rawAmp * currentGain;
 
-  // 上方向の安全限界（showLabels時はY=19まで、非表示時はY=8まで）
-  const maxUp = showLabels ? 37 : 40;
-  // 下方向の安全限界（下端Y=90まで）
-  const maxDown = showLabels ? 34 : 40;
+  // 感度や振幅に応じて表示範囲（縦幅 height）を動的に広げる
+  const width = 150;
+  const heightScale = Math.max(1.0, Math.sqrt(currentGain) * (effectiveAmp > 1.8 ? 1.15 : 1.0));
+  const height = Math.round(96 * heightScale);
 
-  // 臨床的に自然な波高計算関数（基準: 1.0mVで約21px、高電位2.0mVで約32px、上限付近で滑らかにソフトサチュレーション）
-  const calcHeight = (factor, maxLimit) => {
-    // ターゲット電位高
-    const target = factor * (effectiveAmp * 19.5 + 2.5);
-    // 代数型ソフトサチュレーション（枠を超えない滑らかなクランプ）
-    const sat = (maxLimit * target) / (maxLimit * 0.82 + target * 0.45);
-    return Math.max(7, Math.min(maxLimit, sat));
+  // 基線 (基線位置を縦方向に中央へ最適配置)
+  const baseline = showLabels ? Math.round(height * 0.58) : Math.round(height * 0.5);
+
+  // 物理規格に忠実な線形波高計算 (1.0mV ＝ 約22px, クランプ処理なしで感度にリニア拡大)
+  const calcHeight = (factor) => {
+    return factor * (effectiveAmp * 22.0);
   };
 
-  const getH_up = (factor = 1.0) => calcHeight(factor, maxUp);
-  const getH_down = (factor = 1.0) => calcHeight(factor, maxDown);
+  const getH_up = (factor = 1.0) => calcHeight(factor);
+  const getH_down = (factor = 1.0) => calcHeight(factor);
 
   // QRS波形の幾何パスデータ定義
   let qrsPath = '';
@@ -43,13 +37,13 @@ export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelec
 
     case 'Rs': { // R波優位 + 小さなs波
       const rsR = baseline - getH_up(1.0);
-      const rsS = baseline + Math.min(16, getH_down(0.35));
+      const rsS = baseline + getH_down(0.35);
       qrsPath = `M 12 ${baseline} L 44 ${baseline} L 53 ${baseline + 1} L 61 ${rsR} L 69 ${rsS} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
     }
 
     case 'rS': { // 小さなr波 + 深いS波
-      const srR = baseline - Math.min(10, getH_up(0.35));
+      const srR = baseline - getH_up(0.35);
       const srS = baseline + getH_down(1.05);
       qrsPath = `M 12 ${baseline} L 46 ${baseline} L 52 ${srR} L 59 ${baseline} L 68 ${srS} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
@@ -62,15 +56,15 @@ export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelec
     }
 
     case 'qR': { // 小さなq波 + 高いR波
-      const qrQ = baseline + Math.min(8, getH_down(0.3));
+      const qrQ = baseline + getH_down(0.3);
       const qrR = baseline - getH_up(1.08);
       qrsPath = `M 12 ${baseline} L 46 ${baseline} L 51 ${qrQ} L 61 ${qrR} L 70 ${baseline + 2} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
     }
 
     case 'rsR': { // 右脚ブロック型 (うさぎの耳 / 二峰性)
-      const r1 = baseline - Math.min(16, getH_up(0.55));
-      const s1 = baseline + Math.min(9, getH_down(0.3));
+      const r1 = baseline - getH_up(0.55);
+      const s1 = baseline + getH_down(0.3);
       const r2 = baseline - getH_up(1.05);
       qrsPath = `M 12 ${baseline} L 44 ${baseline} L 50 ${r1} L 56 ${s1} L 64 ${r2} L 72 ${baseline + 2} L 78 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;

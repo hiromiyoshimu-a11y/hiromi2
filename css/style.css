@@ -1981,7 +1981,6 @@ body {
 .std-col-leads .citation-lead-box .ecg-lead-svg {
   width: 100%;
   height: auto;
-  aspect-ratio: 150 / 92;
 }
 
 .std-col-insights {
@@ -2871,14 +2870,15 @@ body {
   }
 
   .std-col-leads .citation-lead-box {
-    min-height: 32px !important;
-    max-height: 46px !important;
+    min-height: 38px !important;
+    height: auto !important;
+    max-height: none !important;
     margin-bottom: 0 !important;
   }
 
   .std-col-leads .citation-lead-box .ecg-lead-svg {
-    aspect-ratio: 150 / 60 !important;
-    max-height: 44px !important;
+    height: auto !important;
+    max-height: none !important;
   }
 
   .std-vertical-col.insights-col {
@@ -3025,4 +3025,18 @@ body {
     height: 16px;
   }
 }
+
+/* モバイルタッチ最適化 & イベント発火プロパティ */
+.preset-chip, .nav-tab-btn, .format-pill, .gain-pill, .opt-btn, .trans-btn, .sub-pill {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: rgba(56, 189, 248, 0.25);
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+
+.preset-chip *, .nav-tab-btn *, .format-pill *, .gain-pill * {
+  pointer-events: none;
+}
+
 
