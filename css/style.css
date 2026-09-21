@@ -106,10 +106,19 @@ body {
   flex-wrap: wrap;
 }
 
+.origin-logo-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: nowrap !important; /* 絶対に改行・下移動を許さず同列表示 */
+}
+
 .origin-logo-img-wrapper {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  flex-shrink: 0;
 }
 
 .title-logo-img {
@@ -313,13 +322,24 @@ body {
     justify-content: space-between !important;
     gap: 8px !important;
   }
+  .origin-logo-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    justify-content: space-between !important;
+  }
   .origin-subtitle {
-    font-size: 0.74rem !important;
+    font-size: 0.72rem !important;
     padding: 3px 8px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
   }
   .title-logo-img {
-    height: 44px !important;
-    max-width: 210px !important;
+    height: 40px !important;
+    max-width: 190px !important;
   }
   .main-nav-tabs {
     width: 100%;
