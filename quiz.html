@@ -14,8 +14,14 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="manifest" href="manifest.json">
 
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v6_clean">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v6_clean">
+  <!-- フェールセーフ用インライン暗黒テーマ (白背景化を0秒で100%防止) -->
+  <style>
+    html, body { background-color: #070c18 !important; color: #f8fafc !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; margin: 0; padding: 0; min-height: 100vh; }
+    a { color: #38bdf8; text-decoration: none; }
+  </style>
+
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v7">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v7">
 </head>
 <body class="quiz-body">
   <div class="quiz-container">
@@ -30,25 +36,25 @@
           <img src="assets/title-logo.png?v=3" alt="PVC THE ORIGIN - PVC起源特定システム" class="title-logo-img" title="吉村流！PVC The Origin">
         </div>
         <div class="origin-subtitle-box">
-          <p class="origin-subtitle">10問ランダム心電図読影クイズゲーム（実戦トレーニング）</p>
+          <p class="origin-subtitle">心電図クイズ（10問ランダム局在診断トレーニング）</p>
         </div>
       </div>
 
-      <!-- 3部門 共通ナビゲーションタブ -->
+      <!-- 3部門 共通ナビゲーションタブ (豪華3Dボタンデザイン) -->
       <nav class="main-nav-tabs">
-        <a href="index.html" class="nav-tab-btn" title="3D心臓モデル・立体解剖・臨床症例シミュレーション">
+        <a href="./index.html" class="nav-tab-btn" title="3D心臓モデル・立体解剖・臨床症例シミュレーション">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
           <span>症例シミュレーション</span>
         </a>
-        <a href="diagnosis.html" class="nav-tab-btn" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール">
+        <a href="./diagnosis.html" class="nav-tab-btn" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
           </svg>
           <span>PVC起源診断ツール</span>
         </a>
-        <a href="quiz.html" class="nav-tab-btn active" title="10問ランダム心電図読影クイズゲーム">
+        <a href="./quiz.html" class="nav-tab-btn active" title="10問ランダム心電図読影クイズゲーム">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
