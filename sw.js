@@ -2,14 +2,18 @@
  * CardioOrigin - Service Worker (オフライン完全動作 & キャッシュ管理)
  */
 
-const CACHE_NAME = 'cardio-origin-cache-v1';
+const CACHE_NAME = 'cardio-origin-cache-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
+  './diagnosis.html',
+  './quiz.html',
   './css/style.css',
   './css/heart-map.css',
   './css/ios-mobile.css',
+  './css/quiz.css',
   './js/app.js',
+  './js/quiz.js',
   './js/algorithm.js',
   './js/heart-map.js',
   './js/presets.js',
@@ -19,6 +23,7 @@ const ASSETS_TO_CACHE = [
   './js/metric-explainer.js',
   './js/disclaimer-modal.js',
   './assets/heart_3d_anterior.jpg',
+  './assets/flowchart_naito2005.jpg',
   './manifest.json'
 ];
 

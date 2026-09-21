@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>吉村流！PVC The Origin - 12誘導心電図クイズトレーニング</title>
+  <meta name="description" content="PVC (心室性期外収縮) の12誘導心電図波形から起源部位を推定する10問ランダムクイズゲーム。">
+  
+  <!-- iOS App & PWA メタタグ -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="吉村流！クイズ">
+  <meta name="theme-color" content="#090d16">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/quiz.css">
+</head>
+<body class="quiz-body">
+  <div class="quiz-container">
+    <!-- ヘッダー (全3ページ完全統一) -->
+    <header class="app-header origin-header-theme">
+      <div class="brand-section origin-brand-wrap">
+        <div class="origin-logo-img-wrapper">
+          <div class="origin-badge-row" style="margin-bottom: 4px;">
+            <span class="yoshimura-tag">吉村流！</span>
+            <span class="spec-code">EP-TACTICS // MS-PVC-01</span>
+          </div>
+          <img src="assets/title-logo.png?v=3" alt="PVC THE ORIGIN - PVC起源特定システム" class="title-logo-img" title="吉村流！PVC The Origin">
+        </div>
+        <div class="origin-subtitle-box">
+          <p class="origin-subtitle">10問ランダム心電図読影クイズゲーム（実戦トレーニング）</p>
+        </div>
+      </div>
+
+      <!-- 3部門 共通ナビゲーションタブ -->
+      <nav class="main-nav-tabs">
+        <a href="index.html" class="nav-tab-btn" title="3D心臓モデル・立体解剖・臨床症例シミュレーション">
+          <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span>症例シミュレーション</span>
+        </a>
+        <a href="diagnosis.html" class="nav-tab-btn" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール">
+          <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+          <span>PVC起源診断ツール</span>
+        </a>
+        <a href="quiz.html" class="nav-tab-btn active" title="10問ランダム心電図読影クイズゲーム">
+          <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>心電図クイズ</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="btn-show-naito-flowchart" class="btn-header" title="内藤 2005 流出路7ステップ局在診断フローチャートを表示">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          内藤2005フローチャート
+        </button>
+        <button id="btn-show-algorithm" class="btn-header" title="判定アルゴリズムと参考文献">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          判定基準・文献
+        </button>
+        <button id="btn-show-disclaimer" class="btn-header" title="医療免責事項と利用規約">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          医療免責事項
+        </button>
+      </div>
+    </header>
+
+    <!-- 進捗 ＆ スコア表示 -->
+    <div class="quiz-status-bar">
+      <div class="quiz-progress-box">
+        <div class="quiz-progress-text">
+          <span>PROGRESS</span>
+          <span id="quiz-step-indicator">QUESTION 1 / 10</span>
+        </div>
+        <div class="quiz-progress-track">
+          <div id="quiz-progress-fill" class="quiz-progress-fill" style="width: 10%;"></div>
+        </div>
+      </div>
+      <div class="quiz-score-badge">
+        <div class="score-item">正解数:<span id="quiz-correct-count">0</span> / 10</div>
+        <div class="score-item">スコア:<span id="quiz-score-pts">0</span> pts</div>
+      </div>
+    </div>
+
+    <!-- メイン領域 (左: 12誘導心電図, 右: 選択肢＆解説) -->
+    <div class="quiz-main-grid">
+      <!-- 左: 12誘導心電図表示 -->
+      <div class="quiz-ecg-panel">
+        <div class="quiz-ecg-header">
+          <div class="quiz-ecg-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            出題心電図 (25mm/s 規格・典型12誘導)
+          </div>
+          <div class="ecg-controls" style="display:flex; gap:8px;">
+            <button id="quiz-btn-standard" class="preset-btn active" style="font-size:11px; padding:4px 8px;">標準配列</button>
+            <button id="quiz-btn-cabrera" class="preset-btn" style="font-size:11px; padding:4px 8px;">カブレラ配列</button>
+          </div>
+        </div>
+
+        <!-- 12誘導心電図波形レンダリングコンテナ -->
+        <div id="quiz-ecg-container" class="ecg-display-box" style="min-height: 480px;"></div>
+      </div>
+
+      <!-- 右: 4択選択肢 ＆ 解説 -->
+      <div class="quiz-interactive-panel">
+        <!-- 質問 ＆ 4択 -->
+        <div class="quiz-question-card">
+          <div class="quiz-question-prompt">
+            <span style="color:#f59e0b; font-weight:800;">[Q]</span> 上記の12誘導心電図波形（I, II, III, aVR, aVL, aVF, V1〜V6）から推定される<strong>最も有力なPVC起源部位</strong>を選択してください。
+          </div>
+
+          <div id="quiz-options-container" class="quiz-options-grid">
+            <!-- 4つの選択肢ボタンが動的生成されます -->
+          </div>
+        </div>
+
+        <!-- 回答後解説カード -->
+        <div id="quiz-explanation-card" class="quiz-explanation-card">
+          <div id="quiz-result-banner" class="quiz-result-banner">
+            <!-- 正解 / 不正解 バナー -->
+          </div>
+          <div id="quiz-explanation-body" class="quiz-explanation-body">
+            <!-- 波形特徴・判定根拠の解説テキスト -->
+          </div>
+          <button id="quiz-next-btn" class="quiz-next-btn">次の問題へ進む (NEXT) →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 最終リザルトモーダル -->
+  <div id="quiz-summary-modal" class="quiz-summary-modal">
+    <div class="quiz-summary-card">
+      <div class="quiz-summary-title">TRAINING COMPLETE!</div>
+      <p style="color:#cbd5e1; font-size:14px; margin:0;">PVC12誘導心電図 局在診断トレーニング結果</p>
+
+      <div class="quiz-score-circle">
+        <div id="summary-score-num" class="num">8/10</div>
+        <div class="label">ACCURACY</div>
+      </div>
+
+      <div id="summary-rank-badge" class="quiz-rank-badge">EP SPECIALIST</div>
+
+      <p id="summary-feedback-msg" style="color:#94a3b8; font-size:13px; line-height:1.5;">
+        素晴らしい心電図解読スキルです！流出路および弁輪部起源の差別化が高精度に行えています。
+      </p>
+
+      <div class="quiz-action-btns">
+        <button id="quiz-btn-restart" class="quiz-action-btn quiz-btn-restart">もう一度挑戦する 🔄</button>
+        <a href="index.html" class="quiz-action-btn quiz-btn-home" style="display:inline-block; text-decoration:none; line-height:22px;">メインシステムへ 🏠</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- スクリプト読み込み (モジュール構成) -->
+  <script type="module" src="js/quiz.js"></script>
+</body>
+</html>

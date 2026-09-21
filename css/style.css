@@ -77,54 +77,146 @@ body {
   align-items: center;
   padding-bottom: 1.25rem;
   border-bottom: 1px solid var(--card-border);
-  margin-bottom: 1.25rem;
 }
 
-.brand-section {
+/* ==========================================================================
+   機動戦士ガンダム THE ORIGIN モチーフ：ヘッダー & ブランドロゴデザイン
+   ========================================================================== */
+.origin-header-theme {
+  border-bottom: 2px solid rgba(220, 38, 38, 0.4);
+  background: linear-gradient(180deg, #090f1d 0%, #050a14 100%);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(239, 68, 68, 0.2);
+  position: relative;
+}
+
+.origin-header-theme::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 140px;
+  height: 2px;
+  background: linear-gradient(90deg, #ef4444, #f59e0b, transparent);
+}
+
+.origin-brand-wrap {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.brand-logo-badge {
-  width: 44px;
-  height: 44px;
-  background: linear-gradient(135deg, #0284c7 0%, #0f766e 100%);
-  border-radius: var(--radius-md);
+.origin-logo-img-wrapper {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.brand-title-area h1 {
-  font-size: 1.45rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  background: linear-gradient(to right, #ffffff, #93c5fd);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.title-logo-img {
+  height: 110px;
+  width: auto;
+  max-width: 540px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 24px rgba(245, 158, 11, 0.45));
+  transition: transform 0.25s ease, filter 0.25s ease;
+  cursor: pointer;
+}
+
+.title-logo-img:hover {
+  transform: scale(1.03);
+  filter: drop-shadow(0 6px 24px rgba(239, 68, 68, 0.75)) drop-shadow(0 0 32px rgba(245, 158, 11, 0.7));
+}
+
+.origin-badge-row {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.brand-title-area h1 span.tag {
-  font-size: 0.72rem;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  color: var(--accent-sky);
-  -webkit-text-fill-color: var(--accent-sky);
-  font-weight: 700;
-  letter-spacing: 0.5px;
+/* 「吉村流！」ミリタリータグ */
+.yoshimura-tag {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Kaku Gothic ProN', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  padding: 3px 12px;
+  border-radius: 2px;
+  clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px));
+  border: 1px solid #f59e0b;
+  box-shadow: 0 0 10px rgba(220, 38, 38, 0.6);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
 }
 
-.brand-title-area p {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
+.spec-code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.72rem;
+  color: #fbbf24;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+/* メインタイトル: PVC THE ORIGIN */
+.origin-main-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  line-height: 1;
+  margin-top: 3px;
+  margin-bottom: 2px;
+}
+
+.title-pvc {
+  font-family: 'Impact', 'Arial Black', -apple-system, sans-serif;
+  font-size: 2.55rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  font-style: italic;
+  transform: skewX(-7deg);
+  background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 55%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85));
+}
+
+/* ガンダム THE ORIGIN 赤枠プレート */
+.the-origin-plate {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0f172a;
+  border: 1.5px solid #ef4444;
+  border-left: 4.5px solid #ef4444;
+  border-right: 4.5px solid #ef4444;
+  padding: 4px 16px;
+  border-radius: 3px;
+  transform: skewX(-8deg);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.5);
+}
+
+.the-origin-line {
+  display: block;
+  width: 11px;
+  height: 3px;
+  background: #f59e0b;
+}
+
+.the-origin-text {
+  font-family: 'Impact', 'Arial Black', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  color: #ffffff;
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.85);
+}
+
+.origin-subtitle {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  letter-spacing: 0.03em;
+  margin-top: 1px;
 }
 
 .header-actions {
@@ -500,48 +592,99 @@ body {
 }
 
 /* 12誘導マトリックスモード */
+.matrix-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.matrix-toolbar-desc {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
 .ecg-matrix-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 680px) {
   .ecg-matrix-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
   }
 }
 
 .matrix-lead-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-md);
-  padding: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  padding: 6px 8px 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.matrix-lead-card:hover {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
 }
 
 .matrix-lead-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .matrix-lead-label {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--accent-sky);
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #38bdf8;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
 }
 
 .matrix-lead-select {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: var(--radius-sm);
-  color: var(--text-primary);
-  font-size: 0.75rem;
-  padding: 2px 6px;
+  flex: 1;
+  min-width: 0;
+  max-width: calc(100% - 32px);
+  background: #090e17;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 5px;
+  color: #f1f5f9;
+  font-size: 0.72rem;
+  padding: 3px 5px;
   cursor: pointer;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.matrix-lead-select:focus {
+  border-color: #38bdf8;
+}
+
+.matrix-lead-svg-wrap {
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #080e1a;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  line-height: 0;
 }
 
 /* ==========================================================================
@@ -1495,14 +1638,14 @@ body {
 }
 
 .citation-source-info {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 0.75rem;
-  color: #94a3b8;
-  line-height: 1.4;
-  max-width: 460px;
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.48;
+  max-width: 520px;
 }
 
 .citation-source-info strong {
@@ -1526,49 +1669,536 @@ body {
   border-radius: 12px;
   padding: 10px 14px;
   margin-bottom: 1rem;
+  overflow: hidden;
 }
 
 .citation-ecg-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 0.72rem;
+  font-size: 0.76rem;
   color: #64748b;
   font-weight: 600;
   margin-bottom: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.citation-header-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.citation-ecg-title {
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+/* 誘導配列（標準 vs カブレラ）切替ピルグループ */
+.lead-format-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 標準配列の配置切替（縦型3列 vs 横並び2行） */
+.std-layout-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  animation: fadeInSpatial 0.18s ease;
+}
+
+.format-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.format-pill-group {
+  display: inline-flex;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.format-pill {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.format-pill:hover {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.format-pill.active {
+  background: linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%);
+  color: #ffffff;
+  box-shadow: 0 1px 5px rgba(14, 165, 233, 0.4);
+}
+
+/* 感度（波高ゲイン）コントローラー */
+.ecg-gain-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gain-label {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.gain-pill-group {
+  display: inline-flex;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.gain-pill {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+}
+
+.gain-pill:hover {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+}
+
+.gain-pill.active {
+  background: #38bdf8;
+  color: #040812;
+  box-shadow: 0 1px 4px rgba(56, 189, 248, 0.4);
 }
 
 .ecg-calibration-mark {
   font-family: var(--font-mono);
   color: #38bdf8;
   background: rgba(56, 189, 248, 0.1);
-  padding: 1px 6px;
-  border-radius: 4px;
+  padding: 2px 8px;
+  border-radius: 5px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.ecg-calibration-mark.clickable {
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.ecg-calibration-mark.clickable:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: #38bdf8;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
 }
 
 .citation-ecg-grid {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .citation-ecg-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 850px) {
+  .citation-ecg-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+}
+
+@media (max-width: 640px) {
+  .citation-ecg-grid-wrapper {
+    padding: 8px 10px;
+  }
+  .citation-ecg-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
   }
 }
 
 .citation-lead-box {
-  background: #060a12;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #080e1a;
+  border: 1px solid rgba(56, 189, 248, 0.2);
   border-radius: 6px;
   overflow: hidden;
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  min-width: 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .citation-lead-box:hover {
   border-color: #38bdf8;
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+}
+
+/* ==========================================================================
+   標準配列: 縦型3列配置 (四肢誘導 | 胸部誘導 | 臨床解説集約)
+   ========================================================================== */
+.citation-standard-vertical {
+  width: 100%;
+  margin-top: 6px;
+  animation: fadeInSpatial 0.2s ease;
+}
+
+.std-vertical-grid {
+  display: grid;
+  grid-template-columns: 240px 240px minmax(320px, 1fr);
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  align-items: stretch;
+}
+
+.std-vertical-col {
+  background: #060b16;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.45);
+}
+
+.std-vertical-col.limb-col {
+  border-color: rgba(56, 189, 248, 0.28);
+}
+
+.std-vertical-col.chest-col {
+  border-color: rgba(168, 85, 247, 0.28);
+}
+
+.std-vertical-col.insights-col {
+  border-color: rgba(16, 185, 129, 0.28);
+  background: #060d1b;
+}
+
+.std-col-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.std-col-header-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.std-col-tag {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.std-col-tag.limb {
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.std-col-tag.chest {
+  background: rgba(168, 85, 247, 0.18);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+.std-col-tag.insights {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.std-col-en {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.std-col-sub {
+  font-size: 0.68rem;
+  color: #64748b;
+  font-family: var(--font-mono);
+  display: block;
+}
+
+.std-col-leads {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.std-col-leads .citation-lead-box {
+  flex: 1;
+  min-height: 56px;
+  background: #080f1e;
+  display: flex;
+  align-items: center;
+}
+
+.std-col-leads .citation-lead-box .ecg-lead-svg {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 150 / 92;
+}
+
+.std-col-insights {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.std-col-insights .insight-card {
+  flex: 1;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 1100px) {
+  .std-vertical-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .std-vertical-col.insights-col {
+    grid-column: 1 / -1;
+  }
+  .std-col-insights {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 780px) {
+  .std-col-insights {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  .std-vertical-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* カブレラ空間配置ビュー（前額面肢誘導サークル & 水平面胸部横断面ビュー） */
+.citation-cabrera-spatial {
+  width: 100%;
+  margin-top: 6px;
+  animation: fadeInSpatial 0.25s ease;
+}
+
+@keyframes fadeInSpatial {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cabrera-spatial-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .cabrera-spatial-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+}
+
+.spatial-block {
+  background: #060b16;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.spatial-block-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+.spatial-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.spatial-pill-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.spatial-pill-tag.frontal {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.spatial-pill-tag.horizontal {
+  background: rgba(147, 51, 234, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(147, 51, 234, 0.4);
+}
+
+.spatial-block-title {
+  color: #f1f5f9;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.spatial-block-desc {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.spatial-canvas-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  padding: 4px 0;
+  box-sizing: border-box;
+}
+
+.spatial-canvas {
+  position: relative;
+  width: 100%;
+  max-width: 530px;
+  aspect-ratio: 530 / 485;
+  height: auto;
+  background: radial-gradient(circle at 50% 50%, #0d1527 0%, #050811 100%);
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.spatial-bg-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.spatial-lead-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 21.5%;
+  min-width: 80px;
+  max-width: 114px;
+  background: #090e1c;
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75);
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  z-index: 10;
+}
+
+.spatial-lead-node:hover {
+  transform: translate(-50%, -50%) scale(1.08);
+  border-color: #38bdf8;
+  box-shadow: 0 8px 25px rgba(56, 189, 248, 0.45);
+  z-index: 20;
+}
+
+.spatial-lead-node.inverted-lead {
+  border-color: #0284c7;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);
+}
+
+.spatial-lead-node.inverted-lead:hover {
+  border-color: #38bdf8;
+  box-shadow: 0 8px 25px rgba(2, 132, 199, 0.6);
+}
+
+.spatial-lead-node.ref-lead {
+  border-color: rgba(148, 163, 184, 0.25);
+  opacity: 0.85;
+}
+
+.spatial-lead-node.ref-lead:hover {
+  opacity: 1;
+  border-color: #94a3b8;
+}
+
+/* 心電図SVG自動フィット・波形シャドウ共通スタイル */
+.ecg-lead-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  aspect-ratio: 150 / 100;
+  vertical-align: middle;
+}
+
+.ecg-wave-path {
+  filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.45));
 }
 
 /* 論文インサイトボックス群 */
@@ -1585,16 +2215,16 @@ body {
 }
 
 .insight-card {
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px 14px;
 }
 
 .insight-card h4 {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  margin: 0 0 6px 0;
+  margin: 0 0 8px 0;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1606,17 +2236,17 @@ body {
 
 .insight-card ul {
   margin: 0;
-  padding-left: 14px;
-  font-size: 0.75rem;
-  color: #cbd5e1;
-  line-height: 1.45;
+  padding-left: 16px;
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  line-height: 1.55;
 }
 
 .insight-card p {
   margin: 0;
-  font-size: 0.75rem;
-  color: #cbd5e1;
-  line-height: 1.45;
+  font-size: 0.88rem;
+  color: #e2e8f0;
+  line-height: 1.55;
 }
 
 /* ==========================================================================
@@ -1806,5 +2436,593 @@ body {
   font-size: 0.73rem;
   color: #94a3b8;
   line-height: 1.45;
+}
+
+/* ==========================================================================
+   JACC 2024 心筋内 (Intramural) 段階的アプローチカード
+   ========================================================================== */
+.intramural-guidance-card {
+  margin-top: 10px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 8px;
+  padding: 8px 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.intramural-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.intramural-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.intramural-title {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.intramural-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.intramural-step-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.intramural-step-item .step-tag {
+  color: #fbbf24;
+  font-weight: 700;
+  white-space: nowrap;
+  font-size: 0.7rem;
+}
+
+.intramural-step-item .step-desc {
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   Ito 2003 サブトグル (Step 5: I誘導s波、aVL vs aVR Q波)
+   ========================================================================== */
+.metric-sub-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sub-toggle-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sub-toggle-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.sub-toggle-tip {
+  font-size: 0.68rem;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.sub-toggle-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.sub-pill {
+  flex: 1;
+  min-width: 90px;
+  padding: 6px 10px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.sub-pill:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.sub-pill.active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   流出路起源：右側 (RVOT) vs 左側 (LVOT/LCC) 精密鑑別パネル (Ito et al. 2003)
+   ========================================================================== */
+.outflow-side-card {
+  background: linear-gradient(145deg, #0e172a, #131c33);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  margin-top: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.outflow-side-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #38bdf8 0%, #ec4899 100%);
+}
+
+.outflow-side-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.outflow-verdict-badge {
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+}
+
+.outflow-verdict-badge.left {
+  background: rgba(236, 72, 153, 0.15);
+  color: #ec4899;
+  border-color: rgba(236, 72, 153, 0.4);
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.2);
+}
+
+.outflow-verdict-badge.borderline {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.outflow-meter-wrapper {
+  margin-bottom: 14px;
+}
+
+.meter-label-right {
+  color: #38bdf8;
+}
+
+.meter-label-right strong {
+  font-size: 1.05rem;
+  font-family: var(--font-mono);
+}
+
+.meter-label-left {
+  color: #ec4899;
+}
+
+.meter-label-left strong {
+  font-size: 1.05rem;
+  font-family: var(--font-mono);
+}
+
+.outflow-meter-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 6px;
+  background: #0b1326;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meter-fill-right {
+  background: linear-gradient(90deg, #0284c7, #38bdf8);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.meter-fill-left {
+  background: linear-gradient(90deg, #db2777, #ec4899);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Ito判定基準チェックリストグリッド */
+.outflow-criteria-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 12px;
+}
+
+.outflow-criterion-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  padding: 7px 10px;
+  gap: 4px;
+}
+
+.outflow-criterion-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.outflow-crit-name {
+  color: #f1f5f9;
+  font-weight: 700;
+  font-size: 0.74rem;
+}
+
+.outflow-crit-val {
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.outflow-crit-badge {
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.outflow-crit-badge.right {
+  background: rgba(2, 132, 199, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.outflow-crit-badge.left {
+  background: rgba(219, 39, 119, 0.2);
+  color: #ec4899;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.outflow-crit-badge.borderline {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.outflow-crit-detail {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  line-height: 1.35;
+}
+
+/* 臨床パールボックス */
+.outflow-pearls-box {
+  background: rgba(56, 189, 248, 0.05);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.pearls-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #38bdf8;
+  margin-bottom: 5px;
+}
+
+.pearls-list {
+  margin: 0;
+  padding-left: 14px;
+  font-size: 0.71rem;
+  color: #cbd5e1;
+  line-height: 1.4;
+}
+
+.pearls-list li {
+  margin-bottom: 3px;
+}
+
+/* Ito 2003 LVEpi 通電不成功警告バナー */
+.lvepi-warning-banner {
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.15) 0%, rgba(159, 18, 57, 0.25) 100%);
+  border: 1px solid rgba(244, 63, 94, 0.5);
+  border-left: 4px solid #f43f5e;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+  animation: pulse-warn 3s infinite alternate;
+}
+
+@keyframes pulse-warn {
+  0% { border-color: rgba(244, 63, 94, 0.4); box-shadow: 0 2px 8px rgba(225, 29, 72, 0.15); }
+  100% { border-color: rgba(244, 63, 94, 0.8); box-shadow: 0 4px 16px rgba(225, 29, 72, 0.35); }
+}
+
+.lvepi-warning-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #fb7185;
+  margin-bottom: 4px;
+}
+
+.lvepi-warning-text {
+  font-size: 0.72rem;
+  color: #fecdd3;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ==========================================================================
+   スマートフォン (モバイル) 専用の追加レスポンシブスタイル
+   ========================================================================== */
+@media (max-width: 640px) {
+  .app-container {
+    padding: 8px 10px 80px 10px;
+  }
+
+  .origin-header-theme {
+    padding: 12px 14px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .header-actions-group {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .preset-grid {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 8px;
+  }
+
+  .preset-card {
+    min-width: 190px;
+    scroll-snap-align: start;
+    flex-shrink: 0;
+  }
+
+  .std-vertical-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 4px !important;
+  }
+
+  .std-vertical-col {
+    padding: 4px 6px !important;
+  }
+
+  .std-col-header {
+    margin-bottom: 2px !important;
+    padding-bottom: 2px !important;
+  }
+
+  .std-col-header-top {
+    gap: 4px !important;
+  }
+
+  .std-col-tag {
+    font-size: 0.65rem !important;
+    padding: 1px 5px !important;
+  }
+
+  .std-col-en, .std-col-sub {
+    font-size: 0.6rem !important;
+  }
+
+  .std-col-leads {
+    gap: 2px !important;
+  }
+
+  .std-col-leads .citation-lead-box {
+    min-height: 32px !important;
+    max-height: 46px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .std-col-leads .citation-lead-box .ecg-lead-svg {
+    aspect-ratio: 150 / 60 !important;
+    max-height: 44px !important;
+  }
+
+  .std-vertical-col.insights-col {
+    grid-column: 1 / -1 !important;
+    margin-top: 8px !important;
+  }
+
+  .heart-svg-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+
+  .ios-tab-bar {
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ==========================================================================
+   3大部門 共通ナビゲーションタブ (プレミアム医療ミリタリー3Dボタン・全ページ統一配置)
+   ========================================================================== */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.main-nav-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: linear-gradient(180deg, #0f172a 0%, #090e1a 100%);
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  margin: 0;
+}
+
+.nav-tab-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  color: #94a3b8;
+  text-decoration: none;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.nav-tab-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: transparent;
+  transition: background 0.25s ease;
+}
+
+.nav-tab-btn:hover {
+  color: #ffffff;
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  border-color: rgba(56, 189, 248, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5), 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.nav-tab-btn.active {
+  color: #ffffff;
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  border-color: #38bdf8;
+  box-shadow: 0 4px 18px rgba(2, 132, 199, 0.5), 0 0 10px rgba(56, 189, 248, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.nav-tab-btn.active::before {
+  background: linear-gradient(90deg, #38bdf8, #f59e0b, #38bdf8);
+}
+
+.nav-tab-btn .nav-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.nav-tab-btn:hover .nav-icon {
+  transform: scale(1.15);
+}
+
+.nav-tab-btn.active .nav-icon {
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
+}
+
+@media (max-width: 992px) {
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .main-nav-tabs {
+    width: 100%;
+    order: 2;
+  }
+  .header-actions {
+    order: 3;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-nav-tabs {
+    width: 100%;
+    justify-content: space-between;
+    padding: 4px;
+    gap: 4px;
+    border-radius: 10px;
+  }
+  .nav-tab-btn {
+    flex: 1;
+    justify-content: center;
+    padding: 9px 6px;
+    font-size: 0.82rem;
+    gap: 5px;
+    border-radius: 6px;
+  }
+  .nav-tab-btn .nav-icon {
+    width: 16px;
+    height: 16px;
+  }
 }
 

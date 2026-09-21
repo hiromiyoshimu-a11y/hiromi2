@@ -1,12 +1,12 @@
 {
-  "name": "CardioOrigin - 12誘導心電図 PVC起源推定",
-  "short_name": "CardioOrigin",
-  "description": "12誘導心電図から心室性期外収縮（PVC）の発生起源を高精度に推定・3D可視化する臨床支援アプリ",
+  "name": "吉村流！PVC The Origin - 12誘導心電図 不整脈起源同定",
+  "short_name": "吉村流！PVC",
+  "description": "12誘導心電図から心室性期外収縮(PVC)・心室頻拍(VT)の発生起源を高精度に同定・3D可視化する臨床支援アプリ",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#070c18",
-  "theme_color": "#0284c7",
+  "theme_color": "#dc2626",
   "icons": [
     {
       "src": "assets/icon-192.png",

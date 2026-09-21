@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>吉村流！PVC The Origin - PVC起源診断ツール</title>
+  <meta name="description" content="12誘導心電図のパラメータ入力、波形マトリックス、画像AI自動解析による心室性期外収縮(PVC)・心室頻拍(VT)の極精度起源同定・判定根拠システム">
+  
+  <!-- iOS App & PWA メタタグ -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PVC診断">
+  <meta name="theme-color" content="#070c18">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <!-- スタイルシート -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/heart-map.css">
+  <link rel="stylesheet" href="css/ios-mobile.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- ヘッダー (機動戦士ガンダム THE ORIGIN オマージュ) -->
+    <header class="app-header origin-header-theme">
+      <div class="brand-section origin-brand-wrap">
+        <div class="origin-logo-img-wrapper">
+          <div class="origin-badge-row" style="margin-bottom: 4px;">
+            <span class="yoshimura-tag">吉村流！</span>
+            <span class="spec-code">EP-TACTICS // MS-PVC-01</span>
+          </div>
+          <img src="assets/title-logo.png?v=3" alt="PVC THE ORIGIN - PVC起源特定システム" class="title-logo-img" title="吉村流！PVC The Origin">
+        </div>
+        <div class="origin-subtitle-box">
+          <p class="origin-subtitle">PVC起源診断ツール（ステップガイド / 12誘導マトリックス / 画像自動解析）</p>
+        </div>
+      </div>
+
+      <!-- 3部門 共通ナビゲーションタブ -->
+      <nav class="main-nav-tabs">
+        <a href="index.html" class="nav-tab-btn" title="3D心臓モデル・立体解剖・臨床症例シミュレーション">
+          <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <span>症例シミュレーション</span>
+        </a>
+        <a href="diagnosis.html" class="nav-tab-btn active" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール">
+          <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+          <span>PVC起源診断ツール</span>
+        </a>
+        <a href="quiz.html" class="nav-tab-btn" title="10問ランダム心電図読影クイズゲーム">
+          <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          <span>心電図クイズ</span>
+        </a>
+      </nav>
+
+      <div class="header-actions">
+        <button id="btn-show-naito-flowchart" class="btn-header" title="内藤 2005 流出路7ステップ局在診断フローチャートを表示">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          内藤2005フローチャート
+        </button>
+        <button id="btn-show-algorithm" class="btn-header" title="判定アルゴリズムと参考文献">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          判定基準・文献
+        </button>
+        <button id="btn-show-disclaimer" class="btn-header" title="医療免責事項と利用規約">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          医療免責事項
+        </button>
+      </div>
+    </header>
+
+    <!-- メイン2カラムグリッド (診断ツール) -->
+    <main class="main-grid" style="margin-top: 1rem;">
+      <!-- 左カラム：ECG入力パネル (Wizard / Matrix / Image AI) -->
+      <section class="input-panel">
+        <div class="panel-tabs">
+          <button class="tab-btn active" id="tab-wizard-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+            ステップ診断ガイド (Wizard)
+          </button>
+          <button class="tab-btn" id="tab-matrix-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            12誘導波形マトリックス (Matrix)
+          </button>
+          <button class="tab-btn" id="tab-image-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            画像から自動解析 (Image AI)
+          </button>
+        </div>
+
+        <!-- ③ 心電図画像自動解析モード -->
+        <div id="view-image" style="display: none;">
+          <div id="image-analyzer-root"></div>
+        </div>
+
+        <!-- ① ステップ診断モード -->
+        <div id="view-wizard">
+          <!-- STEP 1: 電気軸 (肢誘導) -->
+          <div class="step-group">
+            <div class="step-title">
+              <span><span class="step-num-badge">1</span>下壁誘導 (II, III, aVF) の極性 / 電気軸</span>
+              <span class="step-help-tip">流出路系 vs 乳頭筋・心尖部</span>
+            </div>
+            <div class="button-options-grid" id="opt-axis">
+              <button class="opt-btn active" data-value="inferior">
+                <span class="opt-title">下軸 (陽性 / 高R波)</span>
+                <span class="opt-desc">流出路系 (RVOT/LVOT)</span>
+              </button>
+              <button class="opt-btn" data-value="superior">
+                <span class="opt-title">上軸 (陰性 / 深いQS)</span>
+                <span class="opt-desc">乳頭筋・心尖部・下壁</span>
+              </button>
+              <button class="opt-btn" data-value="normal">
+                <span class="opt-title">中間軸 / 二相性</span>
+                <span class="opt-desc">心室中隔中央・弁輪側壁</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 2: V1 脚ブロック様形態 -->
+          <div class="step-group">
+            <div class="step-title">
+              <span><span class="step-num-badge">2</span>V1 誘導の形態 (脚ブロック型)</span>
+              <span class="step-help-tip">右室側/中隔 vs 左室側</span>
+            </div>
+            <div class="button-options-grid" id="opt-v1">
+              <button class="opt-btn active" data-value="lbbb_qs">
+                <span class="opt-title">LBBB型 (QS / rS)</span>
+                <span class="opt-desc">RVOT または 中隔起源</span>
+              </button>
+              <button class="opt-btn" data-value="rbbb_r">
+                <span class="opt-title">RBBB型 (R / Rs / qR)</span>
+                <span class="opt-desc">LVOT / 乳頭筋 / AMC</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: 胸部誘導の移行帯 -->
+          <div class="step-group">
+            <div class="step-title">
+              <span><span class="step-num-badge">3</span>胸部誘導の移行帯 (Transition: R>Sになる誘導)</span>
+              <span class="step-help-tip">早期(≤V2)ならLVOT、遅い(≥V4)ならRVOT</span>
+            </div>
+            <div class="transition-btn-group" id="opt-transition">
+              <button class="trans-btn" data-value="V1">V1</button>
+              <button class="trans-btn" data-value="V2">V2</button>
+              <button class="trans-btn" data-value="V3">V3</button>
+              <button class="trans-btn active" data-value="V4">V4</button>
+              <button class="trans-btn" data-value="V5">V5</button>
+              <button class="trans-btn" data-value="V6">V6</button>
+            </div>
+          </div>
+
+          <!-- STEP 4: I誘導極性 -->
+          <div class="step-group">
+            <div class="step-title">
+              <span><span class="step-num-badge">4</span>I 誘導の極性</span>
+              <span class="step-help-tip">後中隔/LCC vs 前中隔/自由壁/RCC</span>
+            </div>
+            <div class="button-options-grid" id="opt-lead1">
+              <button class="opt-btn active" data-value="positive">
+                <span class="opt-title">陽性 (R波優位)</span>
+                <span class="opt-desc">RVOT後中隔 / LCC / PMPM</span>
+              </button>
+              <button class="opt-btn" data-value="negative">
+                <span class="opt-title">陰性 (QS / rS)</span>
+                <span class="opt-desc">RVOT前中隔 / 自由壁 / RCC</span>
+              </button>
+              <button class="opt-btn" data-value="biphasic">
+                <span class="opt-title">二相性 / 平坦</span>
+                <span class="opt-desc">中隔移行部</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 5: 精密鑑別指標 (アコーディオン) -->
+          <div class="step-group">
+            <div class="step-title">
+              <span><span class="step-num-badge">5</span>精密鑑別指標 (流出路境界例・心外膜判定)</span>
+            </div>
+
+            <!-- V2S/V3R 比率 -->
+            <div class="slider-group">
+              <div class="slider-header-clickable" data-metric="v2s_v3r" title="クリックして図解・測定法・根拠解説を表示">
+                <div class="slider-label-wrap">
+                  <span class="slider-label">V2S / V3R 振幅比 (≤1.5: LVOT / >1.5: RVOT)</span>
+                  <span class="metric-help-badge">図解・解説</span>
+                </div>
+                <span class="slider-value-badge" id="val-v2s-v3r">1.8</span>
+              </div>
+              <input type="range" class="custom-range" id="input-v2s-v3r" min="0.2" max="4.0" step="0.1" value="1.8">
+            </div>
+
+            <!-- V2 Transition Ratio -->
+            <div class="slider-group">
+              <div class="slider-header-clickable" data-metric="v2_ratio" title="クリックして図解・測定法・根拠解説を表示">
+                <div class="slider-label-wrap">
+                  <span class="slider-label">V2 Transition Ratio (PVC / 洞調律, ≥0.6: LVOT)</span>
+                  <span class="metric-help-badge">図解・解説</span>
+                </div>
+                <span class="slider-value-badge" id="val-v2-ratio">0.40</span>
+              </div>
+              <input type="range" class="custom-range" id="input-v2-ratio" min="0.1" max="1.5" step="0.05" value="0.40">
+            </div>
+
+            <!-- MDI -->
+            <div class="slider-group">
+              <div class="slider-header-clickable" data-metric="mdi" title="クリックして図解・測定法・根拠解説を表示">
+                <div class="slider-label-wrap">
+                  <span class="slider-label">MDI (最大偏位指数, ≥0.55: LV Summit / 心外膜)</span>
+                  <span class="metric-help-badge">図解・解説</span>
+                </div>
+                <span class="slider-value-badge" id="val-mdi">0.42</span>
+              </div>
+              <input type="range" class="custom-range" id="input-mdi" min="0.25" max="0.75" step="0.01" value="0.42">
+            </div>
+
+            <!-- QRS幅 -->
+            <div class="slider-group">
+              <div class="slider-header-clickable" data-metric="qrs_duration" title="クリックして図解・測定法・根拠解説を表示">
+                <div class="slider-label-wrap">
+                  <span class="slider-label">QRS幅 (ms) と ノッチ</span>
+                  <span class="metric-help-badge">図解・解説</span>
+                </div>
+                <span class="slider-value-badge" id="val-qrs">140 ms</span>
+              </div>
+              <input type="range" class="custom-range" id="input-qrs" min="100" max="200" step="5" value="140">
+            </div>
+
+            <!-- Ito et al. 2003: R-wave duration index -->
+            <div class="slider-group">
+              <div class="slider-header-clickable" data-metric="r_wave_duration_index" title="クリックして図解・測定法を表示">
+                <div class="slider-label-wrap">
+                  <span class="slider-label">R-wave duration index (b/a: ≥50% 左冠尖 / <50% RVOT)</span>
+                  <span class="metric-help-badge">Ito 2003図解</span>
+                </div>
+                <span class="slider-value-badge" id="val-r-duration">35%</span>
+              </div>
+              <input type="range" class="custom-range" id="input-r-duration" min="0.10" max="0.90" step="0.01" value="0.35">
+            </div>
+
+            <!-- Ito et al. 2003: R/S-wave amplitude index -->
+            <div class="slider-group">
+              <div class="slider-header-clickable" data-metric="rs_amplitude_index" title="クリックして図解・測定法を表示">
+                <div class="slider-label-wrap">
+                  <span class="slider-label">R/S amplitude index (c/d: ≥30% 左冠尖 / <30% RVOT)</span>
+                  <span class="metric-help-badge">Ito 2003図解</span>
+                </div>
+                <span class="slider-value-badge" id="val-rs-amplitude">15%</span>
+              </div>
+              <input type="range" class="custom-range" id="input-rs-amplitude" min="0.05" max="3.00" step="0.05" value="0.15">
+            </div>
+
+            <!-- 詳細エビデンス指標サブトグル群 -->
+            <div class="metric-sub-toggles">
+              <div class="sub-toggle-item">
+                <div class="sub-toggle-label">
+                  <span>I誘導 s波 (陰性成分):</span>
+                  <span class="sub-toggle-tip">Ito特異度96%</span>
+                </div>
+                <div class="sub-toggle-pills" id="opt-lead1-s-wave">
+                  <button type="button" class="sub-pill active" data-value="false">s波なし (純R)</button>
+                  <button type="button" class="sub-pill" data-value="true">s波あり</button>
+                </div>
+              </div>
+
+              <div class="sub-toggle-item">
+                <div class="sub-toggle-label">
+                  <span>aVL vs aVR Q波:</span>
+                  <span class="sub-toggle-tip">解剖位置判定</span>
+                </div>
+                <div class="sub-toggle-pills" id="opt-avl-vs-avr">
+                  <button type="button" class="sub-pill" data-value="avl_q_deep">aVL Q波高 &gt;&gt; aVR</button>
+                  <button type="button" class="sub-pill" data-value="avr_q_early_deep">aVR Q先行/大</button>
+                  <button type="button" class="sub-pill active" data-value="normal">通常 / 同等</button>
+                </div>
+              </div>
+
+              <div class="sub-toggle-item">
+                <div class="sub-toggle-label">
+                  <span>V2 small R波 (Lin 2008):</span>
+                  <span class="sub-toggle-tip metric-help-badge clickable" data-metric="rcc_vs_parahisian_rvot">図解</span>
+                </div>
+                <div class="sub-toggle-pills" id="opt-v2-small-r">
+                  <button type="button" class="sub-pill active" data-value="false">なし (純QS)</button>
+                  <button type="button" class="sub-pill" data-value="true">あり (RCC支持)</button>
+                </div>
+              </div>
+
+              <div class="sub-toggle-item">
+                <div class="sub-toggle-label">
+                  <span>下壁ノッチ R-R' (Yamashina):</span>
+                  <span class="sub-toggle-tip metric-help-badge clickable" data-metric="rvot_freewall_notch">図解</span>
+                </div>
+                <div class="sub-toggle-pills" id="opt-has-notch-rr20">
+                  <button type="button" class="sub-pill active" data-value="false">通常 (≤20ms)</button>
+                  <button type="button" class="sub-pill" data-value="true">R-R' &gt; 20ms (自由壁)</button>
+                </div>
+              </div>
+
+              <div class="sub-toggle-item">
+                <div class="sub-toggle-label">
+                  <span>LVEpi不成功予測 (Ito 2003):</span>
+                  <span class="sub-toggle-tip metric-help-badge clickable" data-metric="lvepi_failure_criteria">図解</span>
+                </div>
+                <div class="sub-toggle-pills" id="opt-lvepi-criteria">
+                  <button type="button" class="sub-pill active" data-value="false">通常 (LSV成功群)</button>
+                  <button type="button" class="sub-pill" data-value="true">Q比&gt;1.4 / V1 S&gt;1.2mV</button>
+                </div>
+              </div>
+
+              <div class="sub-toggle-item">
+                <div class="sub-toggle-label">
+                  <span>V1 qRパターン (Tada 2005):</span>
+                  <span class="sub-toggle-tip metric-help-badge clickable" data-metric="ma_vas_localization">図解</span>
+                </div>
+                <div class="sub-toggle-pills" id="opt-v1-qr-pattern">
+                  <button type="button" class="sub-pill active" data-value="false">なし (通常)</button>
+                  <button type="button" class="sub-pill" data-value="true">あり (AMC/MA後中隔)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ② 12誘導マトリックスモード -->
+        <div id="view-matrix" style="display: none;">
+          <div class="matrix-toolbar">
+            <span class="matrix-toolbar-desc">各誘導の波形形態を選択（リアルタイム解析）</span>
+            <div class="ecg-gain-control" id="matrix-gain-control">
+              <span class="gain-label">感度(波高):</span>
+              <div class="gain-pill-group">
+                <button type="button" class="gain-pill" data-gain="0.5">×0.5</button>
+                <button type="button" class="gain-pill active" data-gain="1.0">×1.0</button>
+                <button type="button" class="gain-pill" data-gain="1.5">×1.5</button>
+                <button type="button" class="gain-pill" data-gain="2.0">×2.0</button>
+              </div>
+            </div>
+          </div>
+          <div class="ecg-matrix-grid" id="matrix-container"></div>
+        </div>
+      </section>
+
+      <!-- 右カラム：推定結果＆詳細分析パネル -->
+      <section class="results-panel">
+        <!-- 最有力起源カード (Rank 1) -->
+        <div class="top-winner-card" id="top-winner-card">
+          <div class="winner-header">
+            <span class="winner-badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              推定起源 第1位 (最有力)
+            </span>
+            <div class="winner-percentage" id="winner-prob">88<span>%</span></div>
+          </div>
+          <h2 class="winner-title" id="winner-name-ja">RVOT 後中隔</h2>
+          <div class="winner-subtitle" id="winner-name-en">RVOT Posterior Septum / 右室流出路 (RVOT)</div>
+          <p style="font-size: 0.8rem; color: #cbd5e1; margin-top: 6px;" id="winner-features">
+            LBBB型、下軸、V3〜V4移行、I誘導陽性、QRS幅は比較的シャープ
+          </p>
+        </div>
+
+        <!-- 心内膜由来 vs 心外膜由来 鑑別診断パネル -->
+        <div class="endo-epi-card" id="endo-epi-card">
+          <div class="endo-epi-header">
+            <div class="section-sub-title" style="margin-bottom: 0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+              </svg>
+              起源層別診断：心内膜 vs 心外膜 (Endo vs Epi)
+            </div>
+            <span class="endo-epi-verdict-badge" id="endo-epi-verdict-badge">心内膜側由来</span>
+          </div>
+
+          <div class="endo-epi-meter-wrapper">
+            <div class="meter-labels">
+              <span class="meter-label-endo"><strong id="val-endo-prob">80%</strong> 心内膜側 (Endo)</span>
+              <span class="meter-label-epi">心外膜側 (Epi) <strong id="val-epi-prob">20%</strong></span>
+            </div>
+            <div class="endo-epi-meter-bar">
+              <div class="meter-fill-endo" id="meter-fill-endo" style="width: 80%;"></div>
+              <div class="meter-fill-epi" id="meter-fill-epi" style="width: 20%;"></div>
+            </div>
+          </div>
+
+          <div class="endo-epi-criteria" id="endo-epi-criteria"></div>
+          <div class="endo-epi-strategy-box" id="endo-epi-strategy-box"></div>
+        </div>
+
+        <!-- 流出路起源：右側 (RVOT) vs 左側 (LVOT/LCC) 精密鑑別パネル -->
+        <div class="outflow-side-card" id="outflow-side-card">
+          <div class="outflow-side-header">
+            <div class="section-sub-title" style="margin-bottom: 0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+              </svg>
+              流出路起源：右側 (RVOT) vs 左側 (LVOT/LCC) 鑑別
+            </div>
+            <span class="outflow-verdict-badge" id="outflow-verdict-badge">右側 (RVOT中隔) 有力</span>
+          </div>
+
+          <div class="outflow-meter-wrapper">
+            <div class="meter-labels">
+              <span class="meter-label-right"><strong id="val-right-prob">85%</strong> 右側 (RVOT)</span>
+              <span class="meter-label-left">左側 (LVOT/LCC) <strong id="val-left-prob">15%</strong></span>
+            </div>
+            <div class="outflow-meter-bar">
+              <div class="meter-fill-right" id="meter-fill-right" style="width: 85%;"></div>
+              <div class="meter-fill-left" id="meter-fill-left" style="width: 15%;"></div>
+            </div>
+          </div>
+
+          <div class="outflow-criteria-grid" id="outflow-criteria-grid"></div>
+          <div class="outflow-pearls-box" id="outflow-pearls-box"></div>
+        </div>
+
+        <!-- 鑑別部位ランキングリスト (Rank 2, 3) -->
+        <div class="ranking-list">
+          <div class="section-sub-title">鑑別候補 (Differential Diagnosis)</div>
+          <div id="ranking-container"></div>
+        </div>
+
+        <!-- 診断根拠タイムライン -->
+        <div class="reasoning-card">
+          <div class="section-sub-title">診断根拠と臨床推論 (Clinical Reasoning)</div>
+          <div class="reasoning-timeline" id="reasoning-container"></div>
+        </div>
+
+        <!-- カテーテルアブレーション注意事項 -->
+        <div class="ablation-tips-box">
+          <div class="tip-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="ablation-tips-content">
+            <h4>カテーテルアブレーション時の臨床留意点</h4>
+            <p id="ablation-tip-text">
+              ヒス束伝導系が後下方に位置するため、His電位記録カテーテル留置下に通電することが推奨されます。
+            </p>
+          </div>
+        </div>
+
+        <!-- 診断根拠となる参考論文 & 日本語サマリー -->
+        <section class="literature-section">
+          <div class="section-sub-title" style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="display: flex; align-items: center; gap: 6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+              根拠となる参考論文 & 日本語サマリー
+            </span>
+            <span style="font-size: 0.72rem; color: var(--accent-sky); font-weight: 600;">医学的エビデンス</span>
+          </div>
+          <div id="literature-container"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <!-- モーダル各種 -->
+  <div class="modal-overlay" id="algorithm-modal">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="modal-close-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h3 class="modal-title">12誘導ECG PVC起源推定アルゴリズム</h3>
+      <div class="modal-body">
+        <h4>1. 流出路起源 (Outflow Tract) 鑑別の主要基準</h4>
+        <ul>
+          <li><strong>胸部誘導の移行帯 (Transition Zone):</strong> V1〜V2でR>SになればLVOT（左室流出路/大動脈弁洞）、V4以降ならRVOT（右室流出路）。</li>
+          <li><strong>V2S/V3R 振幅比:</strong> PVCのV2のS波振幅 ÷ V3のR波振幅。≤1.5ならLVOT、>1.5ならRVOT。</li>
+          <li><strong>V2 Transition Ratio:</strong> (PVCのV2 R/R+S) ÷ (洞調律のV2 R/R+S)。≥0.6ならLVOT。</li>
+          <li><strong>I誘導極性:</strong> 陽性(R)なら後中隔やLCC、陰性(QS)なら前中隔や自由壁・RCC。</li>
+        </ul>
+        <h4>2. LV Summit / 心外膜起源の同定基準</h4>
+        <ul>
+          <li><strong>MDI (Maximum Deflection Index):</strong> QRS開始から最大頂点までの時間 ÷ 全体QRS時間。0.55以上で心外膜側を強力示唆。</li>
+        </ul>
+        <h4>参考文献 (Key References)</h4>
+        <ul style="font-size: 0.78rem; color: var(--text-muted);">
+          <li>Ouyang F, et al. J Am Coll Cardiol. 2002;40(11):1914-1920.</li>
+          <li>Betensky BP, et al. J Cardiovasc Electrophysiol. 2011;22(3):255-262.</li>
+          <li>Yoshida K, et al. Circulation. 2011;124(16):1712-1721.</li>
+          <li>Tada H, et al. Circulation. 2005;111(15):1949-1956.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="disclaimer-modal">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="disclaimer-close-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h3 class="modal-title">医療免責事項 &amp; 利用規約</h3>
+      <div class="modal-body">
+        <p>本システム「吉村流！PVC The Origin」は、12誘導心電図読影および不整脈起源同定の臨床研究・学習支援を目的とした教育・補助ツールです。</p>
+        <p>実際の患者の治療およびカテーテルアブレーションの実施にあたっては、専門医の総合的な臨床判断・画像診断を行ってください。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="naito-flowchart-modal">
+    <div class="modal-content" style="max-width: 900px; width: 95%;">
+      <button class="modal-close-btn" id="naito-modal-close-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <h3 class="modal-title">内藤 2005 流出路7ステップ局在診断フローチャート</h3>
+      <div class="modal-body" style="text-align: center;">
+        <img src="assets/flowchart_naito2005.jpg" alt="内藤 2005 流出路7ステップ局在診断フローチャート" style="max-width: 100%; height: auto; border-radius: 8px;">
+      </div>
+    </div>
+  </div>
+
+  <!-- アプリケーションモジュール構築 -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

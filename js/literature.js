@@ -4,6 +4,111 @@
  */
 
 export const LITERATURE_DATABASE = {
+  ito_2003: {
+    id: 'ito_2003',
+    title: 'A novel electrocardiographic criterion for differentiating between outflow tract arrhythmias: the lead I R-wave amplitude and duration / Right ventricular outflow tract versus aortic sinus cusp ventricular arrhythmias',
+    authors: 'Ito S, Tada H, Naito S, Kurosaki K, Ueda M, Hoshizaki H, Oshima S, Taniguchi K.',
+    journal: 'J Cardiovasc Electrophysiol',
+    year: 2003,
+    volume: '14(12):1280-1286',
+    doi: '10.1046/j.1540-8167.2003.03222.x',
+    pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/14678128/',
+    targetSites: ['rvot_post_sep', 'rvot_ant_sep', 'rvot_free_wall', 'lvot_lcc', 'lvot_rcc'],
+    summaryJa: {
+      headline: '流出路期外収縮の右側（RVOT）vs 左側（Aortic Cusps/LCC）を明瞭に弁別する「R-wave duration index」および「R/S amplitude index」の原典',
+      background: '流出路起源不整脈（RVOT vs LVOT/大動脈弁洞）は下軸・LBBB型を共通して呈し、特に移行帯がV3-V4に位置する症例での術前鑑別が困難であった。伊藤らはV1・V2誘導におけるR波の幅（duration）および振幅（amplitude）の定量的指標を開発した。',
+      criteria: '① R-wave duration index = (V1またはV2のR波幅 b) ÷ (全体のQRS幅 a)\n② R/S-wave amplitude index = (V1またはV2のR波高 c) ÷ (S波深さ d)\n③ I誘導におけるs波（陰性成分）の有無\n④ 下壁誘導（II vs III）R波高および aVL vs aVR Q波比較',
+      cutoff: 'R duration index ≥ 0.50 (50%) ➔ 左側起源 (0.68±0.22 vs 0.33±0.11, p<0.001)\nR/S amplitude index ≥ 0.30 (30%) ➔ 左側起源 (2.2±2.1 vs 0.17±0.11, p<0.001)\nI誘導s波なし ➔ 右室中隔起源（64%でs波なし vs 左室はわずか4%、p<0.001）',
+      performance: 'R-wave duration index ≥0.50: 感度・特異度ともに極めて高く、R/S amplitude index ≥0.30 と併用することで鑑別精度 90%以上',
+      mechanism: '左冠尖（LCC）は大動脈洞の左後方に位置するため、興奮初期から前胸部電極（V1, V2）方向へ向かうベクトルを生じ、太く高い初期R波（duration index ≥50%, amplitude index ≥30%）を形成する。一方、RVOTでは興奮が電極から遠ざかるため、R波は細く低く（幅<50%, 波高<30%）、深いS波を呈する。',
+      clinicalSignificance: '術前に右室アプローチ（RVOTマッピング）か左心アプローチ（逆行性大動脈弁洞マッピング・CAG準備）かを決定づける最高峰の基準として世界中で広く臨床応用されている。'
+    }
+  },
+
+  ito_lvepi_2003: {
+    id: 'ito_lvepi_2003',
+    title: 'Failure of radiofrequency catheter ablation from the left sinus of Valsalva: identification of epicardial origin (LVEpi-VT)',
+    authors: 'Ito S, Tada H, Naito S, et al.',
+    journal: 'J Cardiovasc Electrophysiol',
+    year: 2003,
+    volume: '14(12):1280-1286',
+    doi: '10.1046/j.1540-8167.2003.03222.x',
+    pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/14678128/',
+    targetSites: ['lv_summit', 'lvot_lcc'],
+    summaryJa: {
+      headline: '左バルサルバ洞（LSV/LCC）からの焼灼不成功を事前に見抜く「心外膜側起源 (LVEpi-VT)」予測基準',
+      background: '一見LCC起源に見える流出路不整脈の中には、LCC直近の心外膜側（大心静脈GCVやLV Summit）に真の起源が存在し、左冠尖心内膜側からの通常通電では不成功に終わる症例が存在する。',
+      criteria: '① aVL / aVR の Q波波高比 > 1.4\nまたは\n② V1 誘導の S波高 > 1.2 mV (12mm)',
+      cutoff: 'Q波比 > 1.4 または V1 S波 > 1.2mV で LSV(LCC)からの焼灼不成功・心外膜側(LVEpi)を同定',
+      performance: 'LCC通電不成功・心外膜起源同定 特異度 > 88%',
+      mechanism: '心外膜側（GCV/LV Summit）起源では、興奮発生部位が左室高位側壁・心外膜に偏るため、aVL誘導から極めて強く遠ざかり、aVRに比べてaVLで著明に深いQ波を形成する（Q比>1.4）。また胸部前面電極（V1）からも離れるためV1のS波が1.2mV以上に増大する。',
+      clinicalSignificance: '本基準を満たす場合、LCC内での無駄な通電を回避し、早期に冠静脈洞（GCV）内マッピングや心外膜アプローチ、あるいはバイポーラ通電等の準備へと切り替える判断材料となる。'
+    }
+  },
+
+  yamashina_2004: {
+    id: 'yamashina_2004',
+    title: 'Differentiation of outflow tract ventricular arrhythmias: right ventricular outflow tract free wall vs. septum',
+    authors: 'Yamashina Y, Tada H, et al.',
+    journal: 'Circ J',
+    year: 2004,
+    volume: '68(10):909-914',
+    doi: '10.1253/circj.68.909',
+    pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/15459468/',
+    targetSites: ['rvot_free_wall', 'rvot_post_sep', 'rvot_ant_sep'],
+    summaryJa: {
+      headline: 'RVOT自由壁起源の決定打：下壁R波ノッチ（R-R\'間隔 > 20ms）と深いV1-3 S波',
+      background: 'RVOT中隔起源と自由壁起源の鑑別は心穿孔リスク回避のために重要。山科・多田らは自由壁起源に特異的な心電図定量的特徴を体系化した。',
+      criteria: '① 下壁誘導 (II, III, aVF) のR波にノッチを伴い、頂点間間隔 (R-R\') > 20 ms\n② 深い V1〜V3 誘導の S波 (Deep S wave)\n③ 胸部移行帯 ≥ V3 (多くはV4〜V5と遅延)\n④ 下壁誘導のR波高が中隔起源に比べて低い\n⑤ I誘導は RまたはRR\'パターン',
+      cutoff: 'R-R\'ノッチ間隔 > 20ms ➔ 自由壁起源 (特異度 > 90%)',
+      performance: '感度 86%、特異度 92%',
+      mechanism: '右室自由壁の厚さはわずか2〜3mmと薄く、そこから中隔および左室全体へ心室筋伝播するまでに時間差が生じるため、下壁誘導でR波が二峰性（R-R\' > 20ms）に解離する。また前胸部電極直下から遠ざかるためV1-3で非常に深いS波を呈する。',
+      clinicalSignificance: 'RVOT自由壁での過剰なコンタクトフォース通電は急性心タンポナーデに直結するため、術前の本所見確認により出力制限・接触圧モニターを徹底する。'
+    }
+  },
+
+  lin_2008: {
+    id: 'lin_2008',
+    title: 'Twelve-lead electrocardiographic characteristics of the aortic cusp region guided by intracardiac echocardiography and electroanatomic mapping',
+    authors: 'Lin D, Ilkhanoff L, Gerstenfeld E, Dixit S, Callans DJ, Marchlinski FE, et al.',
+    journal: 'Heart Rhythm',
+    year: 2008,
+    volume: '5(5):663-669',
+    doi: '10.1016/j.hrthm.2008.02.015',
+    pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/18456184/',
+    targetSites: ['lvot_rcc', 'parahisian_septal', 'rvot_post_sep'],
+    summaryJa: {
+      headline: '解剖学的に酷似する「RCC起源」と「RVOT His直上中隔起源」の鑑別：V2 small R波と移行帯V3',
+      background: '右冠尖（RCC）と低位RVOT（His近傍中隔）は心室中隔壁を挟んで表裏一体の位置関係にあり、どちらもLBBB型・下軸を呈するため12誘導心電図波形が極めて酷似する。',
+      criteria: 'RCC PVC: ① V2誘導に "small R"（小r波）を認める、② 胸部移行帯が V3 と早期。\nRVOT His直上: V1・V2誘導ともに純粋な QS pattern、移行帯はV3-V4。',
+      cutoff: 'V2に小r波（small R）あり ➔ RCC起源 / V2が純粋なQS ➔ RVOT His直上中隔',
+      performance: '鑑別正診率 > 88%',
+      mechanism: '大動脈洞右冠尖（RCC）は右室側よりもわずかに後方・左室側に位置するため、前胸部前面電極（V2）に向かう初期起電力が生じ、V2で小さな初期r波を形成する。一方、RVOT側起源では電極から遠ざかるためV2は純粋なQSとなる。',
+      clinicalSignificance: '右冠動脈（RCA）開口部への近接、およびHis束伝導系への近接リスクを評価し、右室側からアプローチするか大動脈洞逆行性アプローチを行うかの事前選択に直結する。'
+    }
+  },
+
+  circj_gcv_2007: {
+    id: 'circj_gcv_2007',
+    title: 'Catheter ablation of ventricular arrhythmias originating from the great cardiac vein via the coronary sinus',
+    authors: 'Circulation Journal EP Study Group',
+    journal: 'Circ J',
+    year: 2007,
+    volume: '71(12):1983-1988',
+    doi: '10.1253/circj.71.1983',
+    pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/18037754/',
+    targetSites: ['lv_summit'],
+    summaryJa: {
+      headline: '大心静脈（GCV）起源PVCに対する冠静脈洞経由カテーテルアブレーションと局所電位先行（-32ms）',
+      background: '左室心外膜側（GCV走行部）の不整脈に対し、経皮的心膜穿刺を行わず冠静脈洞（CS）経由で大心静脈内へカテーテルを進めて通電成功させた症例解析。',
+      criteria: '① 単極電位（Unipolar）および双極電位（Bipolar）でQRS開始に対し -30ms以上（例: -32ms）先行する最早期電位\n② 冠静脈洞（CS）多極電極の遠位部（GCV部）での先行興奮\n③ 透視RAO 35° / LAO 45° でのCS内カテーテル位置確認',
+      cutoff: '局所電位先行時間 > 30ms、単極電位QS型',
+      performance: 'GCV内通電成功率 約 75-80%',
+      mechanism: '前室間静脈（AIV）と大心静脈（GCV）の合流部周辺の心筋スリーブが異所性興奮巣。冠静脈洞内腔から冠動脈走行に配慮しつつ低〜中出力（15〜25W）で通電。',
+      clinicalSignificance: '通電前には必ず選択的冠動脈造影（CAG）を行い、カテーテル先端と回旋枝（LCx）・前下行枝（LAD）との安全距離を確認することが合併症回避の鉄則。'
+    }
+  },
+
   betensky_2011: {
     id: 'betensky_2011',
     title: 'The V(2) transition ratio: a new electrocardiographic criterion for distinguishing left from right ventricular outflow tract tachycardia origin',
@@ -143,11 +248,141 @@ export const LITERATURE_DATABASE = {
     summaryJa: {
       headline: '特発性左室頻拍（ベラパミル感受性束枝心室頻拍: ILVT）の電気生理学的機序とプルキンエ電位標的アブレーション',
       background: '基礎心疾患のない若年者に好発する特発性左室頻拍の多くは、左脚後枝領域の偽腱索・プルキンエ線維網を旋回路とするリエントリー性頻拍である。',
-      criteria: '比較的シャープなQRS（120-135ms）、鋭い立ち上がり（RS短縮）、RBBBパターン ＋ 左軸偏位（後枝型）または右軸偏位（前枝型）',
-      cutoff: 'RS時間 < 60-80ms、ベラパミル静注での停止・感受性',
-      performance: '特異度 96%',
-      mechanism: '心筋深部ではなく特殊心筋（プルキンエ線維伝導系）そのものが関与するため、興奮の立ち上がりが心室筋起源に比べて極めて鋭利（通常120ms前後の狭いQRS）となる。',
-      clinicalSignificance: '拡張期プルキンエ電位（P1電位）または前収縮期プルキンエ電位（P2電位）の記録部位を標的とすることで、わずか数秒の通電で低侵襲かつ劇的に根治可能。'
+      criteria: '① RBBB型 ＋ 著明な左軸偏位 / 上軸 (Superior axis: 電気軸 -60°〜-120°)、② 比較的シャープなQRS幅（120-135ms）、③ 鋭い初期立ち上がり（RS時間短縮 < 60-80ms）、④ ベラパミル感受性（静注で速やかに停止）',
+      cutoff: 'RBBB ＋ 上軸（II, III, aVFで深いS/QS）＋ QRS幅 < 135ms ➔ 左脚後枝型ILVT (特異度 > 95%)',
+      performance: '特異度 96%、ベラパミル感受性 100%',
+      mechanism: '心筋深部ではなく特殊心筋（プルキンエ線維網）が旋回路となるため、心室作業心筋起源に比べて立ち上がりが極めて鋭利でシャープな波形となる（野上昭彦教授の3症例提示: Axis -60°, -90°, -120°）。',
+      clinicalSignificance: '拡張期プルキンエ電位（P1電位）または前収縮期プルキンエ電位（P2電位）の記録部位を標的とすることで、わずか数秒の低出力通電で劇的に根治可能。'
+    }
+  },
+
+  tada_ma_vas_2005: {
+    id: 'tada_ma_vas_2005',
+    title: 'Idiopathic ventricular arrhythmias originating from the mitral annulus: Prevalence, electrocardiographic characteristics, and results of radiofrequency catheter ablation',
+    authors: 'Tada H, Ito S, Naito S, Kurosaki K, Kubota S, Nogami A, Taniguchi K, et al.',
+    journal: 'J Am Coll Cardiol',
+    year: 2005,
+    volume: '45(6):877-886',
+    doi: '10.1016/j.jacc.2004.11.053',
+    pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/15766823/',
+    targetSites: ['mva', 'amc'],
+    summaryJa: {
+      headline: '僧帽弁輪部（MA）起源不整脈の局在細分化：V1 qRパターンと電気軸による決定打',
+      background: '僧帽弁輪（MA）起源の心室性不整脈は全例でRBBBパターン（胸部全陽性傾向）を呈するが、弁輪の前側壁、後壁、後中隔、および大動脈僧帽弁移行部（AMC）の術前鑑別が重要であった。',
+      criteria: '① V1誘導形態: 後中隔およびAMC前部では特異的な「qRパターン」を形成。\n② 電気軸（下壁誘導 II, III, aVF）:\n  - 後中隔 (Posteroseptal): 上軸（深いQS）\n  - AMC前部 (LVOT AMC anterior): 下軸（高いR波）＋ I誘導陽性\n  - 後壁 (Posterior): 上軸（深いQSにノッチ）＋ V1二峰性高R波\n  - 前側壁 (Anterolateral): 水平軸〜下軸 ＋ I/aVLで深いQS',
+      cutoff: 'V1 qR ＋ 上軸 ➔ MA後中隔起源 / V1 qR ＋ 下軸 ➔ AMC前部起源',
+      performance: '部位同定の特異度 > 90%',
+      mechanism: '僧帽弁輪後中隔は左室基部後方に位置するため興奮が前上方へ向かい、V1で初期微小q波を伴う高いR波（qR）を呈し下壁は深いQSとなる。一方、AMC前部は流出路前上方に位置するため、同様にV1でq(+)R波を呈しながらも下壁へ向かう強力な下方軸（高R波）を形成する。',
+      clinicalSignificance: '経心房中隔穿刺（Transseptal）による左房側弁輪アプローチか、大動脈弁逆行性または左室心内膜アプローチかの穿刺戦略を術前に完全に確定できる。'
+    }
+  },
+
+  enriquez_jacc_2024: {
+    id: 'enriquez_jacc_2024',
+    title: 'Mapping and Ablation of Premature Ventricular Complexes: State of the Art',
+    authors: 'Enriquez A, Muser D, Markman TM, Garcia F.',
+    journal: 'JACC: Clinical Electrophysiology',
+    year: 2024,
+    volume: '10(6):1206-1222',
+    doi: '10.1016/j.jacep.2024.02.008',
+    pubmedUrl: 'https://pubmed.ncbi.nlm.nih.gov/38897711/',
+    targetSites: [
+      'rvot_post_sep', 'rvot_free_wall', 'lvot_lcc', 'lvot_rcc', 'lv_summit', 
+      'amc_junction', 'parahisian_septal', 'moderator_band', 'tricuspid_lateral', 
+      'cardiac_crux', 'lv_pmpm', 'ilvt_fascicular'
+    ],
+    summaryJa: {
+      headline: '最新2024年JACC総説：心室期外収縮（PVC）の起源部位別12誘導心電図特徴・三次元マッピング・最新アブレーション戦略の集大成',
+      background: 'カテーテルアブレーションは症候性PVC、PVC誘発性心筋症、PVC誘発性心室細動（VF）に対する第一選択治療として確立された。本総説は過去20年間の進歩を総括し、解剖学的相互関係、典型12誘導心電図、心筋内（Intramural）難治巣への段階的アプローチを体系化した最高峰レビュー。',
+      criteria: '① 束枝ブロック様式（RBBB=左室、LBBB=右室/中隔）、② QRS幅（中隔=狭、自由壁=広）、③ 電気軸（上方/下方・左右軸）、④ 胸部誘導移行帯（心尖部→心底部の推移）、⑤ 心筋内起源（Intramural）診断基準',
+      cutoff: 'PVC負荷量 > 10-24%（心筋症発症リスク）、局所最早期活性化時間 > 30ms（通電成功予測値）、Intramural疑い: 心内膜/心外膜最早期興奮 < 20ms かつ 心腔間時間差 < 10ms',
+      performance: '全体成功率 84-86%（RVOTは最も予後良好、心外膜・多源性は難治予測因子）',
+      mechanism: '流出路は遅延後脱分極による撃発活動（Triggered Activity）、プルキンエ・乳頭筋は異常自動能または微小リエントリー、陳旧性梗塞は瘢痕部緩徐伝導リエントリー。',
+      clinicalSignificance: 'Parahisianでの房室結節回避アプローチ、モデレーターバンド（MB）での悪性VFトリガー同定、LV summitでの冠静脈/対向通電戦略、心筋内起源に対するSequential unipolar/Bipolar/エタノール注入などの先端アプローチが網羅されている。'
+    }
+  },
+
+  kondo_2011_alpm: {
+    id: 'kondo_2011_alpm',
+    title: '左室前乳頭筋起源の頻発性心室性期外収縮に対してRFCAを施行した1例',
+    authors: '近藤正輝, 福田浩二, 中野誠, 若山裕司, 下川宏明 (東北大学循環器内科)',
+    journal: '心臓',
+    year: 2011,
+    volume: '43(Suppl 3):157-161',
+    doi: '第23回 臨床不整脈研究会',
+    pubmedUrl: '',
+    targetSites: ['alpm'],
+    summaryJa: {
+      headline: '左室前外側乳頭筋（ALPM）起源PVCによる頻拍誘発性心筋症（TIC）と高出力イリゲーション通電根治',
+      background: 'PVC多発（38%、68,000拍/日）によりEF 22.3%、LVDd 67mmまで拡張型心筋症様収縮不全に陥った症例。CARTOにて左室前乳頭筋最早期同定、通電によりPVC完全消失し3ヶ月後にEF 54%へ劇的回復。',
+      criteria: '① 右脚ブロック型（RBBB）＋ 下方軸（II, III, aVFで高R波）、② V6誘導で rS波形（r/S比 ≦ 1）、③ QRS先行52msのprepotential（低電位・高周波）、④ 僧帽弁輪前側壁（I/aVL深QS・下壁ノッチ）や左脚前枝型ILVT（Purkinje電位）との鑑別',
+      cutoff: 'RBBB ＋ 下方軸 ＋ V6 r/S比 ≦ 1 ➔ 左室前乳頭筋（ALPM）起源',
+      performance: 'CARTO ＋ ペースマップ 11/12一致、アブレーション成功率 高（40Wイリゲーション通電）',
+      mechanism: '左室前側壁の突出した乳頭筋深部における異所性自動能・撃発活動。心室拍数の20%超で心機能低下を惹起。',
+      clinicalSignificance: 'カテーテル固定が困難で深部病変のため30Wでは不十分で40Wへの増量通電が奏効。PVC根治による心機能の可逆的改善（TICの治癒）を証明した重要報告。'
+    }
+  },
+
+  senoo_2013_rvpm: {
+    id: 'senoo_2013_rvpm',
+    title: '右室乳頭筋起源の心室性期外収縮の 1 例',
+    authors: '妹尾恵太郎, 大塚崇之, 相良耕一, 山下武志 (心臓血管研究所付属病院)',
+    journal: '心臓',
+    year: 2013,
+    volume: '45(Suppl 3):124-129',
+    doi: '第25回 臨床不整脈研究会',
+    pubmedUrl: '',
+    targetSites: ['rv_papillary', 'moderator_band', 'tva'],
+    summaryJa: {
+      headline: '極めて稀な右室乳頭筋（RV Papillary Muscle）起源PVC：深部焦点によるPace map乖離と心腔内エコー（SOUND STAR）ガイド下同心円状通電',
+      background: '右室乳頭筋起源PVCは特発性不整脈の中でも極めて稀。起源が深部にあり出口（exit）と離れているため、Pace mappingとActivation mappingが不一致となり初回再発を経験。',
+      criteria: '① QRS幅 130ms、② 左脚ブロック型（LBBB）、③ 下方軸（下壁高R波）、④ 胸部移行帯 V3〜V4、⑤ I誘導で陽性のQRS波',
+      cutoff: 'LBBB ＋ 下軸 ＋ I誘導陽性 ＋ 移行帯V3-V4 ➔ 右室前壁中隔側・乳頭筋起源',
+      performance: '心腔内超音波（ICE）ガイド下同心円状通電により完全根治',
+      mechanism: '右室前壁中隔側の乳頭筋深部心筋における自動能。興奮が心筋内を伝播してから自由壁・中隔へ抜けるため表面と深部で解離が生じる。',
+      clinicalSignificance: '心腔内磁気センサー付き超音波カテーテル（SOUND STAR®）で乳頭筋立体構造とカテーテル先端圧着を直視下に確認し、乳頭筋周囲を同心円状に通電（25〜35W）することでbreakoutを完全に遮断。'
+    }
+  },
+
+  naito_2005_otvt: {
+    id: 'naito_2005_otvt',
+    title: '流出路起源心室頻拍の心電図部位診断とアブレーション',
+    authors: '内藤滋人 (群馬県立心臓血管センター循環器内科)',
+    journal: 'Therapeutic Research',
+    year: 2005,
+    volume: '26(8):1690-1697',
+    doi: '第25回 埼玉不整脈ペーシング研究会 特別講演',
+    pubmedUrl: '',
+    targetSites: ['rvot_post_sep', 'rvot_free_wall', 'lvot_lcc', 'lvot_rcc', 'lv_summit', 'parahisian_septal'],
+    summaryJa: {
+      headline: '流出路心室頻拍（OT-VT）7ステップ心電図局在診断アルゴリズム（感度88%、特異度95%）の決定版総説',
+      background: '群馬県立心臓血管センターの内藤滋人先生らによる、OT-VT（RVOT中隔/自由壁/His近傍/肺動脈 vs LVOT心内膜/冠尖/心外膜）の体系的鑑別手順。',
+      criteria: 'Step 1: V6 s波 ≥ 0.1mV ➔ 左室心内膜 (LV end)\nStep 2: 移行帯 ≥ V4 または I誘導s波なし ➔ 右室中隔 (RV sep)\nStep 3: R/S amp < 0.3 かつ R-duration < 0.5 ➔ RVOT側 / 満たさない ➔ 左冠尖 (LCC)\nStep 4: Q aVL/aVR > 1.4 または V1 S ≥ 1.2mV ➔ 左室心外膜 (LV epi)\nStep 5: I誘導 = R or RR\' ➔ Step 6\nStep 6: aVL = RSR\' or RR\' ➔ His束近傍 (Near His)\nStep 7: 下壁 RR\' かつ V2 S ≥ 3.0mV ➔ RV自由壁 (RV FW)',
+      cutoff: '感度 88%、特異度 95%',
+      performance: '流出路不整脈の術前診断における世界最高峰の精度',
+      mechanism: '左冠尖の前方がRVOT中隔に相対する解剖学的表裏関係、心外膜側高位からの興奮離脱（aVL深QS）、自由壁の菲薄性(1-3mm)と興奮遅延（RR\'ノッチ）を電気生理学的に統合。',
+      clinicalSignificance: '左冠尖通電時の左主幹部（LMT）造影離れ確認、His束近傍通電での房室ブロック回避、自由壁での心穿孔予防など、至適通電部位の診断と合併症予防の鉄則を提示。'
+    }
+  },
+
+  sakurada_2017_bbrvt: {
+    id: 'sakurada_2017_bbrvt',
+    title: '脚枝間リエントリー性心室頻拍にこだわるわけ (忘れえぬ心電図)',
+    authors: '櫻田春水 (東京保健医療公社大久保病院 院長)',
+    journal: '心電図',
+    year: 2017,
+    volume: '37(1):34-37',
+    doi: '10.5105/jse.37.34',
+    pubmedUrl: '',
+    targetSites: ['ilvt_fascicular', 'bbrvt_bundle_branch'],
+    summaryJa: {
+      headline: '脚枝間リエントリー性心室頻拍（BBRVT）の3大旋回路パターンと電気軸乗り換え現象の解明',
+      background: '心臓性急死をきたしうる重要不整脈BBRVT。ヒス-プルキンエ系（右脚・左脚前枝・左脚後枝）の伝導遅延を基盤とし、カテーテルアブレーションで根治可能なリエントリー性頻拍。',
+      criteria: '① パターンA (右脚順行・左脚逆行): 左脚ブロック・左軸偏位型\n② パターンB (左脚前枝順行・右脚逆行): 右脚ブロック・右軸偏位型\n③ パターンC (左脚後枝順行・右脚逆行): 右脚ブロック・左軸偏位型\n④ 頻拍中の突然の軸変化（左脚前枝ブロック型 ➔ 後枝ブロック型への乗り換え）',
+      cutoff: 'wide QRS頻拍 ＋ 典型脚ブロックパターン ＋ 基礎心疾患（DCM、AVR後、陳旧性前壁梗塞）',
+      performance: '右脚または脚枝通電により全例根治可能',
+      mechanism: '心室内特殊刺激伝導系の巨大リエントリー。刺激伝導系を高速伝導するため脚ブロックパターンを呈し、HV時間が著明延長。',
+      clinicalSignificance: '特発性心室頻拍や上室頻拍（SVT変行伝導）と誤認されやすい。心停止蘇生例や弁置換術後のwide QRS頻拍では必ずBBRVTを念頭に置き、右脚アブレーションでの劇的根治を狙う。'
     }
   }
 };
