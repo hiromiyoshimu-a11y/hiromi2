@@ -212,11 +212,26 @@ body {
   text-shadow: 0 0 8px rgba(239, 68, 68, 0.85);
 }
 
+.origin-subtitle-box {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+}
+
 .origin-subtitle {
-  font-size: 0.76rem;
-  color: var(--text-muted);
-  letter-spacing: 0.03em;
-  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: var(--radius-full);
+  color: #38bdf8;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+  margin: 0;
+  white-space: nowrap;
 }
 
 /* ==========================================================================
@@ -291,9 +306,20 @@ body {
     align-items: stretch;
     gap: 12px;
   }
+  .origin-brand-wrap {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+  .origin-subtitle {
+    font-size: 0.74rem !important;
+    padding: 3px 8px !important;
+  }
   .title-logo-img {
-    height: 48px !important;
-    max-width: 250px !important;
+    height: 44px !important;
+    max-width: 210px !important;
   }
   .main-nav-tabs {
     width: 100%;

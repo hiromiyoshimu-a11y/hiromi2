@@ -765,9 +765,9 @@ function switchMainSection(sectionName) {
   if (secQuiz) secQuiz.style.display = sectionName === 'quiz' ? 'block' : 'none';
 
   if (subtitle) {
-    if (sectionName === 'simulation') subtitle.textContent = '臨床症例シミュレーション（3D解剖モデル & 典型12誘導波形読影）';
-    if (sectionName === 'diagnosis') subtitle.textContent = 'PVC起源診断ツール（12誘導波形入力・自動可視化）';
-    if (sectionName === 'quiz') subtitle.textContent = '心電図クイズ（10問ランダム局在診断トレーニング）';
+    if (sectionName === 'simulation') subtitle.textContent = '臨床症例シミュレーション';
+    if (sectionName === 'diagnosis') subtitle.textContent = 'PVC起源診断ツール';
+    if (sectionName === 'quiz') subtitle.textContent = '心電図クイズ';
   }
 
   if (sectionName === 'quiz' && !quizInstance) {
