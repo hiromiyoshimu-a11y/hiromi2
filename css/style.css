@@ -973,7 +973,8 @@ body {
   bottom: 0;
   background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(6px);
-  display: none;
+  display: none !important;
+  pointer-events: none !important;
   justify-content: center;
   align-items: center;
   z-index: 1000;
@@ -981,7 +982,8 @@ body {
 }
 
 .modal-overlay.open {
-  display: flex;
+  display: flex !important;
+  pointer-events: auto !important;
 }
 
 .modal-content {
