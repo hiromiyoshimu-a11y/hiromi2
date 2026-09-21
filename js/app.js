@@ -254,40 +254,52 @@ function refreshDomReferences() {
  * 初期化関数
  */
 function init() {
-  // 全DOM要素への参照を確実に最新化
+  // 全DOM要素への参照を最新化
   refreshDomReferences();
 
-  // スマホ端末の破損キャッシュ・Service Worker障害を自動解除
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(registrations => {
-      for (let registration of registrations) {
-        registration.unregister();
-      }
-    }).catch(() => {});
-  }
-  if ('caches' in window) {
-    caches.keys().then(names => {
-      for (let name of names) {
-        caches.delete(name);
-      }
-    }).catch(() => {});
+  // スマホ端末の破損キャッシュ・Service Worker障害を自動解除 (非同期安全化)
+  try {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        if (registrations) {
+          for (let registration of registrations) {
+            registration.unregister().catch(() => {});
+          }
+        }
+      }).catch(() => {});
+    }
+    if ('caches' in window) {
+      caches.keys().then(names => {
+        if (names) {
+          for (let name of names) {
+            caches.delete(name).catch(() => {});
+          }
+        }
+      }).catch(() => {});
+    }
+  } catch(e) {
+    // スキップ
   }
 
   // 心臓解剖マップの初期化
   if (dom.heartMapRoot) {
-    heartMapInstance = new HeartMap(dom.heartMapRoot, (site) => {
-      showSiteModal(site);
-    });
+    try {
+      heartMapInstance = new HeartMap(dom.heartMapRoot, (site) => {
+        showSiteModal(site);
+      });
+    } catch(e) {}
   }
 
   // 画像自動解析モジュールの初期化
   if (dom.imageAnalyzerRoot) {
-    imageAnalyzerInstance = new EcgImageAnalyzer({
-      container: dom.imageAnalyzerRoot,
-      onAnalysisComplete: (detectedData) => {
-        applyDetectedParameters(detectedData);
-      }
-    });
+    try {
+      imageAnalyzerInstance = new EcgImageAnalyzer({
+        container: dom.imageAnalyzerRoot,
+        onAnalysisComplete: (detectedData) => {
+          applyDetectedParameters(detectedData);
+        }
+      });
+    } catch(e) {}
   }
 
   // プリセットチップのレンダリング
@@ -302,46 +314,9 @@ function init() {
   // iOSボトムタブバーのセットアップ
   setupIosTabBar();
 
-  // 最初のプリセットに基づく論文引用パネルの初期描画
-  if (PRESETS.length > 0) {
+  // 最初のプリセットに基づく論文引用パネルの初期描画 (確実に実行)
+  if (PRESETS && PRESETS.length > 0) {
     renderPaperCitation(PRESETS[0]);
-  }
-
-  // URLクエリまたはハッシュに基づく初期タブ切り替え（?tab=matrix 等）
-  const urlParams = new URLSearchParams(window.location.search);
-  const tabParam = urlParams.get('tab') || window.location.hash.replace('#', '');
-  if (tabParam === 'matrix' || tabParam === 'image' || tabParam === 'step') {
-    switchTab(tabParam);
-  }
-
-  // URLクエリに基づく初期感度設定（?gain=1.5 等）
-  const gainParam = parseFloat(urlParams.get('gain'));
-  if (!isNaN(gainParam) && gainParam > 0) {
-    setEcgGain(gainParam);
-  }
-
-  // URLクエリに基づく誘導配列設定（?format=cabrera 等）
-  const formatParam = urlParams.get('format');
-  if (formatParam === 'cabrera' || formatParam === 'standard') {
-    setLeadFormat(formatParam);
-  }
-
-  // URLクエリに基づく標準配列の配置設定（?layout=vertical 等）
-  const layoutParam = urlParams.get('layout');
-  if (layoutParam === 'vertical' || layoutParam === 'horizontal') {
-    setStdLayout(layoutParam);
-  }
-
-  // URLクエリに基づく初期プリセット選択（?preset=parahisian_septal 等）
-  const presetParam = urlParams.get('preset');
-  if (presetParam) {
-    const matched = PRESETS.find(p => p.id === presetParam);
-    if (matched) {
-      applyPreset(matched);
-      document.querySelectorAll('.preset-chip').forEach(c => {
-        c.classList.toggle('active', c.dataset.id === presetParam);
-      });
-    }
   }
 
   // 初回解析実行

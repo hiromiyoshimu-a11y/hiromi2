@@ -3026,17 +3026,27 @@ body {
   }
 }
 
-/* モバイルタッチ最適化 & イベント発火プロパティ */
-.preset-chip, .nav-tab-btn, .format-pill, .gain-pill, .opt-btn, .trans-btn, .sub-pill {
+/* モバイルタッチ最適化 & イベント発火プロパティ (タップ反応の確実化) */
+.preset-chip, .nav-tab-btn, .format-pill, .gain-pill, .opt-btn, .trans-btn, .sub-pill, .btn-header, button, a {
   touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(56, 189, 248, 0.25);
+  -webkit-tap-highlight-color: rgba(56, 189, 248, 0.3);
   user-select: none;
   -webkit-user-select: none;
   cursor: pointer;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 5;
 }
 
-.preset-chip *, .nav-tab-btn *, .format-pill *, .gain-pill * {
-  pointer-events: none;
+.main-nav-tabs {
+  position: relative;
+  z-index: 20;
+}
+
+.nav-tab-btn {
+  position: relative;
+  z-index: 25;
+  pointer-events: auto !important;
 }
 
 
