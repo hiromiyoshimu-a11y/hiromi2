@@ -257,11 +257,20 @@ function init() {
   // 全DOM要素への参照を確実に最新化
   refreshDomReferences();
 
-  // Service Worker 登録 (オフライン完全対応)
+  // スマホ端末の破損キャッシュ・Service Worker障害を自動解除
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
-    });
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    }).catch(() => {});
+  }
+  if ('caches' in window) {
+    caches.keys().then(names => {
+      for (let name of names) {
+        caches.delete(name);
+      }
+    }).catch(() => {});
   }
 
   // 心臓解剖マップの初期化

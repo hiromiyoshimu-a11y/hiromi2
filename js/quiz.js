@@ -437,7 +437,18 @@ export class QuizGame {
 // ドムロード完了時または即時実行でクイズゲームを開始
 function bootQuiz() {
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      for (let registration of registrations) {
+        registration.unregister();
+      }
+    }).catch(() => {});
+  }
+  if ('caches' in window) {
+    caches.keys().then(names => {
+      for (let name of names) {
+        caches.delete(name);
+      }
+    }).catch(() => {});
   }
   try {
     window.quizInstance = new QuizGame();
