@@ -1,7 +1,3 @@
-/**
- * CardioOrigin - アプリケーション メインロジック
- */
-
 import { PRESETS } from './presets.js';
 import { estimatePVCOrigin, SITE_DEFINITIONS } from './algorithm.js';
 import { HeartMap } from './heart-map.js';
@@ -10,6 +6,9 @@ import { LITERATURE_DATABASE, getLiteratureForSite } from './literature.js';
 import { EcgImageAnalyzer } from './image-analyzer.js';
 import { METRIC_EXPLANATIONS } from './metric-explainer.js';
 import { checkAndShowMedicalDisclaimer, showDisclaimerModal } from './disclaimer-modal.js';
+import { QuizGame } from './quiz.js';
+
+let quizInstance = null;
 
 // デフォルト状態
 const defaultState = {
@@ -254,73 +253,100 @@ function refreshDomReferences() {
  * 初期化関数
  */
 function init() {
-  // 全DOM要素への参照を最新化
-  refreshDomReferences();
-
-  // スマホ端末の破損キャッシュ・Service Worker障害を自動解除 (非同期安全化)
   try {
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(registrations => {
-        if (registrations) {
-          for (let registration of registrations) {
-            registration.unregister().catch(() => {});
-          }
-        }
-      }).catch(() => {});
-    }
-    if ('caches' in window) {
-      caches.keys().then(names => {
-        if (names) {
-          for (let name of names) {
-            caches.delete(name).catch(() => {});
-          }
-        }
-      }).catch(() => {});
-    }
-  } catch(e) {
-    // スキップ
-  }
+    // 全DOM要素への参照を最新化
+    refreshDomReferences();
 
-  // 心臓解剖マップの初期化
-  if (dom.heartMapRoot) {
+    // スマホ端末の破損キャッシュ・Service Worker障害を自動解除 (非同期安全化)
     try {
-      heartMapInstance = new HeartMap(dom.heartMapRoot, (site) => {
-        showSiteModal(site);
-      });
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+          if (registrations) {
+            for (let registration of registrations) {
+              registration.unregister().catch(() => {});
+            }
+          }
+        }).catch(() => {});
+      }
+      if ('caches' in window) {
+        caches.keys().then(names => {
+          if (names) {
+            for (let name of names) {
+              caches.delete(name).catch(() => {});
+            }
+          }
+        }).catch(() => {});
+      }
     } catch(e) {}
-  }
 
-  // 画像自動解析モジュールの初期化
-  if (dom.imageAnalyzerRoot) {
+    // 心臓解剖マップの初期化
+    if (dom.heartMapRoot) {
+      try {
+        heartMapInstance = new HeartMap(dom.heartMapRoot, (site) => {
+          showSiteModal(site);
+        });
+      } catch(e) {
+        console.error('HeartMap init error:', e);
+      }
+    }
+
+    // 画像自動解析モジュールの初期化
+    if (dom.imageAnalyzerRoot) {
+      try {
+        imageAnalyzerInstance = new EcgImageAnalyzer({
+          container: dom.imageAnalyzerRoot,
+          onAnalysisComplete: (detectedData) => {
+            applyDetectedParameters(detectedData);
+          }
+        });
+      } catch(e) {
+        console.error('EcgImageAnalyzer init error:', e);
+      }
+    }
+
+    // プリセットチップのレンダリング
+    renderPresets();
+
+    // 12誘導マトリックスのレンダリング
+    renderMatrix();
+
+    // イベントリスナーのセットアップ
+    setupEventListeners();
+
+    // iOSボトムタブバーのセットアップ
     try {
-      imageAnalyzerInstance = new EcgImageAnalyzer({
-        container: dom.imageAnalyzerRoot,
-        onAnalysisComplete: (detectedData) => {
-          applyDetectedParameters(detectedData);
-        }
-      });
-    } catch(e) {}
+      setupIosTabBar();
+    } catch(e) {
+      console.warn('setupIosTabBar note:', e);
+    }
+
+    // 最初のプリセットに基づく論文引用パネルの初期描画 (確実に実行)
+    if (PRESETS && PRESETS.length > 0) {
+      renderPaperCitation(PRESETS[0]);
+    }
+
+    // 初回解析実行
+    runAnalysis();
+
+    // URLハッシュによる初期セクション自動切替 (例: #diagnosis, #quiz)
+    handleInitialHash();
+  } catch(globalErr) {
+    console.error('Global App init error:', globalErr);
   }
+}
 
-  // プリセットチップのレンダリング
-  renderPresets();
-
-  // 12誘導マトリックスのレンダリング
-  renderMatrix();
-
-  // イベントリスナーのセットアップ
-  setupEventListeners();
-
-  // iOSボトムタブバーのセットアップ
-  setupIosTabBar();
-
-  // 最初のプリセットに基づく論文引用パネルの初期描画 (確実に実行)
-  if (PRESETS && PRESETS.length > 0) {
-    renderPaperCitation(PRESETS[0]);
+/**
+ * URLハッシュによる初期セクション決定
+ */
+function handleInitialHash() {
+  const hash = window.location.hash.toLowerCase();
+  if (hash.includes('diagnosis') || hash.includes('diag')) {
+    switchMainSection('diagnosis');
+  } else if (hash.includes('quiz')) {
+    switchMainSection('quiz');
+  } else if (hash.includes('sim')) {
+    switchMainSection('simulation');
   }
-
-  // 初回解析実行
-  runAnalysis();
 }
 
 /**
@@ -669,9 +695,60 @@ function switchTab(tabName) {
 }
 
 /**
+ * 単一ページSPA 3大部門セクション切り替え関数
+ */
+function switchMainSection(sectionName) {
+  const btnSim = document.getElementById('btn-tab-sim');
+  const btnDiag = document.getElementById('btn-tab-diag');
+  const btnQuiz = document.getElementById('btn-tab-quiz');
+
+  const secSim = document.getElementById('section-simulation');
+  const secDiag = document.getElementById('section-diagnosis');
+  const secQuiz = document.getElementById('section-quiz');
+
+  const subtitle = document.getElementById('header-subtitle-text');
+
+  if (btnSim) btnSim.classList.toggle('active', sectionName === 'simulation');
+  if (btnDiag) btnDiag.classList.toggle('active', sectionName === 'diagnosis');
+  if (btnQuiz) btnQuiz.classList.toggle('active', sectionName === 'quiz');
+
+  if (secSim) secSim.style.display = sectionName === 'simulation' ? 'block' : 'none';
+  if (secDiag) secDiag.style.display = sectionName === 'diagnosis' ? 'block' : 'none';
+  if (secQuiz) secQuiz.style.display = sectionName === 'quiz' ? 'block' : 'none';
+
+  if (subtitle) {
+    if (sectionName === 'simulation') subtitle.textContent = '臨床症例シミュレーション（3D解剖モデル & 典型12誘導波形読影）';
+    if (sectionName === 'diagnosis') subtitle.textContent = 'PVC起源診断ツール（12誘導波形入力・自動可視化）';
+    if (sectionName === 'quiz') subtitle.textContent = '心電図クイズ（10問ランダム局在診断トレーニング）';
+  }
+
+  if (sectionName === 'quiz' && !quizInstance) {
+    try {
+      quizInstance = new QuizGame();
+    } catch(e) {
+      console.error('QuizGame init error:', e);
+    }
+  }
+
+  if (history && history.replaceState) {
+    history.replaceState(null, '', `#section-${sectionName}`);
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/**
  * イベントリスナーのセットアップ
  */
 function setupEventListeners() {
+  const btnSim = document.getElementById('btn-tab-sim');
+  const btnDiag = document.getElementById('btn-tab-diag');
+  const btnQuiz = document.getElementById('btn-tab-quiz');
+
+  if (btnSim) btnSim.addEventListener('click', () => switchMainSection('simulation'));
+  if (btnDiag) btnDiag.addEventListener('click', () => switchMainSection('diagnosis'));
+  if (btnQuiz) btnQuiz.addEventListener('click', () => switchMainSection('quiz'));
+
   if (dom.tabWizardBtn) dom.tabWizardBtn.addEventListener('click', () => switchTab('wizard'));
   if (dom.tabMatrixBtn) dom.tabMatrixBtn.addEventListener('click', () => switchTab('matrix'));
   if (dom.tabImageBtn) dom.tabImageBtn.addEventListener('click', () => switchTab('image'));

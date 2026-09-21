@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>吉村流！PVC The Origin - 症例シミュレーション (3D立体解剖 &amp; 12誘導心電図)</title>
-  <meta name="description" content="12誘導心電図から心室性期外収縮(PVC)・心室頻拍(VT)の発生起源を3D立体可視化し、臨床症例プリセットと論文エビデンスをシミュレーションする学習システム">
+  <title>吉村流！PVC The Origin - 不整脈起源同定・症例シミュレーション・診断・クイズ</title>
+  <meta name="description" content="12誘導心電図から心室性期外収縮(PVC)・心室頻拍(VT)の発生起源を3D立体可視化・AI自動解析・ステップ局在診断・クイズゲームで習得する総合医療システム">
   
   <!-- iOS App & PWA メタタグ -->
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,12 +20,15 @@
     a { color: #38bdf8; text-decoration: none; }
     .modal-overlay, .disclaimer-overlay { display: none !important; pointer-events: none !important; }
     .modal-overlay.open, .disclaimer-overlay.open { display: flex !important; pointer-events: auto !important; }
+    .main-section { display: none; }
+    .main-section.active { display: block; }
   </style>
 
   <!-- スタイルシート -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v8">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v8">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v8">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10">
 </head>
 <body>
   <div class="app-container">
@@ -40,30 +43,30 @@
           <img src="assets/title-logo.png?v=3" alt="PVC THE ORIGIN - PVC起源特定システム" class="title-logo-img" title="吉村流！PVC The Origin">
         </div>
         <div class="origin-subtitle-box">
-          <p class="origin-subtitle">臨床症例シミュレーション（3D解剖モデル &amp; 典型12誘導波形読影）</p>
+          <p class="origin-subtitle" id="header-subtitle-text">臨床症例シミュレーション（3D解剖モデル &amp; 典型12誘導波形読影）</p>
         </div>
       </div>
 
-      <!-- 3部門 共通ナビゲーションタブ (豪華3Dボタンデザイン) -->
+      <!-- 3部門 共通ナビゲーションタブ (単一ページ完全SPA切り替え) -->
       <nav class="main-nav-tabs">
-        <a href="./index.html" class="nav-tab-btn active" title="3D心臓モデル・立体解剖・臨床症例シミュレーション">
+        <button type="button" class="nav-tab-btn active" id="btn-tab-sim" title="3D心臓モデル・立体解剖・臨床症例シミュレーション">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
           <span>症例シミュレーション</span>
-        </a>
-        <a href="./diagnosis.html" class="nav-tab-btn" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール">
+        </button>
+        <button type="button" class="nav-tab-btn" id="btn-tab-diag" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
           </svg>
           <span>PVC起源診断ツール</span>
-        </a>
-        <a href="./quiz.html" class="nav-tab-btn" title="10問ランダム心電図読影クイズゲーム">
+        </button>
+        <button type="button" class="nav-tab-btn" id="btn-tab-quiz" title="10問ランダム心電図読影クイズゲーム">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
           <span>心電図クイズ</span>
-        </a>
+        </button>
       </nav>
 
       <div class="header-actions">
@@ -88,226 +91,486 @@
       </div>
     </header>
 
-    <!-- ① 症例選択プリセットバー (心電図を選択する行) -->
-    <section class="preset-bar">
-      <div class="preset-header">
-        <span class="preset-label">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-          臨床症例シミュレーション（1クリック選択）
-        </span>
-        <span style="font-size: 0.75rem; color: var(--text-muted);">下の症例ボタンを押すと12誘導心電図と3D心臓解剖が即座に連動します</span>
-      </div>
-      <div class="preset-carousel" id="preset-container">
-        <!-- JSで動的生成 -->
-      </div>
-    </section>
-
-    <!-- ② 選択行のすぐ下に12誘導心電図 & 臨床解説パネルを配置 (IDを完全復元) -->
-    <section class="paper-citation-panel" id="paper-citation-panel" style="margin-top: 1rem;">
-      <div class="citation-panel-header">
-        <div class="citation-title-group">
-          <span class="citation-badge">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+    <!-- ===================================================================
+         部門 1: 🫀 臨床症例シミュレーション (Simulation Section)
+         =================================================================== -->
+    <div id="section-simulation" class="main-section active">
+      <!-- ① 症例選択プリセットバー -->
+      <section class="preset-bar">
+        <div class="preset-header">
+          <span class="preset-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            選択症例の典型12誘導心電図 &amp; 臨床解説
+            臨床症例シミュレーション（1クリック選択）
           </span>
-          <h3 id="citation-case-title" class="citation-case-name">RVOT 後中隔</h3>
-          <span class="citation-layer-tag" id="citation-layer-tag">心内膜側 (Endocardial)</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">下の症例ボタンを押すと12誘導心電図と3D心臓解剖が即座に連動します</span>
         </div>
-        <div class="citation-source-info" id="citation-source-info">
+        <div class="preset-carousel" id="preset-container">
           <!-- JSで動的生成 -->
         </div>
-      </div>
-
-      <!-- 典型12誘導心電図プレビューグリッド -->
-      <div class="citation-ecg-grid-wrapper">
-        <div class="citation-ecg-header">
-          <div class="citation-header-left">
-            <span class="citation-ecg-title">典型的な12誘導PVC波形（25mm/s規格）</span>
-            <div class="lead-format-group" id="lead-format-group">
-              <span class="format-label">配列:</span>
-              <div class="format-pill-group">
-                <button type="button" class="format-pill active" id="btn-format-std" data-format="standard" title="標準肢誘導配列 (I, II, III, aVR, aVL, aVF)">標準配列</button>
-                <button type="button" class="format-pill" id="btn-format-cabrera" data-format="cabrera" title="カブレラ配列: 電気軸順 (aVL, I, -aVR, II, aVF, III)">カブレラ配列 (Cabrera)</button>
-              </div>
-            </div>
-            <div class="std-layout-group" id="std-layout-group">
-              <span class="format-label">配置:</span>
-              <div class="format-pill-group">
-                <button type="button" class="format-pill active" id="btn-layout-vertical" data-layout="vertical" title="縦型3列配置 (左:四肢誘導 / 中:胸部誘導 / 右:解説集約)">縦型2列 (肢/胸)</button>
-                <button type="button" class="format-pill" id="btn-layout-horizontal" data-layout="horizontal" title="横並び配置 (肢誘導6列 + 胸部誘導6列 + 下段解説)">横並び (2行)</button>
-              </div>
-            </div>
-          </div>
-          <div class="ecg-gain-control" id="citation-gain-control">
-            <span class="gain-label">感度(波高):</span>
-            <div class="gain-pill-group">
-              <button type="button" class="gain-pill" data-gain="0.5" title="半感度 (5mm/mV)">×0.5</button>
-              <button type="button" class="gain-pill active" data-gain="1.0" title="標準感度 (10mm/mV)">×1.0</button>
-              <button type="button" class="gain-pill" data-gain="1.5" title="拡大感度 (15mm/mV)">×1.5</button>
-              <button type="button" class="gain-pill" data-gain="2.0" title="倍感度 (20mm/mV)">×2.0</button>
-            </div>
-            <button type="button" class="ecg-calibration-mark clickable" id="btn-toggle-gain" title="クリックで感度トグル切替">
-              <span id="citation-gain-display">10mm/mV</span> | 200ms
-            </button>
-          </div>
-        </div>
-
-        <!-- 1. 標準配列: 縦型3列/2列配置 (全ID復元) -->
-        <div class="citation-standard-vertical" id="citation-standard-vertical">
-          <div class="std-vertical-grid">
-            <!-- 左列: 四肢誘導 (I, II, III, aVR, aVL, aVF) -->
-            <div class="std-vertical-col limb-col">
-              <div class="std-col-header">
-                <div class="std-col-header-top">
-                  <span class="std-col-tag limb">四肢誘導</span>
-                  <span class="std-col-en">Limb Leads</span>
-                </div>
-                <span class="std-col-sub">I, II, III, aVR, aVL, aVF</span>
-              </div>
-              <div class="std-col-leads" id="col-limb-leads">
-                <!-- JSで6誘導SVGを動的生成 -->
-              </div>
-            </div>
-
-            <!-- 中央列: 胸部誘導 (V1〜V6) -->
-            <div class="std-vertical-col chest-col">
-              <div class="std-col-header">
-                <div class="std-col-header-top">
-                  <span class="std-col-tag chest">胸部誘導</span>
-                  <span class="std-col-en">Chest Leads</span>
-                </div>
-                <span class="std-col-sub">V1, V2, V3, V4, V5, V6</span>
-              </div>
-              <div class="std-col-leads" id="col-chest-leads">
-                <!-- JSで6誘導SVGを動的生成 -->
-              </div>
-            </div>
-
-            <!-- 右列: 臨床解説 & 治療戦略 (縦集約) -->
-            <div class="std-vertical-col insights-col">
-              <div class="std-col-header">
-                <div class="std-col-header-top">
-                  <span class="std-col-tag insights">臨床解説 &amp; 治療戦略</span>
-                  <span class="std-col-en">Clinical Insights</span>
-                </div>
-                <span class="std-col-sub">心電図特徴・機序・アブレーション戦略</span>
-              </div>
-              <div class="std-col-insights" id="col-vertical-insights">
-                <!-- JSで解説カードを動的生成 -->
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 2. 横並びグリッド (2行×6列) -->
-        <div class="citation-ecg-grid" id="citation-ecg-grid" style="display: none;"></div>
-
-        <!-- カブレラ配列ビュー -->
-        <div class="citation-cabrera-spatial" id="citation-cabrera-spatial" style="display: none;">
-          <div class="cabrera-spatial-grid">
-            <div class="spatial-block frontal-block">
-              <div class="spatial-block-header">
-                <div class="spatial-title-row">
-                  <span class="spatial-pill-tag frontal">前額面 (Frontal)</span>
-                  <span class="spatial-block-title">肢誘導 Cabrera 6軸サークル</span>
-                </div>
-              </div>
-              <div class="spatial-canvas-wrapper">
-                <div class="spatial-canvas" id="cabrera-frontal-stage"></div>
-              </div>
-            </div>
-            <div class="spatial-block horizontal-block">
-              <div class="spatial-block-header">
-                <div class="spatial-title-row">
-                  <span class="spatial-pill-tag horizontal">水平面 (Horizontal)</span>
-                  <span class="spatial-block-title">胸部誘導 胸部横断面ビュー</span>
-                </div>
-              </div>
-              <div class="spatial-canvas-wrapper">
-                <div class="spatial-canvas" id="cabrera-thorax-stage"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="citation-insights-container" id="citation-insights-container"></div>
-    </section>
-
-    <!-- ③ 3D解剖モデル & 解剖要約 (下段に配置) -->
-    <main class="main-grid" style="margin-top: 1.5rem;">
-      <!-- 左カラム：3D心臓モデル & 起源インタラクティブマップ -->
-      <section class="results-panel" style="margin-bottom: 0;">
-        <div id="heart-map-root" class="heart-map-container">
-          <!-- HeartMapクラスがマウント -->
-        </div>
       </section>
 
-      <!-- 右カラム：選択起源の解剖・臨床的要約 -->
-      <section class="results-panel" style="margin-bottom: 0;">
-        <!-- 最有力起源カード (Rank 1) -->
-        <div class="top-winner-card" id="top-winner-card">
-          <div class="winner-header">
-            <span class="winner-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      <!-- ② 選択行の直下に配置された 12誘導心電図 & 臨床解説パネル -->
+      <section class="paper-citation-panel" id="paper-citation-panel" style="margin-top: 1rem;">
+        <div class="citation-panel-header">
+          <div class="citation-title-group">
+            <span class="citation-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
               </svg>
-              選択中の起源部位
+              選択症例の典型12誘導心電図 &amp; 臨床解説
             </span>
-            <div class="winner-percentage" id="winner-prob">100<span>%</span></div>
+            <h3 id="citation-case-title" class="citation-case-name">RVOT 後中隔</h3>
+            <span class="citation-layer-tag" id="citation-layer-tag">心内膜側 (Endocardial)</span>
           </div>
-          <h2 class="winner-title" id="winner-name-ja">RVOT 後中隔</h2>
-          <div class="winner-subtitle" id="winner-name-en">RVOT Posterior Septum / 右室流出路 (RVOT)</div>
-          <p style="font-size: 0.82rem; color: #cbd5e1; margin-top: 8px;" id="winner-features">
-            LBBB型、下軸、V3〜V4移行、I誘導陽性、QRS幅は比較的シャープ
-          </p>
-          <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 0.78rem; color: var(--text-muted);">詳しい定量診断・AI解析・エビデンス照合はこちら:</span>
-            <a href="diagnosis.html" class="btn-header" style="text-decoration:none; color:var(--accent-sky); border-color:var(--accent-sky); background:rgba(56,189,248,0.12);" title="PVC起源診断ツールを開く">
-              🔬 診断ツールへ進む
-            </a>
+          <div class="citation-source-info" id="citation-source-info">
+            <!-- JSで動的生成 -->
           </div>
         </div>
 
-        <!-- 臨床メモ & アブレーション注意事項 -->
-        <div class="ablation-tips-box" style="margin-top: 1rem;">
-          <div class="tip-icon">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-            </svg>
+        <!-- 典型12誘導心電図プレビューグリッド -->
+        <div class="citation-ecg-grid-wrapper">
+          <div class="citation-ecg-header">
+            <div class="citation-header-left">
+              <span class="citation-ecg-title">典型的な12誘導PVC波形（25mm/s規格）</span>
+              <div class="lead-format-group" id="lead-format-group">
+                <span class="format-label">配列:</span>
+                <div class="format-pill-group">
+                  <button type="button" class="format-pill active" id="btn-format-std" data-format="standard">標準配列</button>
+                  <button type="button" class="format-pill" id="btn-format-cabrera" data-format="cabrera">カブレラ配列 (Cabrera)</button>
+                </div>
+              </div>
+              <div class="std-layout-group" id="std-layout-group">
+                <span class="format-label">配置:</span>
+                <div class="format-pill-group">
+                  <button type="button" class="format-pill active" id="btn-layout-vertical" data-layout="vertical">縦型2列 (肢/胸)</button>
+                  <button type="button" class="format-pill" id="btn-layout-horizontal" data-layout="horizontal">横並び (2行)</button>
+                </div>
+              </div>
+            </div>
+            <div class="ecg-gain-control" id="citation-gain-control">
+              <span class="gain-label">感度(波高):</span>
+              <div class="gain-pill-group">
+                <button type="button" class="gain-pill" data-gain="0.5">×0.5</button>
+                <button type="button" class="gain-pill active" data-gain="1.0">×1.0</button>
+                <button type="button" class="gain-pill" data-gain="1.5">×1.5</button>
+                <button type="button" class="gain-pill" data-gain="2.0">×2.0</button>
+              </div>
+              <button type="button" class="ecg-calibration-mark clickable" id="btn-toggle-gain">
+                <span id="citation-gain-display">10mm/mV</span> | 200ms
+              </button>
+            </div>
           </div>
-          <div class="ablation-tips-content">
-            <h4>カテーテルアブレーション時の臨床留意点</h4>
-            <p id="ablation-tip-text">
-              ヒス束伝導系が後下方に位置するため、His電位記録カテーテル留置下に通電することが推奨されます。
+
+          <!-- 1. 標準配列: 縦型3列/2列配置 -->
+          <div class="citation-standard-vertical" id="citation-standard-vertical">
+            <div class="std-vertical-grid">
+              <div class="std-vertical-col limb-col">
+                <div class="std-col-header">
+                  <div class="std-col-header-top">
+                    <span class="std-col-tag limb">四肢誘導</span>
+                    <span class="std-col-en">Limb Leads</span>
+                  </div>
+                  <span class="std-col-sub">I, II, III, aVR, aVL, aVF</span>
+                </div>
+                <div class="std-col-leads" id="col-limb-leads"></div>
+              </div>
+
+              <div class="std-vertical-col chest-col">
+                <div class="std-col-header">
+                  <div class="std-col-header-top">
+                    <span class="std-col-tag chest">胸部誘導</span>
+                    <span class="std-col-en">Chest Leads</span>
+                  </div>
+                  <span class="std-col-sub">V1, V2, V3, V4, V5, V6</span>
+                </div>
+                <div class="std-col-leads" id="col-chest-leads"></div>
+              </div>
+
+              <div class="std-vertical-col insights-col">
+                <div class="std-col-header">
+                  <div class="std-col-header-top">
+                    <span class="std-col-tag insights">臨床解説 &amp; 治療戦略</span>
+                    <span class="std-col-en">Clinical Insights</span>
+                  </div>
+                  <span class="std-col-sub">心電図特徴・機序・アブレーション戦略</span>
+                </div>
+                <div class="std-col-insights" id="col-vertical-insights"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="citation-ecg-grid" id="citation-ecg-grid" style="display: none;"></div>
+
+          <div class="citation-cabrera-spatial" id="citation-cabrera-spatial" style="display: none;">
+            <div class="cabrera-spatial-grid">
+              <div class="spatial-block frontal-block">
+                <div class="spatial-block-header">
+                  <div class="spatial-title-row">
+                    <span class="spatial-pill-tag frontal">前額面 (Frontal)</span>
+                    <span class="spatial-block-title">肢誘導 Cabrera 6軸サークル</span>
+                  </div>
+                </div>
+                <div class="spatial-canvas-wrapper">
+                  <div class="spatial-canvas" id="cabrera-frontal-stage"></div>
+                </div>
+              </div>
+              <div class="spatial-block horizontal-block">
+                <div class="spatial-block-header">
+                  <div class="spatial-title-row">
+                    <span class="spatial-pill-tag horizontal">水平面 (Horizontal)</span>
+                    <span class="spatial-block-title">胸部誘導 胸部横断面ビュー</span>
+                  </div>
+                </div>
+                <div class="spatial-canvas-wrapper">
+                  <div class="spatial-canvas" id="cabrera-thorax-stage"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="citation-insights-container" id="citation-insights-container"></div>
+      </section>
+
+      <!-- ③ 3D解剖モデル & 解剖要約 -->
+      <main class="main-grid" style="margin-top: 1.5rem;">
+        <section class="results-panel" style="margin-bottom: 0;">
+          <div id="heart-map-root" class="heart-map-container"></div>
+        </section>
+
+        <section class="results-panel" style="margin-bottom: 0;">
+          <div class="top-winner-card" id="top-winner-card">
+            <div class="winner-header">
+              <span class="winner-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                選択中の起源部位
+              </span>
+              <div class="winner-percentage" id="winner-prob">100<span>%</span></div>
+            </div>
+            <h2 class="winner-title" id="winner-name-ja">RVOT 後中隔</h2>
+            <div class="winner-subtitle" id="winner-name-en">RVOT Posterior Septum / 右室流出路 (RVOT)</div>
+            <p style="font-size: 0.82rem; color: #cbd5e1; margin-top: 8px;" id="winner-features">
+              LBBB型、下軸、V3〜V4移行、I誘導陽性、QRS幅は比較的シャープ
             </p>
           </div>
+
+          <div class="ablation-tips-box" style="margin-top: 1rem;">
+            <div class="tip-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <div class="ablation-tips-content">
+              <h4>カテーテルアブレーション時の臨床留意点</h4>
+              <p id="ablation-tip-text">
+                ヒス束伝導系が後下方に位置するため、His電位記録カテーテル留置下に通電することが推奨されます。
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ===================================================================
+         部門 2: 🔬 PVC起源診断ツール (Diagnosis Section)
+         =================================================================== -->
+    <div id="section-diagnosis" class="main-section">
+      <main class="main-grid" style="margin-top: 1rem;">
+        <section class="input-panel">
+          <div class="panel-tabs">
+            <button class="tab-btn active" id="tab-wizard-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+              ステップ診断ガイド (Wizard)
+            </button>
+            <button class="tab-btn" id="tab-matrix-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+              </svg>
+              12誘導波形マトリックス (Matrix)
+            </button>
+            <button class="tab-btn" id="tab-image-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              画像から自動解析 (Image AI)
+            </button>
+          </div>
+
+          <div id="view-image" style="display: none;">
+            <div id="image-analyzer-root"></div>
+          </div>
+
+          <div id="view-wizard">
+            <div class="step-group">
+              <div class="step-title">
+                <span><span class="step-num-badge">1</span>下壁誘導 (II, III, aVF) の極性 / 電気軸</span>
+              </div>
+              <div class="button-options-grid" id="opt-axis">
+                <button class="opt-btn active" data-value="inferior">下軸 (陽性 / 高R波)</button>
+                <button class="opt-btn" data-value="superior">上軸 (陰性 / 深いQS)</button>
+                <button class="opt-btn" data-value="normal">中間軸 / 二相性</button>
+              </div>
+            </div>
+
+            <div class="step-group">
+              <div class="step-title">
+                <span><span class="step-num-badge">2</span>V1 誘導の形態 (脚ブロック型)</span>
+              </div>
+              <div class="button-options-grid" id="opt-v1">
+                <button class="opt-btn active" data-value="lbbb_qs">LBBB型 (QS / rS型 - 右室起源強示唆)</button>
+                <button class="opt-btn" data-value="rbbb_r">RBBB型 (R / Rs / rsR'型 - 左室起源強示唆)</button>
+              </div>
+            </div>
+
+            <div class="step-group">
+              <div class="step-title">
+                <span><span class="step-num-badge">3</span>胸部誘導の移行帯 (Transition Zone)</span>
+              </div>
+              <div class="transition-picker" id="opt-transition">
+                <button class="trans-btn" data-value="V1">V1</button>
+                <button class="trans-btn" data-value="V2">V2</button>
+                <button class="trans-btn" data-value="V3">V3</button>
+                <button class="trans-btn active" data-value="V4">V4</button>
+                <button class="trans-btn" data-value="V5">V5</button>
+                <button class="trans-btn" data-value="V6">V6</button>
+              </div>
+            </div>
+
+            <div class="step-group">
+              <div class="step-title">
+                <span><span class="step-num-badge">4</span>I 誘導の極性</span>
+              </div>
+              <div class="button-options-grid" id="opt-lead1">
+                <button class="opt-btn active" data-value="positive">陽性 (R波優位)</button>
+                <button class="opt-btn" data-value="negative">陰性 (QS / rS波)</button>
+                <button class="opt-btn" data-value="biphasic">二相性 / 低電位</button>
+              </div>
+            </div>
+
+            <div class="step-group">
+              <div class="step-title">
+                <span><span class="step-num-badge">5</span>定量・鑑別指標 (S/R比, MDI, QRS幅)</span>
+              </div>
+              <div class="slider-control-group">
+                <div class="slider-row">
+                  <div class="slider-label"><span>V2S / V3R 振幅比:</span><strong id="val-v2s-v3r">1.8</strong></div>
+                  <input type="range" id="input-v2s-v3r" min="0.5" max="3.5" step="0.1" value="1.8">
+                </div>
+                <div class="slider-row">
+                  <div class="slider-label"><span>V2 Transition Ratio:</span><strong id="val-v2-ratio">0.40</strong></div>
+                  <input type="range" id="input-v2-ratio" min="0.1" max="1.5" step="0.05" value="0.40">
+                </div>
+                <div class="slider-row">
+                  <div class="slider-label"><span>MDI (Maximum Deflection Index):</span><strong id="val-mdi">0.42</strong></div>
+                  <input type="range" id="input-mdi" min="0.30" max="0.75" step="0.01" value="0.42">
+                </div>
+                <div class="slider-row">
+                  <div class="slider-label"><span>QRS 幅 (ms):</span><strong id="val-qrs">140 ms</strong></div>
+                  <input type="range" id="input-qrs" min="100" max="220" step="5" value="140">
+                </div>
+              </div>
+            </div>
+
+            <div class="step-group" style="border-left: 3px solid var(--accent-amber); padding-left: 10px;">
+              <div class="step-title">
+                <span><span class="step-num-badge" style="background: var(--accent-amber);">6</span>Ito 2003 / 拡張流出路局在指標</span>
+              </div>
+              <div class="slider-control-group">
+                <div class="slider-row">
+                  <div class="slider-label"><span>R-wave duration index (Ito):</span><strong id="val-r-duration">35%</strong></div>
+                  <input type="range" id="input-r-duration" min="0.10" max="0.80" step="0.01" value="0.35">
+                </div>
+                <div class="slider-row">
+                  <div class="slider-label"><span>R/S amplitude index (Ito):</span><strong id="val-rs-amplitude">15%</strong></div>
+                  <input type="range" id="input-rs-amplitude" min="0.05" max="0.70" step="0.01" value="0.15">
+                </div>
+              </div>
+              <div class="sub-options-grid" id="opt-lead1-s-wave" style="margin-top: 8px;">
+                <span class="sub-label">I誘導 s波存在:</span>
+                <div class="sub-pill-group">
+                  <button class="sub-pill active" data-value="false">なし (中隔特異度96%)</button>
+                  <button class="sub-pill" data-value="true">あり (自由壁方向)</button>
+                </div>
+              </div>
+              <div class="sub-options-grid" id="opt-avl-vs-avr" style="margin-top: 8px;">
+                <span class="sub-label">aVL vs aVR Q波関係:</span>
+                <div class="sub-pill-group">
+                  <button class="sub-pill active" data-value="normal">通常</button>
+                  <button class="sub-pill" data-value="avr_q_early_deep">aVR Q先行・大</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-group" style="border-left: 3px solid #a855f7; padding-left: 10px;">
+              <div class="step-title">
+                <span><span class="step-num-badge" style="background: #a855f7;">7</span>特殊鑑別 (Lin 2008 / Yamashina 2004)</span>
+              </div>
+              <div class="sub-options-grid" id="opt-v2-small-r">
+                <span class="sub-label">V2 r波 (Lin 2008):</span>
+                <div class="sub-pill-group">
+                  <button class="sub-pill active" data-value="false">なし / 通常</button>
+                  <button class="sub-pill" data-value="true">小r波あり (rS)</button>
+                </div>
+              </div>
+              <div class="sub-options-grid" id="opt-has-notch-rr20" style="margin-top: 8px;">
+                <span class="sub-label">下壁ノッチ R-R' &gt; 20ms:</span>
+                <div class="sub-pill-group">
+                  <button class="sub-pill active" data-value="false">なし</button>
+                  <button class="sub-pill" data-value="true">あり (自由壁)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="view-matrix" style="display: none;">
+            <div id="matrix-container" class="matrix-grid"></div>
+            <button class="btn-reset" id="btn-reset" style="margin-top: 1rem;">パラメータリセット</button>
+          </div>
+        </section>
+
+        <section class="results-panel">
+          <div class="layer-verdict-grid">
+            <div class="layer-card endo-epi-card" id="endo-epi-card">
+              <div class="layer-header">
+                <span class="layer-title">心筋層別推定 (Endo vs Epi)</span>
+                <span class="layer-verdict-badge" id="endo-epi-verdict-badge">心内膜側 (Endocardial)</span>
+              </div>
+              <div class="meter-labels">
+                <span>心内膜 <strong id="val-endo-prob">85%</strong></span>
+                <span>心外膜 <strong id="val-epi-prob">15%</strong></span>
+              </div>
+              <div class="meter-bar-bg">
+                <div class="meter-bar-fill fill-endo" id="meter-fill-endo" style="width: 85%;"></div>
+                <div class="meter-bar-fill fill-epi" id="meter-fill-epi" style="width: 15%;"></div>
+              </div>
+              <ul class="layer-criteria-list" id="endo-epi-criteria"></ul>
+              <div class="strategy-box" id="endo-epi-strategy-box"></div>
+            </div>
+
+            <div class="layer-card outflow-side-card" id="outflow-side-card">
+              <div class="layer-header">
+                <span class="layer-title">流出路 左右鑑別 (RVOT vs LVOT)</span>
+                <span class="layer-verdict-badge outflow" id="outflow-verdict-badge">右室流出路 (RVOT)</span>
+              </div>
+              <div class="meter-labels">
+                <span>RVOT <strong id="val-right-prob">90%</strong></span>
+                <span>LVOT <strong id="val-left-prob">10%</strong></span>
+              </div>
+              <div class="meter-bar-bg">
+                <div class="meter-bar-fill fill-right" id="meter-fill-right" style="width: 90%;"></div>
+                <div class="meter-bar-fill fill-left" id="meter-fill-left" style="width: 10%;"></div>
+              </div>
+              <div class="outflow-criteria-grid" id="outflow-criteria-grid"></div>
+              <div class="pearls-box" id="outflow-pearls-box"></div>
+            </div>
+          </div>
+
+          <div class="results-card" style="margin-top: 1rem;">
+            <h3 class="card-title">鑑別候補ランキング (Differential Ranking)</h3>
+            <div id="ranking-container" class="ranking-list"></div>
+          </div>
+
+          <div class="results-card" style="margin-top: 1rem;">
+            <h3 class="card-title">臨床診断推論 (Diagnostic Reasoning Steps)</h3>
+            <div id="reasoning-container" class="reasoning-timeline"></div>
+          </div>
+
+          <div class="results-card" style="margin-top: 1rem;">
+            <h3 class="card-title">エビデンス論文・ガイドライン照合 (Literature &amp; Guidelines)</h3>
+            <div id="literature-container" class="literature-list"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- ===================================================================
+         部門 3: 🎯 心電図クイズゲーム (Quiz Section)
+         =================================================================== -->
+    <div id="section-quiz" class="main-section">
+      <div class="quiz-container-inner" style="max-width: 900px; margin: 1rem auto; padding: 0 10px;">
+        <div class="quiz-header-card">
+          <div class="quiz-progress-bar-wrapper">
+            <div id="quiz-progress-fill" class="quiz-progress-fill" style="width: 10%;"></div>
+          </div>
+          <div class="quiz-stats-row">
+            <div class="quiz-stat-pill">
+              <span class="label">QUESTION</span>
+              <span id="quiz-step-indicator" class="value">1 / 10</span>
+            </div>
+            <div class="quiz-stat-pill">
+              <span class="label">CORRECT</span>
+              <span id="quiz-correct-count" class="value correct">0</span>
+            </div>
+            <div class="quiz-stat-pill">
+              <span class="label">SCORE</span>
+              <span id="quiz-score-pts" class="value score">0 PTS</span>
+            </div>
+          </div>
         </div>
-      </section>
-    </main>
+
+        <div class="quiz-main-card">
+          <div class="quiz-question-header">
+            <span class="quiz-badge">12-LEAD ECG SPOT DIAGNOSIS</span>
+            <h2 class="quiz-question-title">この12誘導PVC心電図の最有力発生起源を選択してください</h2>
+          </div>
+
+          <div id="quiz-ecg-container" class="quiz-ecg-box"></div>
+
+          <div id="quiz-options-container" class="quiz-options-grid"></div>
+
+          <div id="quiz-explanation-card" class="quiz-explanation-card" style="display: none;">
+            <div id="quiz-result-banner" class="quiz-result-banner correct">
+              <span class="icon">✓</span>
+              <span class="text">正解！</span>
+            </div>
+            <div id="quiz-explanation-body" class="quiz-explanation-body"></div>
+            <button id="quiz-next-btn" class="quiz-next-btn">次の問題へ進む ➔</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- アルゴリズム・文献モーダル -->
+  <!-- クイズ結果要約モーダル -->
+  <div class="modal-overlay" id="quiz-summary-modal">
+    <div class="modal-content quiz-summary-card">
+      <h2 class="quiz-summary-title">🎉 トレーニング修了！</h2>
+      <p style="color:#cbd5e1; font-size:14px; margin:0;">PVC12誘導心電図 局在診断トレーニング結果</p>
+      <div class="quiz-score-circle">
+        <div id="summary-score-num" class="num">8/10</div>
+        <div class="label">ACCURACY</div>
+      </div>
+      <div id="summary-rank-badge" class="quiz-rank-badge">EP SPECIALIST</div>
+      <p id="summary-feedback-msg" style="color:#94a3b8; font-size:13px; line-height:1.5;">
+        素晴らしい心電図解読スキルです！
+      </p>
+      <div class="quiz-action-btns">
+        <button id="quiz-btn-restart" class="quiz-action-btn quiz-btn-restart">もう一度挑戦する 🔄</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- モーダル各種 -->
   <div class="modal-overlay" id="algorithm-modal">
     <div class="modal-content">
-      <button class="modal-close-btn" id="modal-close-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
+      <button class="modal-close-btn" id="modal-close-btn">✕</button>
       <h3 class="modal-title">12誘導ECG PVC起源推定アルゴリズム</h3>
       <div class="modal-body">
         <h4>1. 流出路起源 (Outflow Tract) 鑑別の主要基準</h4>
         <ul>
-          <li><strong>胸部誘導の移行帯 (Transition Zone):</strong> V1〜V2でR>SになればLVOT（左室流出路/大動脈弁洞）、V4以降ならRVOT（右室流出路）。</li>
-          <li><strong>V2S/V3R 振幅比:</strong> PVCのV2のS波振幅 ÷ V3のR波振幅。≤1.5ならLVOT、>1.5ならRVOT。</li>
-          <li><strong>V2 Transition Ratio:</strong> (PVCのV2 R/R+S) ÷ (洞調律のV2 R/R+S)。≥0.6ならLVOT。</li>
+          <li><strong>胸部誘導の移行帯:</strong> V1〜V2でR&gt;SならLVOT、V4以降ならRVOT。</li>
+          <li><strong>V2S/V3R 振幅比:</strong> PVCのV2のS波 ÷ V3のR波。≤1.5ならLVOT、&gt;1.5ならRVOT。</li>
+          <li><strong>V2 Transition Ratio:</strong> (PVC V2 R/R+S) ÷ (洞調律 V2 R/R+S)。≥0.6ならLVOT。</li>
         </ul>
       </div>
     </div>
@@ -315,11 +578,7 @@
 
   <div class="modal-overlay" id="disclaimer-modal">
     <div class="modal-content">
-      <button class="modal-close-btn" id="disclaimer-close-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
+      <button class="modal-close-btn" id="disclaimer-close-btn">✕</button>
       <h3 class="modal-title">医療免責事項 &amp; 利用規約</h3>
       <div class="modal-body">
         <p>本システム「吉村流！PVC The Origin」は、12誘導心電図読影および不整脈起源同定の臨床研究・学習支援を目的とした教育・補助ツールです。</p>
@@ -329,11 +588,7 @@
 
   <div class="modal-overlay" id="naito-flowchart-modal">
     <div class="modal-content" style="max-width: 900px; width: 95%;">
-      <button class="modal-close-btn" id="naito-modal-close-btn">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
+      <button class="modal-close-btn" id="naito-modal-close-btn">✕</button>
       <h3 class="modal-title">内藤 2005 流出路7ステップ局在診断フローチャート</h3>
       <div class="modal-body" style="text-align: center;">
         <img src="assets/flowchart_naito2005.jpg" alt="内藤 2005 流出路7ステップ局在診断フローチャート" style="max-width: 100%; height: auto; border-radius: 8px;">
@@ -341,7 +596,7 @@
     </div>
   </div>
 
-  <!-- アプリケーションモジュール構築 -->
-  <script type="module" src="./js/app.js?v=20260922_v8"></script>
+  <!-- アプリケーションモジュール構築 (全機能単一ページ統合版) -->
+  <script type="module" src="./js/app.js?v=20260922_v10"></script>
 </body>
 </html>

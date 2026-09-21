@@ -3,19 +3,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>吉村流！PVC起源診断ツール - 移動中</title>
-  <meta http-equiv="refresh" content="0;url=index.html#section-diagnosis">
+  <title>吉村流！PVC The Origin - トップページへ転送中</title>
+  <meta http-equiv="refresh" content="0;url=index.html">
   <style>
     body { background-color: #070c18; color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; text-align: center; }
     a { color: #38bdf8; text-decoration: none; font-size: 1.1rem; margin-top: 1rem; padding: 10px 20px; border: 1px solid #38bdf8; border-radius: 8px; }
   </style>
   <script>
-    window.location.replace('./index.html#section-diagnosis');
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('diagnosis')) {
+      window.location.replace('./index.html#section-diagnosis');
+    } else if (path.includes('quiz')) {
+      window.location.replace('./index.html#section-quiz');
+    } else {
+      window.location.replace('./index.html');
+    }
   </script>
 </head>
 <body>
-  <h2>🫀 吉村流！PVC起源診断ツールへ移動しています...</h2>
+  <h2>🫀 吉村流！PVC The Origin へ移動しています...</h2>
   <p>自動で切り替わらない場合は下のボタンをタップしてください。</p>
-  <a href="./index.html#section-diagnosis">PVC起源診断ツールを開く ➔</a>
+  <a href="./index.html">トップページを開く ➔</a>
 </body>
 </html>
