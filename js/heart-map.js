@@ -141,12 +141,12 @@ export class HeartMap {
           <text x="92" y="-37" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="700">PA (肺動脈幹)</text>
         </g>
 
-        <!-- 心尖部 (Apex) -->
-        <g transform="translate(320, 418)">
-          <circle cx="0" cy="0" r="2.5" fill="#94a3b8"/>
-          <line x1="0" y1="0" x2="0" y2="12" stroke="rgba(148,163,184,0.5)" stroke-width="1" stroke-dasharray="2 2"/>
-          <rect x="-42" y="14" width="84" height="16" rx="4" fill="rgba(15,23,42,0.85)" stroke="rgba(255,255,255,0.15)" stroke-width="0.8"/>
-          <text x="0" y="26" text-anchor="middle" fill="#94a3b8" font-size="8.5" font-weight="600">Apex (心尖部)</text>
+        <!-- 心尖部 (Apex) - 左室最尖端の正確な解剖位置 (367, 418) -->
+        <g transform="translate(367, 418)">
+          <circle cx="0" cy="0" r="3" fill="#38bdf8"/>
+          <line x1="0" y1="0" x2="0" y2="12" stroke="rgba(56,189,248,0.7)" stroke-width="1.2" stroke-dasharray="2 2"/>
+          <rect x="-42" y="14" width="84" height="16" rx="4" fill="rgba(15,23,42,0.9)" stroke="rgba(56,189,248,0.4)" stroke-width="0.8"/>
+          <text x="0" y="26" text-anchor="middle" fill="#38bdf8" font-size="8.5" font-weight="700">Apex (心尖部)</text>
         </g>
 
         <!-- 前室間溝 (LAD前下行枝走行部) -->
@@ -206,13 +206,13 @@ export class HeartMap {
           <text class="site-label-text" x="-150" y="49" text-anchor="middle">三尖弁輪 (TVA)</text>
         </g>
 
-        <!-- 6. 特発性左室頻拍 (左脚後枝 - ILVT) : 点 (300, 365) -> ラベル Y=360 -->
-        <g class="origin-site" data-site="fascicular_post" transform="translate(300, 365)">
+        <!-- 6. 特発性左室頻拍 (左脚後枝 - ILVT) : 点 (330, 375) -> ラベル Y=360 -->
+        <g class="origin-site" data-site="fascicular_post" transform="translate(330, 375)">
           <circle class="site-ring" cx="0" cy="0" r="10" />
           <circle class="site-dot" cx="0" cy="0" r="5.5" />
-          <line class="site-leader-line" x1="0" y1="0" x2="-190" y2="-5" />
-          <rect class="site-label-bg" x="-290" y="-14" width="100" height="18" rx="4" />
-          <text class="site-label-text" x="-240" y="-1" text-anchor="middle">左脚後枝 (ILVT)</text>
+          <line class="site-leader-line" x1="0" y1="0" x2="-220" y2="-15" />
+          <rect class="site-label-bg" x="-320" y="-24" width="100" height="18" rx="4" />
+          <text class="site-label-text" x="-270" y="-11" text-anchor="middle">左脚後枝 (ILVT)</text>
         </g>
 
 
@@ -272,13 +272,13 @@ export class HeartMap {
           <text class="site-label-text" x="169" y="34" text-anchor="middle">前外側乳頭筋 (ALPM)</text>
         </g>
 
-        <!-- 13. PMPM (後内側乳頭筋) : 点 (330, 330) -> ラベル Y=380 -->
-        <g class="origin-site" data-site="pmpm" transform="translate(330, 330)">
+        <!-- 13. PMPM (後内側乳頭筋) : 点 (355, 355) -> ラベル Y=380 -->
+        <g class="origin-site" data-site="pmpm" transform="translate(355, 355)">
           <circle class="site-ring" cx="0" cy="0" r="10" />
           <circle class="site-dot" cx="0" cy="0" r="5.5" />
-          <line class="site-leader-line" x1="0" y1="0" x2="160" y2="50" />
-          <rect class="site-label-bg" x="160" y="41" width="108" height="18" rx="4" />
-          <text class="site-label-text" x="214" y="54" text-anchor="middle">後内側乳頭筋 (PMPM)</text>
+          <line class="site-leader-line" x1="0" y1="0" x2="135" y2="25" />
+          <rect class="site-label-bg" x="135" y="16" width="108" height="18" rx="4" />
+          <text class="site-label-text" x="189" y="29" text-anchor="middle">後内側乳頭筋 (PMPM)</text>
         </g>
       </svg>
     `;

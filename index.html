@@ -73,6 +73,42 @@
       </div>
     </section>
 
+    <!-- 論文引用：典型12誘導心電図 & 臨床解説パネル (新規) -->
+    <section class="paper-citation-panel" id="paper-citation-panel">
+      <div class="citation-panel-header">
+        <div class="citation-title-group">
+          <span class="citation-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+            論文引用・典型12誘導波形
+          </span>
+          <h3 id="citation-case-title" class="citation-case-name">RVOT 後中隔 (Posterior Septum)</h3>
+          <span class="citation-layer-tag" id="citation-layer-tag">心内膜側 (Endocardial)</span>
+        </div>
+        <div class="citation-source-info" id="citation-source-info">
+          <!-- JSで動的生成 -->
+        </div>
+      </div>
+
+      <!-- 典型12誘導心電図プレビューグリッド (25mm/s, 10mm/mV 規格) -->
+      <div class="citation-ecg-grid-wrapper">
+        <div class="citation-ecg-header">
+          <span>典型的な12誘導PVC波形（標準規格 25mm/s, 10mm/mV相当）</span>
+          <span class="ecg-calibration-mark">1.0mV / 200ms</span>
+        </div>
+        <div class="citation-ecg-grid" id="citation-ecg-grid">
+          <!-- JSで12誘導SVGを動的生成 -->
+        </div>
+      </div>
+
+      <!-- 論文解説・見落とさないためのコツと落とし穴 -->
+      <div class="citation-insights-container" id="citation-insights-container">
+        <!-- JSで動的生成 -->
+      </div>
+    </section>
+
     <!-- メイン2カラムグリッド -->
     <main class="main-grid">
       <!-- 左カラム：ECGパラメータ入力 -->
@@ -296,6 +332,41 @@
           <p style="font-size: 0.8rem; color: #cbd5e1; margin-top: 6px;" id="winner-features">
             LBBB型、下軸、V3〜V4移行、I誘導陽性、QRS幅は比較的シャープ
           </p>
+        </div>
+
+        <!-- 心内膜由来 vs 心外膜由来 鑑別診断パネル (新規) -->
+        <div class="endo-epi-card" id="endo-epi-card">
+          <div class="endo-epi-header">
+            <div class="section-sub-title" style="margin-bottom: 0;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/>
+              </svg>
+              起源層別診断：心内膜 vs 心外膜 (Endo vs Epi)
+            </div>
+            <span class="endo-epi-verdict-badge" id="endo-epi-verdict-badge">心内膜側由来</span>
+          </div>
+
+          <!-- デュアルプロバビリティメーター -->
+          <div class="endo-epi-meter-wrapper">
+            <div class="meter-labels">
+              <span class="meter-label-endo"><strong id="val-endo-prob">80%</strong> 心内膜側 (Endo)</span>
+              <span class="meter-label-epi">心外膜側 (Epi) <strong id="val-epi-prob">20%</strong></span>
+            </div>
+            <div class="endo-epi-meter-bar">
+              <div class="meter-fill-endo" id="meter-fill-endo" style="width: 80%;"></div>
+              <div class="meter-fill-epi" id="meter-fill-epi" style="width: 20%;"></div>
+            </div>
+          </div>
+
+          <!-- 適合した論文基準チェックリスト -->
+          <div class="endo-epi-criteria" id="endo-epi-criteria">
+            <!-- JSで動的生成 -->
+          </div>
+
+          <!-- 推奨カテーテルアブレーションアプローチ -->
+          <div class="endo-epi-strategy-box" id="endo-epi-strategy-box">
+            <!-- JSで動的生成 -->
+          </div>
         </div>
 
         <!-- 鑑別部位ランキングリスト (Rank 2, 3) -->

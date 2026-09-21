@@ -427,6 +427,7 @@ export function estimatePVCOrigin(input) {
     topSite: results[0],
     ranking: results,
     reasoning,
+    endoVsEpi: evaluateEndoVsEpi(input),
     inputSummary: {
       axis,
       v1Pattern,
@@ -436,5 +437,214 @@ export function estimatePVCOrigin(input) {
       v2s_v3r_ratio,
       mdi
     }
+  };
+}
+
+/**
+ * 心内膜側 (Endocardial) vs 心外膜側 (Epicardial) 鑑別判定アルゴリズム
+ * 
+ * 学術的根拠:
+ * 1. Bazan V, et al. Heart Rhythm 2007 (心室筋全層伝導方向と初期r波 vs qS波)
+ * 2. Daniels DV, et al. Heart Rhythm 2009 (MDI: Maximum Deflection Index ≥ 0.55)
+ * 3. Berruezo A, et al. Circulation 2004 (偽デルタ波 ≥ 34ms, 最短RS時間 ≥ 100ms)
+ * 4. Ito S, et al. JCE 2003 (V6 S波 ≥ 0.1mVで左室内膜側, aVL/aVR Q波比 > 1.4で心外膜側)
+ * 5. 服部正幸, 山﨑浩. Heart View 2022;26(12):116-122 (器質的背景をもったVT: 図4 心内膜側vs心外膜側鑑別)
+ */
+export function evaluateEndoVsEpi(params = {}) {
+  const mdi = params.mdi !== undefined ? params.mdi : 0.42;
+  const pseudoDelta = params.pseudoDelta !== undefined ? params.pseudoDelta : 25; // ms
+  const qrsDuration = params.qrsDuration || 140;
+  const axis = params.axis || 'inferior';
+  const lead1 = params.lead1 || 'positive';
+  const leadAVL = params.leadAVL || 'negative_shallow';
+  const hasNotch = params.hasNotch || false;
+  const leads = params.leads || {};
+
+  let endoScore = 0;
+  let epiScore = 0;
+  const criteriaMet = [];
+
+  // 1. Daniels MDI 基準 (閾値 0.55)
+  if (mdi >= 0.55) {
+    epiScore += 35;
+    criteriaMet.push({
+      name: 'Daniels MDI基準 (最大偏位指数)',
+      value: `MDI = ${mdi.toFixed(2)} (≧0.55)`,
+      verdict: '心外膜側 (Epi) 強力示唆',
+      favor: 'epi',
+      ref: 'Daniels 2009 / Heart View 2022'
+    });
+  } else {
+    endoScore += 30;
+    criteriaMet.push({
+      name: 'Daniels MDI基準 (最大偏位指数)',
+      value: `MDI = ${mdi.toFixed(2)} (<0.55)`,
+      verdict: '心内膜側 (Endo) 示唆',
+      favor: 'endo',
+      ref: 'Daniels 2009 / Heart View 2022'
+    });
+  }
+
+  // 2. Berruezo 偽デルタ波基準 (閾値 34ms)
+  if (pseudoDelta >= 34) {
+    epiScore += 25;
+    criteriaMet.push({
+      name: 'Berruezo 偽デルタ波時間',
+      value: `${pseudoDelta} ms (≧34ms: 緩徐な初期立ち上がり)`,
+      verdict: '心外膜側 (Epi) 示唆',
+      favor: 'epi',
+      ref: 'Berruezo 2004'
+    });
+  } else {
+    endoScore += 20;
+    criteriaMet.push({
+      name: 'Berruezo 偽デルタ波時間',
+      value: `${pseudoDelta} ms (<34ms: シャープな立ち上がり)`,
+      verdict: '心内膜側 (Endo) 示唆',
+      favor: 'endo',
+      ref: 'Berruezo 2004'
+    });
+  }
+
+  // 3. Bazan基準 (初期微小r波 vs 完全qSパターン: Heart View 2022 服部・山﨑 図4)
+  // 前側壁・流出路系 (I, aVL) の初期ベクトル
+  const lead1Pattern = leads.I ? leads.I.pattern : (lead1 === 'positive' ? 'R' : 'QS');
+  const avlPattern = leads.aVL ? leads.aVL.pattern : (leadAVL === 'negative_deep' ? 'QS' : 'rS');
+
+  if (lead1Pattern === 'QS' || avlPattern === 'QS') {
+    // 心外膜側は外膜から遠ざかるため初期向かってくる興奮がなくqS波になる
+    epiScore += 25;
+    criteriaMet.push({
+      name: 'Bazan基準 (側壁誘導初期極性)',
+      value: `I誘導: ${lead1Pattern}, aVL: ${avlPattern} (qSパターン)`,
+      verdict: '心外膜側 (Epi: 興奮が外膜から遠ざかる)',
+      favor: 'epi',
+      ref: 'Bazan 2007 / Heart View 2022 図4'
+    });
+  } else if (lead1Pattern.includes('r') || avlPattern.includes('r') || lead1Pattern === 'R' || lead1Pattern === 'Rs') {
+    // 心内膜側は内膜から外膜へ興奮が伝播するため初期微小r波が形成される
+    endoScore += 25;
+    criteriaMet.push({
+      name: 'Bazan基準 (側壁誘導初期極性)',
+      value: `I誘導: ${lead1Pattern}, aVL: ${avlPattern} (初期r波あり)`,
+      verdict: '心内膜側 (Endo: 内膜から外膜への貫壁性伝播)',
+      favor: 'endo',
+      ref: 'Bazan 2007 / Heart View 2022 図4'
+    });
+  }
+
+  // 下壁誘導におけるBazan基準（上軸・心尖部/下壁起源時）
+  if (axis === 'superior') {
+    const avfPattern = leads.aVF ? leads.aVF.pattern : 'QS';
+    if (avfPattern === 'QS') {
+      epiScore += 20;
+      criteriaMet.push({
+        name: '下壁誘導 qS パターン (下壁心外膜判定)',
+        value: `aVF誘導: ${avfPattern}`,
+        verdict: '下壁心外膜側 (Epi) 示唆',
+        favor: 'epi',
+        ref: 'Heart View 2022 服部・山﨑'
+      });
+    } else {
+      endoScore += 20;
+      criteriaMet.push({
+        name: '下壁誘導 初期r波 (下壁心内膜判定)',
+        value: `aVF誘導: ${avfPattern} (rS)`,
+        verdict: '下壁心内膜側 (Endo) 示唆',
+        favor: 'endo',
+        ref: 'Heart View 2022 服部・山﨑'
+      });
+    }
+  }
+
+  // 4. Itoアルゴリズム (流出路境界鑑別: Heart View 2022 大西 図1 / 篠原 図2)
+  const v6Pattern = leads.V6 ? leads.V6.pattern : 'R';
+  if (v6Pattern === 'rS' || v6Pattern === 'Rs' || (leads.V6 && leads.V6.amp < 0)) {
+    endoScore += 20;
+    criteriaMet.push({
+      name: 'Itoアルゴリズム Step 1 (V6 S波)',
+      value: 'V6誘導に有意なS波 (≧0.1mV)',
+      verdict: '左室心内膜側 (LV end) 特異的',
+      favor: 'endo',
+      ref: 'Ito 2003 / Heart View 2022 大西 図1'
+    });
+  }
+
+  // 5. 幅広いQRSとノッチ
+  if (qrsDuration >= 165 || hasNotch) {
+    epiScore += 15;
+    criteriaMet.push({
+      name: '伝導遅延指標 (QRS幅・ノッチ)',
+      value: `QRS幅 ${qrsDuration}ms ${hasNotch ? '(下壁ノッチ有)' : ''}`,
+      verdict: '心外膜側または瘢痕部緩徐伝導を示唆',
+      favor: 'epi',
+      ref: 'Heart View 2022'
+    });
+  }
+
+  // 確率計算（ベイズ的重み付け正規化）
+  const totalScore = endoScore + epiScore;
+  let endoProb = 50;
+  let epiProb = 50;
+  if (totalScore > 0) {
+    endoProb = Math.round((endoScore / totalScore) * 100);
+    epiProb = 100 - endoProb;
+  }
+
+  let layer = 'transmural_indeterminate';
+  let layerJa = '心筋深層 / 境界性 (Intramural / Borderline)';
+  let confidence = 'moderate';
+
+  if (epiProb >= 65) {
+    layer = 'epicardial';
+    layerJa = '心外膜側由来 (Epicardial Origin)';
+    confidence = epiProb >= 80 ? 'high' : 'moderate';
+  } else if (endoProb >= 65) {
+    layer = 'endocardial';
+    layerJa = '心内膜側由来 (Endocardial Origin)';
+    confidence = endoProb >= 80 ? 'high' : 'moderate';
+  }
+
+  // カテーテルアブレーション治療戦略の推奨
+  let ablationStrategy = {};
+  if (layer === 'epicardial') {
+    ablationStrategy = {
+      title: '心外膜側アプローチまたは冠静脈洞内アプローチを考慮',
+      approach: '冠静脈洞 (GCV/AIV) マッピング、または経皮的心膜腔穿刺 (Subxiphoid Epicardial Approach)',
+      keyPoints: [
+        '心内膜側からの通常通電では不成功または遅発再発のリスクが高い領域です。',
+        'LV Summit (大心静脈走行部) では、左主幹部(LMT)・回旋枝(LCx)・前下行枝(LAD)への冠動脈傷害リスクを回避するため、必ず選択的冠動脈造影(CAG)下に安全マージン(>5mm〜10mm)を確認してください。',
+        '解剖学的アクセス不能例（心膜癒着例や冠動脈直近例）では、対側心内膜側からの高出力長時間通電やバイポーラ高周波通電が考慮されます。'
+      ]
+    };
+  } else if (layer === 'endocardial') {
+    ablationStrategy = {
+      title: '心内膜側カテーテルアプローチが第一選択（根治期待度 高）',
+      approach: '経静脈的右室アプローチ、または経大動脈弁逆行性 / 経心房中隔穿刺 (Transseptal) 左室アプローチ',
+      keyPoints: [
+        '通常の心内膜側コンタクトフォースカテーテルによる通電で高い根治率が期待されます。',
+        '最早期興奮電位（Local Activation Time）およびペースマッピング一致度（12/12一致）を確認の上、安全に通電を行います。',
+        '流出路近傍では房室伝導系（ヒス束電位）の近接度を必ずモニターしてください。'
+      ]
+    };
+  } else {
+    ablationStrategy = {
+      title: '心筋中層 (Intramural) または 内外膜境界病変',
+      approach: '心内膜側マッピング先行、不十分な場合は冠静脈洞内マッピング併用',
+      keyPoints: [
+        '心筋深層（Intramural focus）に起源が存在する可能性があります。',
+        '心内膜側最早期部位からの通電をまず試み、通電反応（PVC抑制）が鈍い場合は心外膜側・冠静脈側からの通電アプローチを検討します。'
+      ]
+    };
+  }
+
+  return {
+    layer,
+    layerJa,
+    endoProb,
+    epiProb,
+    confidence,
+    criteriaMet,
+    ablationStrategy
   };
 }

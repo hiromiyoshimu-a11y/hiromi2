@@ -88,7 +88,25 @@ const dom = {
   btnShowDisclaimer: document.getElementById('btn-show-disclaimer'),
   modalCloseBtn: document.getElementById('modal-close-btn'),
   algorithmModal: document.getElementById('algorithm-modal'),
-  heartMapRoot: document.getElementById('heart-map-root')
+  heartMapRoot: document.getElementById('heart-map-root'),
+
+  // 論文引用パネル要素
+  paperCitationPanel: document.getElementById('paper-citation-panel'),
+  citationCaseTitle: document.getElementById('citation-case-title'),
+  citationLayerTag: document.getElementById('citation-layer-tag'),
+  citationSourceInfo: document.getElementById('citation-source-info'),
+  citationEcgGrid: document.getElementById('citation-ecg-grid'),
+  citationInsightsContainer: document.getElementById('citation-insights-container'),
+
+  // 心内膜 vs 心外膜 鑑別パネル要素
+  endoEpiCard: document.getElementById('endo-epi-card'),
+  endoEpiVerdictBadge: document.getElementById('endo-epi-verdict-badge'),
+  valEndoProb: document.getElementById('val-endo-prob'),
+  valEpiProb: document.getElementById('val-epi-prob'),
+  meterFillEndo: document.getElementById('meter-fill-endo'),
+  meterFillEpi: document.getElementById('meter-fill-epi'),
+  endoEpiCriteria: document.getElementById('endo-epi-criteria'),
+  endoEpiStrategyBox: document.getElementById('endo-epi-strategy-box')
 };
 
 /**
@@ -132,6 +150,11 @@ function init() {
   // iOSボトムタブバーのセットアップ
   setupIosTabBar();
 
+  // 最初のプリセットに基づく論文引用パネルの初期描画
+  if (PRESETS.length > 0) {
+    renderPaperCitation(PRESETS[0]);
+  }
+
   // 初回解析実行
   runAnalysis();
 }
@@ -169,6 +192,7 @@ function applyPreset(preset) {
 
   syncControlsWithState();
   renderMatrix();
+  renderPaperCitation(preset);
   runAnalysis();
 }
 
@@ -544,6 +568,11 @@ function runAnalysis() {
     dom.reasoningContainer.appendChild(stepEl);
   });
 
+  // 5. 心内膜 vs 心外膜 鑑別診断パネルの更新
+  if (result.endoVsEpi) {
+    renderEndoVsEpi(result.endoVsEpi);
+  }
+
   // 5. 診断根拠となる参考論文＆日本語サマリーのレンダリング
   renderLiteratureForWinner(winner.id);
 }
@@ -722,6 +751,135 @@ function showMetricExplanationModal(metric) {
   `;
 
   modal.classList.add('open');
+}
+
+/**
+ * 論文引用・典型12誘導心電図 & 臨床解説パネルのレンダリング
+ */
+function renderPaperCitation(preset) {
+  if (!dom.paperCitationPanel || !preset) return;
+
+  // タイトルと層別タグ
+  dom.citationCaseTitle.textContent = preset.name;
+  dom.citationLayerTag.textContent = preset.transmuralSite || '心内膜側 (Endocardial)';
+  const isEpi = (preset.transmuralSite && (preset.transmuralSite.includes('心外膜') || preset.transmuralSite.includes('Epicardial')));
+  dom.citationLayerTag.className = `citation-layer-tag ${isEpi ? 'epi' : ''}`;
+
+  // 論文出典情報
+  if (preset.citation) {
+    dom.citationSourceInfo.innerHTML = `
+      <div><strong>出典論文:</strong> ${preset.citation.authors} 著</div>
+      <div>『${preset.citation.title}』${preset.citation.journal} <span class="fig-badge">${preset.citation.figure}</span></div>
+    `;
+  }
+
+  // 典型12誘導心電図グリッドの描画
+  if (dom.citationEcgGrid && preset.params && preset.params.leads) {
+    dom.citationEcgGrid.innerHTML = '';
+    const leadOrder = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6'];
+    leadOrder.forEach(leadName => {
+      const leadData = preset.params.leads[leadName] || { pattern: 'R', amp: 1.0 };
+      const leadBox = document.createElement('div');
+      leadBox.className = 'citation-lead-box';
+      leadBox.innerHTML = generateEcgSvg(leadName, leadData.pattern, leadData.amp, false);
+      dom.citationEcgGrid.appendChild(leadBox);
+    });
+  }
+
+  // 論文解説（メカニズム・見落とし防止・アブレーション戦略）
+  if (dom.citationInsightsContainer && preset.clinicalInsights) {
+    const ci = preset.clinicalInsights;
+    dom.citationInsightsContainer.innerHTML = `
+      <div class="insight-card points">
+        <h4>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          心電図波形の特徴と機序
+        </h4>
+        <p style="font-size: 0.74rem; color: #94a3b8; margin-bottom: 6px;"><strong>機序:</strong> ${ci.mechanism}</p>
+        <ul>
+          ${ci.ecgKeyPoints.map(pt => `<li>${pt}</li>`).join('')}
+        </ul>
+      </div>
+
+      <div class="insight-card pitfalls">
+        <h4>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+          見落とさないためのコツと落とし穴
+        </h4>
+        <p>${ci.pitfalls}</p>
+      </div>
+
+      <div class="insight-card strategy">
+        <h4>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/>
+          </svg>
+          カテーテルアブレーション戦略
+        </h4>
+        <p>${ci.ablationStrategy}</p>
+      </div>
+    `;
+  }
+}
+
+/**
+ * 心内膜 (Endo) vs 心外膜 (Epi) 鑑別パネルのレンダリング
+ */
+function renderEndoVsEpi(data) {
+  if (!data || !dom.endoEpiCard) return;
+
+  // 1. パーセンテージとメーターバー
+  if (dom.valEndoProb) dom.valEndoProb.textContent = `${data.endoProb}%`;
+  if (dom.valEpiProb) dom.valEpiProb.textContent = `${data.epiProb}%`;
+  if (dom.meterFillEndo) dom.meterFillEndo.style.width = `${data.endoProb}%`;
+  if (dom.meterFillEpi) dom.meterFillEpi.style.width = `${data.epiProb}%`;
+
+  // 2. 判定バッジ
+  if (dom.endoEpiVerdictBadge) {
+    dom.endoEpiVerdictBadge.textContent = data.layerJa;
+    dom.endoEpiVerdictBadge.className = `endo-epi-verdict-badge ${data.layer === 'epicardial' ? 'epi' : (data.layer === 'endocardial' ? '' : 'borderline')}`;
+  }
+
+  // 3. 適合した論文基準リスト
+  if (dom.endoEpiCriteria) {
+    dom.endoEpiCriteria.innerHTML = '';
+    if (data.criteriaMet && data.criteriaMet.length > 0) {
+      data.criteriaMet.forEach(c => {
+        const item = document.createElement('div');
+        item.className = 'criterion-item';
+        item.innerHTML = `
+          <div class="criterion-name">${c.name}</div>
+          <div class="criterion-value">${c.value}</div>
+          <span class="criterion-tag ${c.favor}">${c.favor === 'epi' ? '心外膜側' : '心内膜側'}</span>
+        `;
+        dom.endoEpiCriteria.appendChild(item);
+      });
+    }
+  }
+
+  // 4. アブレーション推奨戦略
+  if (dom.endoEpiStrategyBox && data.ablationStrategy) {
+    const strat = data.ablationStrategy;
+    const isEpi = data.layer === 'epicardial';
+    dom.endoEpiStrategyBox.className = `endo-epi-strategy-box ${isEpi ? 'epi-strategy' : ''}`;
+    dom.endoEpiStrategyBox.innerHTML = `
+      <div class="strategy-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><polygon points="12 8 8 12 12 16 16 12 12 8"/>
+        </svg>
+        ${strat.title}
+      </div>
+      <div class="strategy-approach">${strat.approach}</div>
+      <ul class="strategy-list">
+        ${strat.keyPoints.map(kp => `<li>${kp}</li>`).join('')}
+      </ul>
+    `;
+  }
 }
 
 // DOM構築完了後に起動
