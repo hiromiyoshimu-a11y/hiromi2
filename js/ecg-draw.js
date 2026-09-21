@@ -4,26 +4,37 @@
  */
 
 export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelected = false, showLabels = true, gain = 1.0, leadAngle = '') {
+  // 横幅・キャンバス領域を150x96に完全に固定（横幅スケール変化を防止）
+  const width = 150;
+  const height = 96;
+
   // 感度倍率 (標準: 1.0, 拡大: 1.5, 倍感度: 2.0, 半感度: 0.5)
   const currentGain = (typeof gain === 'number' && gain > 0) ? gain : 1.0;
   const rawAmp = Math.abs(amplitude) || 1.0;
   const effectiveAmp = rawAmp * currentGain;
 
-  // 感度や振幅に応じて表示範囲（縦幅 height）を動的に広げる
-  const width = 150;
-  const heightScale = Math.max(1.0, Math.sqrt(currentGain) * (effectiveAmp > 1.8 ? 1.15 : 1.0));
-  const height = Math.round(96 * heightScale);
-
-  // 基線 (基線位置を縦方向に中央へ最適配置)
-  const baseline = showLabels ? Math.round(height * 0.58) : Math.round(height * 0.5);
-
-  // 物理規格に忠実な線形波高計算 (1.0mV ＝ 約22px, クランプ処理なしで感度にリニア拡大)
+  // 物理規格に忠実な純粋線形波高計算 (縦軸方向リニア拡大)
   const calcHeight = (factor) => {
     return factor * (effectiveAmp * 22.0);
   };
 
   const getH_up = (factor = 1.0) => calcHeight(factor);
   const getH_down = (factor = 1.0) => calcHeight(factor);
+
+  // 波形パターンに応じた基線ダイナミックシフト (Dynamic Baseline Shift)
+  // 下向き(QS, rS)は基線を上寄りへ、上向き(R, qR, Notched_R)は基線を下寄りへ最適シフト
+  let baseline = showLabels ? 54 : 48;
+
+  if (pattern === 'QS' || pattern === 'rS') {
+    // 下向き波形主導: 上側が空いているため基線を上に寄せる (Y = 36〜40)
+    baseline = showLabels ? 38 : 34;
+  } else if (pattern === 'R' || pattern === 'qR' || pattern === 'Notched_R') {
+    // 上向き波形主導: 下側が空いているため基線を下に寄せる (Y = 66〜70)
+    baseline = showLabels ? 68 : 62;
+  } else {
+    // 二相性波形 (Rs, rsR): 中央付近
+    baseline = showLabels ? 54 : 48;
+  }
 
   // QRS波形の幾何パスデータ定義
   let qrsPath = '';
@@ -85,7 +96,7 @@ export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelec
 
   // 医療用心電図方眼紙グリッド（5mm大マス、1mm小マス）
   return `
-    <svg class="ecg-lead-svg ${isSelected ? 'selected' : ''}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <svg class="ecg-lead-svg ${isSelected ? 'selected' : ''}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="overflow: visible;">
       <defs>
         <pattern id="ecg-small-grid" width="7.5" height="7.5" patternUnits="userSpaceOnUse">
           <path d="M 7.5 0 L 0 0 0 7.5" fill="none" stroke="rgba(20, 184, 166, 0.08)" stroke-width="0.5"/>

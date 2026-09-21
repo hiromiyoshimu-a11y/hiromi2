@@ -1,8 +1,8 @@
 /**
- * CardioOrigin - Service Worker (オフライン完全動作 & キャッシュ管理)
+ * CardioOrigin - Service Worker (v4: リアルタイム優先 NetworkFirst 戦略)
  */
 
-const CACHE_NAME = 'cardio-origin-cache-v3';
+const CACHE_NAME = 'cardio-origin-cache-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -28,10 +28,11 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
+    })
   );
 });
 
@@ -49,38 +50,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+// NetworkFirst 戦略 (常に最新のJS/HTMLを読み込み、ネットワーク不能時のみキャッシュ使用)
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // バックグラウンドで更新をフェッチ
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, networkResponse);
-            });
-          }
-        }).catch(() => {/* オフライン時は無視 */});
-
-        return cachedResponse;
-      }
-
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200) {
-          return networkResponse;
-        }
-
+    fetch(event.request).then((networkResponse) => {
+      if (networkResponse && networkResponse.status === 200) {
         const responseToCache = networkResponse.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseToCache);
         });
-
-        return networkResponse;
-      }).catch(() => {
-        // オフライン時のフォールバック
-        if (event.request.headers.get('accept').includes('text/html')) {
+      }
+      return networkResponse;
+    }).catch(() => {
+      return caches.match(event.request).then((cachedResponse) => {
+        if (cachedResponse) return cachedResponse;
+        if (event.request.headers.get('accept')?.includes('text/html')) {
           return caches.match('./index.html');
         }
       });
