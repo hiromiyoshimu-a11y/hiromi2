@@ -14,6 +14,22 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="manifest" href="manifest.json">
 
+  <script>
+    // 旧破損キャッシュ & Service Worker 強制消去 (キャッシュ障害100%自動救済)
+    try {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          if (regs) { for (var r of regs) { r.unregister(); } }
+        }).catch(function(){});
+      }
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          if (names) { for (var n of names) { caches.delete(n); } }
+        }).catch(function(){});
+      }
+    } catch(e) {}
+  </script>
+
   <!-- フェールセーフ用インライン暗黒テーマ & 超高速セクション切替スクリプト -->
   <style>
     html, body { background-color: #070c18 !important; color: #f8fafc !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; margin: 0; padding: 0; min-height: 100vh; }
@@ -46,11 +62,11 @@
     };
   </script>
 
-  <!-- スタイルシート -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v11">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v11">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v11">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v11">
+  <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v9999_final">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v9999_final">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v9999_final">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v9999_final">
 </head>
 <body>
   <div class="app-container">
@@ -618,7 +634,7 @@
     </div>
   </div>
 
-  <!-- アプリケーションモジュール構築 (全機能単一ページ統合版) -->
-  <script type="module" src="./js/app.js?v=20260922_v10"></script>
+  <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
+  <script type="module" src="./js/app.js?v=20260922_v9999_final"></script>
 </body>
 </html>
