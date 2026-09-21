@@ -349,15 +349,39 @@ function handleInitialHash() {
   }
 }
 
+let currentCategoryFilter = 'all';
+
 /**
- * プリセットチップのレンダリング
+ * プリセットチップのレンダリング (右室・左室・その他 解剖領域分岐対応)
  */
 function renderPresets() {
   if (!dom.presetContainer) return;
   dom.presetContainer.innerHTML = '';
-  PRESETS.forEach((preset, index) => {
+
+  const filtered = PRESETS.filter(preset => {
+    if (currentCategoryFilter === 'all') return true;
+    const cat = (preset.category || '').toLowerCase();
+    const id = (preset.id || '').toLowerCase();
+
+    if (currentCategoryFilter === 'rv') {
+      return cat.includes('右室') || cat.includes('rvot') || id.includes('rv') || id.includes('tva');
+    } else if (currentCategoryFilter === 'lv') {
+      return cat.includes('左室') || cat.includes('lvot') || cat.includes('aortic') || id.includes('lv') || id.includes('rcc') || id.includes('lcc') || id.includes('ncc') || id.includes('amc') || id.includes('fascicular');
+    } else if (currentCategoryFilter === 'other') {
+      return cat.includes('心外膜') || cat.includes('特殊') || cat.includes('other') || id.includes('epi') || id.includes('gcv') || id.includes('cs');
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    dom.presetContainer.innerHTML = '<div style="color:#94a3b8; font-size:0.85rem; padding:12px;">該当領域の症例データを読み込んでいます</div>';
+    return;
+  }
+
+  filtered.forEach((preset, index) => {
     const chip = document.createElement('div');
-    chip.className = `preset-chip ${index === 0 ? 'active' : ''}`;
+    const isCurrentActive = currentPreset && currentPreset.id === preset.id;
+    chip.className = `preset-chip ${isCurrentActive || (index === 0 && !currentPreset) ? 'active' : ''}`;
     chip.dataset.id = preset.id;
     chip.innerHTML = `
       <span class="preset-name">${preset.name}</span>
@@ -365,10 +389,34 @@ function renderPresets() {
     `;
     chip.addEventListener('click', () => {
       applyPreset(preset);
-      document.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
+      dom.presetContainer.querySelectorAll('.preset-chip').forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
     });
     dom.presetContainer.appendChild(chip);
+  });
+}
+
+/**
+ * 解剖領域分岐フィルターボタンの初期化
+ */
+function setupPresetFilterListeners() {
+  const container = document.getElementById('preset-filter-container');
+  if (!container) return;
+
+  container.querySelectorAll('.preset-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.preset-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentCategoryFilter = btn.dataset.category || 'all';
+
+      renderPresets();
+
+      // フィルター適用後の最初の症例を自動選択
+      const firstChip = dom.presetContainer.querySelector('.preset-chip');
+      if (firstChip) {
+        firstChip.click();
+      }
+    });
   });
 }
 
@@ -746,6 +794,8 @@ window.switchMainSection = switchMainSection;
  * イベントリスナーのセットアップ
  */
 function setupEventListeners() {
+  setupPresetFilterListeners();
+
   const btnSim = document.getElementById('btn-tab-sim');
   const btnDiag = document.getElementById('btn-tab-diag');
   const btnQuiz = document.getElementById('btn-tab-quiz');

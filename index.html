@@ -157,12 +157,6 @@
           </svg>
           判定基準・文献
         </button>
-        <button id="btn-show-disclaimer" class="btn-header" title="医療免責事項と利用規約">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-          医療免責事項
-        </button>
       </div>
     </header>
 
@@ -177,10 +171,33 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            臨床症例シミュレーション（1クリック選択）
+            臨床症例シミュレーション（解剖領域分岐・1クリック選択）
           </span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">下の症例ボタンを押すと12誘導心電図と3D心臓解剖が即座に連動します</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">下の解剖領域（右室・左室・その他）を選んで症例を絞り込めます</span>
         </div>
+
+        <!-- 解剖領域 分岐フィルターピルボタン群 (右室 / 左室 / その他) -->
+        <div class="preset-filter-row" id="preset-filter-container">
+          <span class="preset-filter-label">起源領域:</span>
+          <div class="preset-filter-pills">
+            <button type="button" class="preset-filter-btn active" data-category="all">
+              <span>全領域 (ALL)</span>
+            </button>
+
+            <button type="button" class="preset-filter-btn" data-category="rv">
+              <span>🫀 右室起源 (RV)</span>
+            </button>
+
+            <button type="button" class="preset-filter-btn" data-category="lv">
+              <span>🫀 左室起源 (LV)</span>
+            </button>
+
+            <button type="button" class="preset-filter-btn" data-category="other">
+              <span>⚡ その他 / 特殊 (Other)</span>
+            </button>
+          </div>
+        </div>
+
         <div class="preset-carousel" id="preset-container">
           <!-- JSで動的生成 -->
         </div>
@@ -670,6 +687,19 @@
       </div>
     </div>
   </div>
+
+  <!-- ページ最下部 フッター (医療免責事項 & 利用規約) -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <button id="btn-show-disclaimer" class="btn-footer-disclaimer" title="医療免責事項と利用規約">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span>医療免責事項 &amp; 利用規約</span>
+      </button>
+      <p class="footer-copy">© 2026 吉村流！PVC The Origin — 12誘導ECG不整脈局在診断学習システム</p>
+    </div>
+  </footer>
 
   <!-- iOS & Android モバイル固定ボトムナビゲーションバー (指1本で100%即座切替) -->
   <nav class="ios-tab-bar" id="mobile-bottom-nav">
