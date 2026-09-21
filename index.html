@@ -634,6 +634,28 @@
     </div>
   </div>
 
+  <!-- iOS & Android モバイル固定ボトムナビゲーションバー (指1本で100%即座切替) -->
+  <nav class="ios-tab-bar" id="mobile-bottom-nav">
+    <button type="button" class="ios-tab-item active" id="mobile-tab-sim" onclick="window.switchMainSection('simulation')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+      <span>症例シミュ</span>
+    </button>
+    <button type="button" class="ios-tab-item" id="mobile-tab-diag" onclick="window.switchMainSection('diagnosis')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <span>PVC起源診断</span>
+    </button>
+    <button type="button" class="ios-tab-item" id="mobile-tab-quiz" onclick="window.switchMainSection('quiz')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+      <span>心電図クイズ</span>
+    </button>
+  </nav>
+
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
   <script type="module" src="./js/app.js?v=20260922_v9999_final"></script>
 </body>

@@ -237,15 +237,21 @@ html, body {
   bottom: 0;
   left: 0;
   right: 0;
-  height: calc(52px + var(--sab));
+  height: calc(56px + var(--sab));
   padding-bottom: var(--sab);
-  background: rgba(11, 19, 38, 0.94);
+  background: rgba(7, 12, 24, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(56, 189, 248, 0.2);
-  z-index: 1000;
+  border-top: 1px solid rgba(56, 189, 248, 0.3);
+  z-index: 9999;
   justify-content: space-around;
   align-items: center;
+}
+
+@media (max-width: 900px) {
+  .ios-tab-bar {
+    display: flex !important;
+  }
 }
 
 .ios-tab-item {
