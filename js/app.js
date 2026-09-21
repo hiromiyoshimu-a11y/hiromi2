@@ -731,11 +731,16 @@ function switchMainSection(sectionName) {
   }
 
   if (history && history.replaceState) {
-    history.replaceState(null, '', `#section-${sectionName}`);
+    try {
+      history.replaceState(null, '', `#section-${sectionName}`);
+    } catch(e) {}
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+// グローバル空間へ露出（インラインイベント用フェールセーフ）
+window.switchMainSection = switchMainSection;
 
 /**
  * イベントリスナーのセットアップ

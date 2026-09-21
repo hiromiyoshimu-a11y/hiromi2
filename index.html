@@ -14,21 +14,43 @@
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
   <link rel="manifest" href="manifest.json">
 
-  <!-- フェールセーフ用インライン暗黒テーマ (白背景化&タッチ阻害を0秒で100%防止) -->
+  <!-- フェールセーフ用インライン暗黒テーマ & 超高速セクション切替スクリプト -->
   <style>
     html, body { background-color: #070c18 !important; color: #f8fafc !important; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; margin: 0; padding: 0; min-height: 100vh; }
     a { color: #38bdf8; text-decoration: none; }
     .modal-overlay, .disclaimer-overlay { display: none !important; pointer-events: none !important; }
     .modal-overlay.open, .disclaimer-overlay.open { display: flex !important; pointer-events: auto !important; }
     .main-section { display: none; }
-    .main-section.active { display: block; }
+    .main-section.active { display: block !important; }
   </style>
 
+  <script>
+    window.switchMainSection = window.switchMainSection || function(sectionName) {
+      var secSim = document.getElementById('section-simulation');
+      var secDiag = document.getElementById('section-diagnosis');
+      var secQuiz = document.getElementById('section-quiz');
+
+      var btnSim = document.getElementById('btn-tab-sim');
+      var btnDiag = document.getElementById('btn-tab-diag');
+      var btnQuiz = document.getElementById('btn-tab-quiz');
+
+      if (btnSim) btnSim.classList.toggle('active', sectionName === 'simulation');
+      if (btnDiag) btnDiag.classList.toggle('active', sectionName === 'diagnosis');
+      if (btnQuiz) btnQuiz.classList.toggle('active', sectionName === 'quiz');
+
+      if (secSim) secSim.style.display = sectionName === 'simulation' ? 'block' : 'none';
+      if (secDiag) secDiag.style.display = sectionName === 'diagnosis' ? 'block' : 'none';
+      if (secQuiz) secQuiz.style.display = sectionName === 'quiz' ? 'block' : 'none';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+  </script>
+
   <!-- スタイルシート -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v11">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v11">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v11">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v11">
 </head>
 <body>
   <div class="app-container">
@@ -47,26 +69,26 @@
         </div>
       </div>
 
-      <!-- 3部門 共通ナビゲーションタブ (単一ページ完全SPA切り替え) -->
+      <!-- 3部门 共通ナビゲーションタブ (単一ページ完全SPA切り替え ＆ フェールセーフリンク対応) -->
       <nav class="main-nav-tabs">
-        <button type="button" class="nav-tab-btn active" id="btn-tab-sim" title="3D心臓モデル・立体解剖・臨床症例シミュレーション">
+        <a href="#section-simulation" class="nav-tab-btn active" id="btn-tab-sim" title="3D心臓モデル・立体解剖・臨床症例シミュレーション" onclick="if(window.switchMainSection){window.switchMainSection('simulation');return false;}">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
           <span>症例シミュレーション</span>
-        </button>
-        <button type="button" class="nav-tab-btn" id="btn-tab-diag" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール">
+        </a>
+        <a href="#section-diagnosis" class="nav-tab-btn" id="btn-tab-diag" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール" onclick="if(window.switchMainSection){window.switchMainSection('diagnosis');return false;}">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
           </svg>
           <span>PVC起源診断ツール</span>
-        </button>
-        <button type="button" class="nav-tab-btn" id="btn-tab-quiz" title="10問ランダム心電図読影クイズゲーム">
+        </a>
+        <a href="#section-quiz" class="nav-tab-btn" id="btn-tab-quiz" title="10問ランダム心電図読影クイズゲーム" onclick="if(window.switchMainSection){window.switchMainSection('quiz');return false;}">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
           <span>心電図クイズ</span>
-        </button>
+        </a>
       </nav>
 
       <div class="header-actions">
