@@ -888,7 +888,12 @@ function setupEventListeners() {
     dom.optAxis.addEventListener('click', (e) => {
       const btn = e.target.closest('.opt-btn');
       if (!btn) return;
-      appState.axis = btn.dataset.value;
+      const val = btn.dataset.value;
+      if (appState.axis === val) {
+        appState.axis = null; // 再タップで選択解除
+      } else {
+        appState.axis = val;
+      }
       updateButtonGroup(dom.optAxis, appState.axis);
       runAnalysis();
     });
@@ -899,7 +904,12 @@ function setupEventListeners() {
     dom.optV1.addEventListener('click', (e) => {
       const btn = e.target.closest('.opt-btn');
       if (!btn) return;
-      appState.v1Pattern = btn.dataset.value;
+      const val = btn.dataset.value;
+      if (appState.v1Pattern === val) {
+        appState.v1Pattern = null; // 再タップで選択解除
+      } else {
+        appState.v1Pattern = val;
+      }
       updateButtonGroup(dom.optV1, appState.v1Pattern);
       runAnalysis();
     });
@@ -910,9 +920,15 @@ function setupEventListeners() {
     dom.optTransition.addEventListener('click', (e) => {
       const btn = e.target.closest('.trans-btn');
       if (!btn) return;
-      appState.transition = btn.dataset.value;
-      dom.optTransition.querySelectorAll('.trans-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      const val = btn.dataset.value;
+      if (appState.transition === val) {
+        appState.transition = null; // 再タップで選択解除
+      } else {
+        appState.transition = val;
+      }
+      dom.optTransition.querySelectorAll('.trans-btn').forEach(b => {
+        b.classList.toggle('active', appState.transition !== null && b.dataset.value === appState.transition);
+      });
       runAnalysis();
     });
   }
@@ -922,7 +938,12 @@ function setupEventListeners() {
     dom.optLead1.addEventListener('click', (e) => {
       const btn = e.target.closest('.opt-btn');
       if (!btn) return;
-      appState.lead1 = btn.dataset.value;
+      const val = btn.dataset.value;
+      if (appState.lead1 === val) {
+        appState.lead1 = null; // 再タップで選択解除
+      } else {
+        appState.lead1 = val;
+      }
       updateButtonGroup(dom.optLead1, appState.lead1);
       runAnalysis();
     });
@@ -1032,9 +1053,16 @@ function setupEventListeners() {
     dom.optLead1SWave.addEventListener('click', (e) => {
       const btn = e.target.closest('.sub-pill');
       if (!btn) return;
-      appState.lead1_has_s_wave = btn.dataset.value === 'true';
-      dom.optLead1SWave.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      const val = btn.dataset.value === 'true';
+      if (appState.lead1_has_s_wave === val) {
+        appState.lead1_has_s_wave = undefined; // 再タップで解除
+      } else {
+        appState.lead1_has_s_wave = val;
+      }
+      const sValStr = String(appState.lead1_has_s_wave !== undefined ? appState.lead1_has_s_wave : '');
+      dom.optLead1SWave.querySelectorAll('.sub-pill').forEach(b => {
+        b.classList.toggle('active', appState.lead1_has_s_wave !== undefined && b.dataset.value === sValStr);
+      });
       runAnalysis();
     });
   }
@@ -1044,9 +1072,15 @@ function setupEventListeners() {
     dom.optAvlVsAvr.addEventListener('click', (e) => {
       const btn = e.target.closest('.sub-pill');
       if (!btn) return;
-      appState.avl_vs_avr = btn.dataset.value;
-      dom.optAvlVsAvr.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      const val = btn.dataset.value;
+      if (appState.avl_vs_avr === val) {
+        appState.avl_vs_avr = null; // 再タップで解除
+      } else {
+        appState.avl_vs_avr = val;
+      }
+      dom.optAvlVsAvr.querySelectorAll('.sub-pill').forEach(b => {
+        b.classList.toggle('active', appState.avl_vs_avr !== null && b.dataset.value === appState.avl_vs_avr);
+      });
       runAnalysis();
     });
   }
@@ -1056,9 +1090,16 @@ function setupEventListeners() {
     dom.optV2SmallR.addEventListener('click', (e) => {
       const btn = e.target.closest('.sub-pill');
       if (!btn) return;
-      appState.v2_has_small_r = btn.dataset.value === 'true';
-      dom.optV2SmallR.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      const val = btn.dataset.value === 'true';
+      if (appState.v2_has_small_r === val) {
+        appState.v2_has_small_r = false; // 再タップで解除
+      } else {
+        appState.v2_has_small_r = val;
+      }
+      const v2SmallRVal = String(appState.v2_has_small_r);
+      dom.optV2SmallR.querySelectorAll('.sub-pill').forEach(b => {
+        b.classList.toggle('active', appState.v2_has_small_r && b.dataset.value === 'true');
+      });
       runAnalysis();
     });
   }
@@ -1069,10 +1110,16 @@ function setupEventListeners() {
       const btn = e.target.closest('.sub-pill');
       if (!btn) return;
       const isNotch = btn.dataset.value === 'true';
-      appState.has_notch_rr_gt_20ms = isNotch;
-      appState.hasNotch = isNotch;
-      dom.optHasNotchRR20.querySelectorAll('.sub-pill').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
+      if (appState.has_notch_rr_gt_20ms === isNotch) {
+        appState.has_notch_rr_gt_20ms = false; // 再タップで解除
+        appState.hasNotch = false;
+      } else {
+        appState.has_notch_rr_gt_20ms = isNotch;
+        appState.hasNotch = isNotch;
+      }
+      dom.optHasNotchRR20.querySelectorAll('.sub-pill').forEach(b => {
+        b.classList.toggle('active', appState.has_notch_rr_gt_20ms && b.dataset.value === 'true');
+      });
       runAnalysis();
     });
   }
