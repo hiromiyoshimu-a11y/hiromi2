@@ -133,10 +133,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10015_ctrlpos">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10015_ctrlpos">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10015_ctrlpos">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10015_ctrlpos">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10016_badgefont">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10016_badgefont">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10016_badgefont">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10016_badgefont">
 </head>
 <body>
   <div class="app-container">
@@ -613,9 +613,9 @@
               <div id="inline-winner-features" style="font-size: 0.82rem; color: #cbd5e1; background: rgba(15, 23, 42, 0.6); border-radius: 8px; padding: 10px; line-height: 1.5; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
                 パラメータを選択後「診断する！」を押してください。
               </div>
-              <div id="inline-verdict-summary" style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <span id="inline-badge-endo-epi" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.4);">心内膜側 (Endocardial)</span>
-                <span id="inline-badge-outflow" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.4);">右室流出路 (RVOT)</span>
+              <div id="inline-verdict-summary" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+                <span id="inline-badge-endo-epi" style="font-size: 1.05rem; padding: 6px 12px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.4);">心内膜側 (Endocardial)</span>
+                <span id="inline-badge-outflow" style="font-size: 1.05rem; padding: 6px 12px; border-radius: 8px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.4);">右室流出路 (RVOT)</span>
               </div>
             </div>
           </div>
@@ -631,7 +631,7 @@
             <div class="layer-card endo-epi-card" id="endo-epi-card">
               <div class="layer-header">
                 <span class="layer-title">心筋層別推定 (Endo vs Epi)</span>
-                <span class="layer-verdict-badge" id="endo-epi-verdict-badge">心内膜側 (Endocardial)</span>
+                <span class="endo-epi-verdict-badge" id="endo-epi-verdict-badge">心内膜側 (Endocardial)</span>
               </div>
               <div class="meter-labels">
                 <span>心内膜 <strong id="val-endo-prob">85%</strong></span>
@@ -648,7 +648,7 @@
             <div class="layer-card outflow-side-card" id="outflow-side-card">
               <div class="layer-header">
                 <span class="layer-title">流出路 左右鑑別 (RVOT vs LVOT)</span>
-                <span class="layer-verdict-badge outflow" id="outflow-verdict-badge">右室流出路 (RVOT)</span>
+                <span class="outflow-verdict-badge" id="outflow-verdict-badge">右室流出路 (RVOT)</span>
               </div>
               <div class="meter-labels">
                 <span>RVOT <strong id="val-right-prob">90%</strong></span>
@@ -820,6 +820,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10015_ctrlpos"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10016_badgefont"></script>
 </body>
 </html>
