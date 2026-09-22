@@ -2092,15 +2092,15 @@ function renderCabreraFrontalStage(preset) {
 
   stage.insertAdjacentHTML('beforeend', bgSvg);
 
-  // 2. 前額面 Cabrera 6誘導カードの配置 (パーセンテージ座標で完全レスポンシブ化)
+  // 2. 前額面 Cabrera 6誘導カードの配置 (6軸サークル角度に正確に連動するパーセンテージ座標)
   const cabreraFrontalConfigs = [
-    { id: 'aVL', label: 'aVL', leftPct: 74.528, topPct: 16.082, angle: '-30°' },
-    { id: 'I', label: 'I', leftPct: 83.396, topPct: 49.072, angle: '0°' },
-    { id: '-aVR', label: '-aVR', leftPct: 74.528, topPct: 81.649, angle: '+30°', sourceLead: 'aVR', inverted: true },
-    { id: 'II', label: 'II', leftPct: 50.000, topPct: 89.897, angle: '+60°' },
-    { id: 'aVF', label: 'aVF', leftPct: 25.472, topPct: 81.649, angle: '+90°' },
-    { id: 'III', label: 'III', leftPct: 16.604, topPct: 49.072, angle: '+120°' },
-    { id: 'aVR', label: 'aVR (参考)', leftPct: 25.472, topPct: 16.082, angle: '-150°', isRef: true }
+    { id: 'aVL', label: 'aVL', leftPct: 78.104, topPct: 31.340, angle: '-30°' },
+    { id: 'I', label: 'I', leftPct: 82.453, topPct: 49.072, angle: '0°' },
+    { id: '-aVR', label: '-aVR', leftPct: 78.104, topPct: 66.804, angle: '+30°', sourceLead: 'aVR', inverted: true },
+    { id: 'II', label: 'II', leftPct: 66.226, topPct: 79.784, angle: '+60°' },
+    { id: 'aVF', label: 'aVF', leftPct: 50.000, topPct: 84.536, angle: '+90°' },
+    { id: 'III', label: 'III', leftPct: 33.774, topPct: 79.784, angle: '+120°' },
+    { id: 'aVR', label: 'aVR (参考)', leftPct: 21.896, topPct: 31.340, angle: '-150°', isRef: true }
   ];
 
   cabreraFrontalConfigs.forEach(cfg => {
@@ -2230,22 +2230,22 @@ function renderCabreraThoraxStage(preset) {
 
   stage.insertAdjacentHTML('beforeend', bgSvg);
 
-  // 2. 胸部誘導波形カードの配置
+  // 2. 胸部誘導波形カードの配置 (パーセンテージ座標で完全レスポンシブ対応化)
   const thoraxLeadConfigs = [
-    { id: 'V1', label: 'V1', left: 85, top: 70 },
-    { id: 'V2', label: 'V2', left: 195, top: 55 },
-    { id: 'V3', label: 'V3', left: 305, top: 70 },
-    { id: 'V4', label: 'V4', left: 400, top: 130 },
-    { id: 'V5', label: 'V5', left: 420, top: 245 },
-    { id: 'V6', label: 'V6', left: 405, top: 365 }
+    { id: 'V1', label: 'V1', leftPct: 16.038, topPct: 14.433 },
+    { id: 'V2', label: 'V2', leftPct: 36.792, topPct: 11.340 },
+    { id: 'V3', label: 'V3', leftPct: 57.547, topPct: 14.433 },
+    { id: 'V4', label: 'V4', leftPct: 75.472, topPct: 26.804 },
+    { id: 'V5', label: 'V5', leftPct: 79.245, topPct: 50.515 },
+    { id: 'V6', label: 'V6', leftPct: 76.415, topPct: 75.258 }
   ];
 
   thoraxLeadConfigs.forEach(cfg => {
     const leadData = leads[cfg.id] || { pattern: 'QS', amp: -1.0 };
     const card = document.createElement('div');
     card.className = 'spatial-lead-node';
-    card.style.left = `${cfg.left}px`;
-    card.style.top = `${cfg.top}px`;
+    card.style.left = `${cfg.leftPct}%`;
+    card.style.top = `${cfg.topPct}%`;
 
     card.innerHTML = generateEcgSvg(
       cfg.label,
