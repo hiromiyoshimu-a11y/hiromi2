@@ -118,11 +118,13 @@ body {
 }
 
 .origin-logo-row {
-  display: flex !important;
+  display: inline-flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  gap: 12px !important;
-  flex-wrap: nowrap !important; /* 絶対に改行・下移動を許さず同列表示 */
+  justify-content: flex-start !important;
+  gap: 14px !important;
+  flex-wrap: nowrap !important;
+  width: auto !important;
 }
 
 .origin-logo-img-wrapper {
@@ -133,9 +135,9 @@ body {
 }
 
 .title-logo-img {
-  height: 95px;
+  height: 140px;
   width: auto;
-  max-width: 480px;
+  max-width: 650px;
   object-fit: contain;
   filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 24px rgba(245, 158, 11, 0.45));
   transition: transform 0.25s ease, filter 0.25s ease;
@@ -337,27 +339,28 @@ body {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    justify-content: space-between !important;
-    gap: 8px !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
   }
   .origin-logo-row {
-    display: flex !important;
+    display: inline-flex !important;
     flex-direction: row !important;
     align-items: center !important;
-    gap: 8px !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
     flex-wrap: nowrap !important;
-    width: 100% !important;
-    justify-content: space-between !important;
+    width: auto !important;
   }
   .origin-subtitle {
-    font-size: 0.72rem !important;
-    padding: 3px 8px !important;
+    font-size: 0.78rem !important;
+    padding: 4px 10px !important;
     white-space: nowrap !important;
     flex-shrink: 0 !important;
   }
   .title-logo-img {
-    height: 40px !important;
-    max-width: 190px !important;
+    height: 75px !important;
+    max-width: 320px !important;
   }
   .main-nav-tabs {
     width: 100%;
