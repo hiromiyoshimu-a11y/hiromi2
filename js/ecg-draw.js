@@ -42,34 +42,34 @@ export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelec
   switch (pattern) {
     case 'R': { // 高い単相性R波
       const rPeak = baseline - getH_up(1.12);
-      qrsPath = `M 0 ${baseline} L 44 ${baseline} L 53 ${baseline + 2} L 62 ${rPeak} L 71 ${baseline + 3} L 78 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 150 ${baseline}`;
+      qrsPath = `M 12 ${baseline} L 44 ${baseline} L 53 ${baseline + 2} L 62 ${rPeak} L 71 ${baseline + 3} L 78 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
     }
 
     case 'Rs': { // R波優位 + 小さなs波
       const rsR = baseline - getH_up(1.0);
       const rsS = baseline + getH_down(0.35);
-      qrsPath = `M 0 ${baseline} L 44 ${baseline} L 53 ${baseline + 1} L 61 ${rsR} L 69 ${rsS} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 150 ${baseline}`;
+      qrsPath = `M 12 ${baseline} L 44 ${baseline} L 53 ${baseline + 1} L 61 ${rsR} L 69 ${rsS} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
     }
 
     case 'rS': { // 小さなr波 + 深いS波
       const srR = baseline - getH_up(0.35);
       const srS = baseline + getH_down(1.05);
-      qrsPath = `M 0 ${baseline} L 46 ${baseline} L 52 ${srR} L 59 ${baseline} L 68 ${srS} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 150 ${baseline}`;
+      qrsPath = `M 12 ${baseline} L 46 ${baseline} L 52 ${srR} L 59 ${baseline} L 68 ${srS} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
     }
 
     case 'QS': { // 単相性深いQS波
       const qsBottom = baseline + getH_down(1.1);
-      qrsPath = `M 0 ${baseline} L 46 ${baseline} L 52 ${baseline - 1} L 64 ${qsBottom} L 75 ${baseline} L 96 ${baseline - 4} L 110 ${baseline} L 150 ${baseline}`;
+      qrsPath = `M 12 ${baseline} L 46 ${baseline} L 52 ${baseline - 1} L 64 ${qsBottom} L 75 ${baseline} L 96 ${baseline - 4} L 110 ${baseline} L 138 ${baseline}`;
       break;
     }
 
     case 'qR': { // 小さなq波 + 高いR波
       const qrQ = baseline + getH_down(0.3);
       const qrR = baseline - getH_up(1.08);
-      qrsPath = `M 0 ${baseline} L 46 ${baseline} L 51 ${qrQ} L 61 ${qrR} L 70 ${baseline + 2} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 150 ${baseline}`;
+      qrsPath = `M 12 ${baseline} L 46 ${baseline} L 51 ${qrQ} L 61 ${qrR} L 70 ${baseline + 2} L 76 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
     }
 
@@ -77,7 +77,7 @@ export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelec
       const r1 = baseline - getH_up(0.55);
       const s1 = baseline + getH_down(0.3);
       const r2 = baseline - getH_up(1.05);
-      qrsPath = `M 0 ${baseline} L 44 ${baseline} L 50 ${r1} L 56 ${s1} L 64 ${r2} L 72 ${baseline + 2} L 78 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 150 ${baseline}`;
+      qrsPath = `M 12 ${baseline} L 44 ${baseline} L 50 ${r1} L 56 ${s1} L 64 ${r2} L 72 ${baseline + 2} L 78 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
     }
 
@@ -85,22 +85,18 @@ export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelec
       const nPeak1 = baseline - getH_up(0.92);
       const nNotch = baseline - getH_up(0.68);
       const nPeak2 = baseline - getH_up(1.05);
-      qrsPath = `M 0 ${baseline} L 40 ${baseline} L 51 ${nPeak1} L 57 ${nNotch} L 63 ${nPeak2} L 73 ${baseline + 3} L 79 ${baseline} L 99 ${baseline - 4} L 113 ${baseline} L 150 ${baseline}`;
+      qrsPath = `M 12 ${baseline} L 40 ${baseline} L 51 ${nPeak1} L 57 ${nNotch} L 63 ${nPeak2} L 73 ${baseline + 3} L 79 ${baseline} L 99 ${baseline - 4} L 113 ${baseline} L 138 ${baseline}`;
       break;
     }
 
     default:
-      qrsPath = `M 0 ${baseline} L 50 ${baseline} L 61 ${baseline - 22} L 72 ${baseline + 10} L 78 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 150 ${baseline}`;
+      qrsPath = `M 12 ${baseline} L 50 ${baseline} L 61 ${baseline - 22} L 72 ${baseline + 10} L 78 ${baseline} L 98 ${baseline - 4} L 112 ${baseline} L 138 ${baseline}`;
       break;
   }
 
-  // マトリックス等で枠目一杯に波形自体をフル拡大するためのviewBox & preserveAspectRatio調整
-  const viewBoxAttr = showLabels ? `0 0 ${width} ${height}` : `0 4 ${width} 88`;
-  const aspectAttr = showLabels ? `xMidYMid meet` : `none`;
-
-  // 医療用心電図方眼紙グリッド（5mm大マス、1mm小マス）
+  // 症例シミュレーターと100%同一の縦横比(150:96)とスケール維持
   return `
-    <svg class="ecg-lead-svg ${isSelected ? 'selected' : ''}" viewBox="${viewBoxAttr}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="${aspectAttr}">
+    <svg class="ecg-lead-svg ${isSelected ? 'selected' : ''}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
       <defs>
         <pattern id="ecg-small-grid" width="7.5" height="7.5" patternUnits="userSpaceOnUse">
           <path d="M 7.5 0 L 0 0 0 7.5" fill="none" stroke="rgba(20, 184, 166, 0.08)" stroke-width="0.5"/>
