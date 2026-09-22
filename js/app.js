@@ -508,7 +508,6 @@ function applyPreset(preset) {
 
   if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
   if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
-  if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'block';
 
   runAnalysis();
 }
@@ -1047,10 +1046,9 @@ function setupEventListeners() {
     dom.btnRunDiagnosis.addEventListener('click', () => {
       runAnalysis();
 
-      // 右パネルの心筋層別推定 & 流出路左右鑑別カードを表示
+      // 右パネルの心筋層別推定カードを表示
       if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
       if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
-      if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'block';
 
       if (dom.inlineDiagnosisResult) {
         dom.inlineDiagnosisResult.style.display = 'block';
@@ -1089,10 +1087,9 @@ function setupEventListeners() {
     dom.btnRunMatrixDiagnosis.addEventListener('click', () => {
       runAnalysis();
 
-      // 右パネルの心筋層別推定 & 流出路左右鑑別カードを表示
+      // 右パネルの心筋層別推定カードを表示
       if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
       if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
-      if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'block';
 
       if (dom.inlineMatrixDiagnosisResult) {
         dom.inlineMatrixDiagnosisResult.style.display = 'block';
@@ -1412,6 +1409,46 @@ function setupIosTabBar() {
 }
 
 /**
+ * 最有力起源 (winner) が 流出路 / summit / 僧帽弁輪 / 三尖弁輪 か判定する
+ * @param {Object} winner 診断結果の最有力部位オブジェクト (topSite)
+ * @returns {boolean} RVOT・LVOT・LV summit・僧帽弁輪・三尖弁輪 であれば true
+ */
+function isOutflowOrAnnularSite(winner) {
+  if (!winner) return false;
+
+  const id = (winner.id || '').toLowerCase();
+  const nameJa = (winner.nameJa || '').toLowerCase();
+  const nameEn = (winner.nameEn || '').toLowerCase();
+  const category = (winner.category || '').toLowerCase();
+
+  // 明示的な除外判定（乳頭筋、束枝/プルキンエ系、調整帯、心筋梗塞/瘢痕、心十字部、心尖部など）
+  if (
+    id.includes('papillary') || id.includes('pmpm') || id.includes('alpm') || nameJa.includes('乳頭筋') || nameEn.includes('papillary') ||
+    id.includes('fascicular') || id.includes('bbrvt') || id.includes('purkinje') || nameJa.includes('束枝') || nameJa.includes('プルキンエ') || nameJa.includes('脚枝') ||
+    id.includes('moderator') || nameJa.includes('調整帯') ||
+    id.includes('crux') || nameJa.includes('十字部') ||
+    id.includes('omi') || id.includes('scar') || nameJa.includes('梗塞') || nameJa.includes('瘢痕') ||
+    id.includes('apex') || nameJa.includes('心尖')
+  ) {
+    return false;
+  }
+
+  // 表示対象の判定：
+  // 1. RVOT (右室流出路)
+  // 2. LVOT (左室流出路 / 大動脈弁 / 冠尖 RCC, LCC, NCC)
+  // 3. LV summit (LV summit)
+  // 4. 僧帽弁輪 (MVA, AMC, Mitral)
+  // 5. 三尖弁輪 (TVA, Tricuspid, Parahisian)
+  const isRvot = id.includes('rvot') || category.includes('rvot') || nameJa.includes('rvot') || nameJa.includes('右室流出路');
+  const isLvot = id.includes('lvot') || id.includes('rcc') || id.includes('lcc') || id.includes('ncc') || id.includes('cusp') || category.includes('lvot') || category.includes('cusp') || nameJa.includes('lvot') || nameJa.includes('左室流出路') || nameJa.includes('冠尖');
+  const isSummit = id.includes('summit') || nameJa.includes('summit') || nameEn.includes('summit');
+  const isMitral = id.includes('mva') || id.includes('amc') || id.includes('mitral') || nameJa.includes('僧帽弁') || nameJa.includes('mva') || nameJa.includes('amc');
+  const isTricuspid = id.includes('tva') || id.includes('parahisian') || id.includes('his') || id.includes('tricuspid') || nameJa.includes('三尖弁') || nameJa.includes('parahisian') || nameJa.includes('his直上') || nameJa.includes('tva');
+
+  return isRvot || isLvot || isSummit || isMitral || isTricuspid || category.includes('流出路') || category.includes('弁輪');
+}
+
+/**
  * 起源推定解析の実行とUI反映
  */
 function runAnalysis() {
@@ -1424,6 +1461,8 @@ function runAnalysis() {
 
   // 2. 最有力起源 (Top Winner) カードの更新
   const winner = result.topSite;
+  const showOutflowCard = isOutflowOrAnnularSite(winner);
+
   if (dom.winnerProb) dom.winnerProb.innerHTML = `${winner.probability}<span>%</span>`;
   if (dom.winnerNameJa) dom.winnerNameJa.textContent = winner.nameJa;
   if (dom.winnerNameEn) dom.winnerNameEn.textContent = `${winner.nameEn} / ${winner.category}`;
@@ -1446,13 +1485,18 @@ function runAnalysis() {
       dom.inlineBadgeEndoEpi.style.borderColor = isEndo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
     }
 
-    if (dom.inlineBadgeOutflow && result.outflowAnalysis) {
-      const isRight = result.outflowAnalysis.verdict === 'right_rvot' || result.outflowAnalysis.verdict === 'right' || (result.outflowAnalysis.rightProb >= result.outflowAnalysis.leftProb);
-      const outflowLabel = isRight ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
-      dom.inlineBadgeOutflow.textContent = outflowLabel;
-      dom.inlineBadgeOutflow.style.background = isRight ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
-      dom.inlineBadgeOutflow.style.color = isRight ? '#38bdf8' : '#fbbf24';
-      dom.inlineBadgeOutflow.style.borderColor = isRight ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+    if (dom.inlineBadgeOutflow) {
+      if (showOutflowCard && result.outflowAnalysis) {
+        const isRight = result.outflowAnalysis.verdict === 'right_rvot' || result.outflowAnalysis.verdict === 'right' || (result.outflowAnalysis.rightProb >= result.outflowAnalysis.leftProb);
+        const outflowLabel = isRight ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
+        dom.inlineBadgeOutflow.textContent = outflowLabel;
+        dom.inlineBadgeOutflow.style.background = isRight ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+        dom.inlineBadgeOutflow.style.color = isRight ? '#38bdf8' : '#fbbf24';
+        dom.inlineBadgeOutflow.style.borderColor = isRight ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+        dom.inlineBadgeOutflow.style.display = 'inline-block';
+      } else {
+        dom.inlineBadgeOutflow.style.display = 'none';
+      }
     }
   }
 
@@ -1472,13 +1516,18 @@ function runAnalysis() {
       dom.inlineMatrixBadgeEndoEpi.style.borderColor = isEndo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
     }
 
-    if (dom.inlineMatrixBadgeOutflow && result.outflowAnalysis) {
-      const isRight = result.outflowAnalysis.verdict === 'right_rvot' || result.outflowAnalysis.verdict === 'right' || (result.outflowAnalysis.rightProb >= result.outflowAnalysis.leftProb);
-      const outflowLabel = isRight ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
-      dom.inlineMatrixBadgeOutflow.textContent = outflowLabel;
-      dom.inlineMatrixBadgeOutflow.style.background = isRight ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
-      dom.inlineMatrixBadgeOutflow.style.color = isRight ? '#38bdf8' : '#fbbf24';
-      dom.inlineMatrixBadgeOutflow.style.borderColor = isRight ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+    if (dom.inlineMatrixBadgeOutflow) {
+      if (showOutflowCard && result.outflowAnalysis) {
+        const isRight = result.outflowAnalysis.verdict === 'right_rvot' || result.outflowAnalysis.verdict === 'right' || (result.outflowAnalysis.rightProb >= result.outflowAnalysis.leftProb);
+        const outflowLabel = isRight ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
+        dom.inlineMatrixBadgeOutflow.textContent = outflowLabel;
+        dom.inlineMatrixBadgeOutflow.style.background = isRight ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+        dom.inlineMatrixBadgeOutflow.style.color = isRight ? '#38bdf8' : '#fbbf24';
+        dom.inlineMatrixBadgeOutflow.style.borderColor = isRight ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+        dom.inlineMatrixBadgeOutflow.style.display = 'inline-block';
+      } else {
+        dom.inlineMatrixBadgeOutflow.style.display = 'none';
+      }
     }
   }
 
@@ -1529,8 +1578,13 @@ function runAnalysis() {
   }
 
   // 6. 流出路起源：右側 (RVOT) vs 左側 (LVOT/LCC) 精密鑑別パネル (Ito 2003) の更新
-  if (result.outflowAnalysis && dom.outflowSideCard) {
-    renderOutflowSideCard(result.outflowAnalysis);
+  if (dom.outflowSideCard) {
+    if (showOutflowCard && result.outflowAnalysis) {
+      renderOutflowSideCard(result.outflowAnalysis);
+      dom.outflowSideCard.style.display = 'block';
+    } else {
+      dom.outflowSideCard.style.display = 'none';
+    }
   }
 
   // 7. 診断根拠となる参考論文＆日本語サマリーのレンダリング
@@ -2190,7 +2244,7 @@ function renderEndoVsEpi(data) {
   // 2. 判定バッジ
   if (dom.endoEpiVerdictBadge) {
     dom.endoEpiVerdictBadge.textContent = data.layerJa;
-    dom.endoEpiVerdictBadge.className = `endo-epi-verdict-badge ${data.layer === 'epicardial' ? 'epi' : (data.layer === 'endocardial' ? '' : 'borderline')}`;
+    dom.endoEpiVerdictBadge.className = `endo-epi-verdict-badge ${data.layer === 'epicardial' ? 'epi' : (data.layer === 'endocardial' ? 'endo' : 'borderline')}`;
   }
 
   // 3. 適合した論文基準リスト & LVEpi警告バナー
