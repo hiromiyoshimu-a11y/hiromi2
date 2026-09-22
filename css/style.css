@@ -900,37 +900,40 @@ body {
   color: #94a3b8;
 }
 
-.matrix-vertical-grid {
+.ecg-matrix-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
-@media (max-width: 680px) {
-  .matrix-vertical-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
+@media (max-width: 768px) {
+  .ecg-matrix-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
   }
 }
 
-.matrix-col-leads {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
+@media (max-width: 480px) {
+  .ecg-matrix-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
 }
 
 .matrix-lead-card {
-  background: #080f1e;
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: #060b16;
+  border: 1px solid rgba(56, 189, 248, 0.25);
   border-radius: 8px;
-  padding: 6px 10px 8px;
+  padding: 6px 8px 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -944,12 +947,14 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .matrix-lead-label {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 800;
   color: #38bdf8;
   flex-shrink: 0;
@@ -959,17 +964,19 @@ body {
 .matrix-lead-select {
   flex: 1;
   min-width: 0;
+  max-width: calc(100% - 24px);
   background: #040812;
   border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 5px;
+  border-radius: 4px;
   color: #f1f5f9;
-  font-size: 0.75rem;
-  padding: 4px 6px;
+  font-size: 0.72rem;
+  padding: 2px 4px;
   cursor: pointer;
   text-overflow: ellipsis;
   white-space: nowrap;
   overflow: hidden;
   outline: none;
+  box-sizing: border-box;
   transition: border-color 0.15s ease;
 }
 
@@ -979,19 +986,21 @@ body {
 
 .matrix-lead-svg-wrap {
   width: 100%;
-  aspect-ratio: 150 / 96;
-  border-radius: 6px;
+  height: 54px;
+  border-radius: 5px;
   overflow: hidden;
   background: #040812;
   border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
 }
 
 .matrix-lead-svg-wrap svg {
-  width: 100%;
   height: 100%;
+  width: auto;
+  max-width: 100%;
   display: block;
 }
 

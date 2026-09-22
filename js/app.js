@@ -721,42 +721,7 @@ function renderMatrix() {
   dom.matrixContainer.innerHTML = '';
 
   const gridWrapper = document.createElement('div');
-  gridWrapper.className = 'std-vertical-grid matrix-vertical-grid';
-
-  // 四肢誘導カラム
-  const limbCol = document.createElement('div');
-  limbCol.className = 'std-vertical-col limb-col';
-  limbCol.innerHTML = `
-    <div class="std-col-header">
-      <div class="std-col-header-top">
-        <span class="std-col-tag limb">四肢誘導</span>
-        <span class="std-col-en">Limb Leads</span>
-      </div>
-      <span class="std-col-sub">I, II, III, aVR, aVL, aVF</span>
-    </div>
-    <div class="std-col-leads matrix-col-leads" id="matrix-limb-leads"></div>
-  `;
-
-  // 胸部誘導カラム
-  const chestCol = document.createElement('div');
-  chestCol.className = 'std-vertical-col chest-col';
-  chestCol.innerHTML = `
-    <div class="std-col-header">
-      <div class="std-col-header-top">
-        <span class="std-col-tag chest">胸部誘導</span>
-        <span class="std-col-en">Chest Leads</span>
-      </div>
-      <span class="std-col-sub">V1, V2, V3, V4, V5, V6</span>
-    </div>
-    <div class="std-col-leads matrix-col-leads" id="matrix-chest-leads"></div>
-  `;
-
-  gridWrapper.appendChild(limbCol);
-  gridWrapper.appendChild(chestCol);
-  dom.matrixContainer.appendChild(gridWrapper);
-
-  const limbContainer = limbCol.querySelector('#matrix-limb-leads');
-  const chestContainer = chestCol.querySelector('#matrix-chest-leads');
+  gridWrapper.className = 'ecg-matrix-grid';
 
   const createCard = (lead) => {
     const leadData = appState.leads[lead] || { pattern: 'R', amp: 1.0 };
@@ -793,13 +758,11 @@ function renderMatrix() {
     return card;
   };
 
-  LIMB_LEADS.forEach(item => {
-    limbContainer.appendChild(createCard(item.id));
+  LEAD_LIST.forEach(lead => {
+    gridWrapper.appendChild(createCard(lead));
   });
 
-  CHEST_LEADS.forEach(item => {
-    chestContainer.appendChild(createCard(item.id));
-  });
+  dom.matrixContainer.appendChild(gridWrapper);
 }
 
 function syncMatrixToState(changedLead, pattern) {
