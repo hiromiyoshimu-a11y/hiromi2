@@ -900,47 +900,74 @@ body {
   color: #94a3b8;
 }
 
-.ecg-matrix-grid {
+.matrix-2col-wrapper {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
 }
 
-@media (max-width: 768px) {
-  .ecg-matrix-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
+@media (max-width: 580px) {
+  .matrix-2col-wrapper {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 
-@media (max-width: 480px) {
-  .ecg-matrix-grid {
-    grid-template-columns: 1fr;
-    gap: 6px;
-  }
+.matrix-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.matrix-col-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-sizing: border-box;
+}
+
+.matrix-col-sub {
+  font-size: 0.65rem;
+  color: #64748b;
+  font-family: var(--font-mono);
+}
+
+.matrix-col-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .matrix-lead-card {
   background: #060b16;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  border: 1px solid rgba(56, 189, 248, 0.22);
   border-radius: 8px;
-  padding: 6px 8px 8px;
+  padding: 5px 7px 7px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
-  max-width: 100%;
+  width: 100%;
   box-sizing: border-box;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .matrix-lead-card:hover {
   border-color: rgba(56, 189, 248, 0.5);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 4px 10px rgba(56, 189, 248, 0.15);
 }
 
 .matrix-lead-header {
@@ -954,7 +981,7 @@ body {
 }
 
 .matrix-lead-label {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 800;
   color: #38bdf8;
   flex-shrink: 0;
@@ -964,13 +991,13 @@ body {
 .matrix-lead-select {
   flex: 1;
   min-width: 0;
-  max-width: calc(100% - 24px);
+  max-width: calc(100% - 20px);
   background: #040812;
   border: 1px solid rgba(148, 163, 184, 0.3);
   border-radius: 4px;
   color: #f1f5f9;
-  font-size: 0.72rem;
-  padding: 2px 4px;
+  font-size: 0.68rem;
+  padding: 2px 3px;
   cursor: pointer;
   text-overflow: ellipsis;
   white-space: nowrap;

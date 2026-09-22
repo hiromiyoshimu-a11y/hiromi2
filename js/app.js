@@ -721,7 +721,36 @@ function renderMatrix() {
   dom.matrixContainer.innerHTML = '';
 
   const gridWrapper = document.createElement('div');
-  gridWrapper.className = 'ecg-matrix-grid';
+  gridWrapper.className = 'matrix-2col-wrapper';
+
+  // 左列: 四肢誘導
+  const limbCol = document.createElement('div');
+  limbCol.className = 'matrix-col';
+  limbCol.innerHTML = `
+    <div class="matrix-col-header">
+      <span class="std-col-tag limb">四肢誘導</span>
+      <span class="matrix-col-sub">I, II, III, aVR, aVL, aVF</span>
+    </div>
+    <div class="matrix-col-cards" id="matrix-limb-cards"></div>
+  `;
+
+  // 右列: 胸部誘導
+  const chestCol = document.createElement('div');
+  chestCol.className = 'matrix-col';
+  chestCol.innerHTML = `
+    <div class="matrix-col-header">
+      <span class="std-col-tag chest">胸部誘導</span>
+      <span class="matrix-col-sub">V1, V2, V3, V4, V5, V6</span>
+    </div>
+    <div class="matrix-col-cards" id="matrix-chest-cards"></div>
+  `;
+
+  gridWrapper.appendChild(limbCol);
+  gridWrapper.appendChild(chestCol);
+  dom.matrixContainer.appendChild(gridWrapper);
+
+  const limbCardsContainer = limbCol.querySelector('#matrix-limb-cards');
+  const chestCardsContainer = chestCol.querySelector('#matrix-chest-cards');
 
   const createCard = (lead) => {
     const leadData = appState.leads[lead] || { pattern: 'R', amp: 1.0 };
@@ -758,11 +787,13 @@ function renderMatrix() {
     return card;
   };
 
-  LEAD_LIST.forEach(lead => {
-    gridWrapper.appendChild(createCard(lead));
+  LIMB_LEADS.forEach(item => {
+    limbCardsContainer.appendChild(createCard(item.id));
   });
 
-  dom.matrixContainer.appendChild(gridWrapper);
+  CHEST_LEADS.forEach(item => {
+    chestCardsContainer.appendChild(createCard(item.id));
+  });
 }
 
 function syncMatrixToState(changedLead, pattern) {
