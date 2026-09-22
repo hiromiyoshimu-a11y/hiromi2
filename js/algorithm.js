@@ -239,7 +239,7 @@ export function estimatePVCOrigin(input) {
   if (isInferiorAxis) {
     reasoning.push({
       step: 'Step 1: 電気軸判定',
-      badge: '下軸 (Inferior Axis)',
+      badge: '下方軸 (Inferior Axis)',
       text: '下壁誘導 (II, III, aVF) が陽性（高R波）であり、心臓の頭側・上方（流出路系または弁輪部基部）からの興奮伝播を強く示唆します。'
     });
     // 流出路系・基部にボーナス
@@ -256,7 +256,7 @@ export function estimatePVCOrigin(input) {
   } else if (isSuperiorAxis) {
     reasoning.push({
       step: 'Step 1: 電気軸判定',
-      badge: '上軸 (Superior Axis)',
+      badge: '上方軸 (Superior Axis)',
       text: '下壁誘導 (II, III, aVF) が陰性（深いQS/rS）であり、心尖部・乳頭筋・下後壁側からの興奮伝播を示唆します。'
     });
     scores.pmpm += 50;
@@ -329,17 +329,17 @@ export function estimatePVCOrigin(input) {
   if (hasV1QR) {
     if (isInferiorAxis) {
       reasoning.push({
-        step: 'Step 2b: V1 qRパターン ＋ 下軸 (Tada 2005)',
+        step: 'Step 2b: V1 qRパターン ＋ 下方軸 (Tada 2005)',
         badge: '大動脈僧帽弁移行部 (AMC前部) 特異的',
-        text: 'V1誘導に初期微小q波を伴う高R波 (qRパターン) を認め、かつ下壁誘導が陽性（下軸）です。大動脈僧帽弁移行部 前部 (LVOT AMC anterior) を強力に同定します (Tada et al. 2005)。'
+        text: 'V1誘導に初期微小q波を伴う高R波 (qRパターン) を認め、かつ下壁誘導が陽性（下方軸）です。大動脈僧帽弁移行部 前部 (LVOT AMC anterior) を強力に同定します (Tada et al. 2005)。'
       });
       scores.amc += 45;
       scores.lvot_lcc += 15;
     } else if (isSuperiorAxis) {
       reasoning.push({
-        step: 'Step 2b: V1 qRパターン ＋ 上軸 (Tada 2005)',
+        step: 'Step 2b: V1 qRパターン ＋ 上方軸 (Tada 2005)',
         badge: '僧帽弁輪後中隔 (Posteroseptal MA) 特異的',
-        text: 'V1誘導に特異的なqRパターンを認め、かつ下壁誘導が陰性（上軸: 深いQS）です。僧帽弁輪後中隔 (Mitral Annulus posteroseptal) 起源に極めて特異的です (Tada et al. 2005 図C)。'
+        text: 'V1誘導に特異的なqRパターンを認め、かつ下壁誘導が陰性（上方軸: 深いQS）です。僧帽弁輪後中隔 (Mitral Annulus posteroseptal) 起源に極めて特異的です (Tada et al. 2005 図C)。'
       });
       scores.mva += 45;
       scores.pmpm -= 15;

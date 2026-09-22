@@ -611,7 +611,7 @@ export class EcgImageAnalyzer {
     const layoutName = ECG_LAYOUTS[f.layoutId]?.name.split(' ')[0] || f.layoutId;
     conf.textContent = `認識レイアウト: ${layoutName} / 信頼度: 94%`;
 
-    const axisLabel = f.axis === 'inferior' ? '下軸 (II/III/aVF陽性)' : f.axis === 'superior' ? '上軸 (II/III/aVF陰性)' : '中間軸';
+    const axisLabel = f.axis === 'inferior' ? '下方軸 (II/III/aVF陽性)' : f.axis === 'superior' ? '上方軸 (II/III/aVF陰性)' : '中間軸';
     const v1Label = f.v1Pattern.startsWith('lbbb') ? 'LBBB型 (QS/rS)' : 'RBBB型 (R/Rs)';
     const lead1Label = f.lead1 === 'positive' ? '陽性 (R波)' : f.lead1 === 'negative' ? '陰性 (QS/rS)' : '二相性';
 
