@@ -298,9 +298,16 @@ export class QuizGame {
     const derivedLeads = this.deriveLeadsFromPreset(preset);
 
     let html = `
-      <div class="ecg-grid-layout" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; background:#060a14; padding:12px; border-radius:8px; border:1px solid rgba(56,189,248,0.25);">
-        <div class="limb-leads-col">
-          <div style="font-size:11px; font-weight:700; color:#38bdf8; margin-bottom:6px;">肢誘導 (Limb Leads)</div>
+      <div class="citation-standard-vertical" style="margin-top: 0; width: 100%;">
+        <div class="std-vertical-grid" style="grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="std-vertical-col limb-col" style="background:#060b16; border:1px solid rgba(56,189,248,0.28); border-radius:10px; padding:10px;">
+            <div class="std-col-header" style="margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.08);">
+              <div class="std-col-header-top" style="display:flex; align-items:center; gap:6px;">
+                <span class="std-col-tag limb" style="background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.35); font-size:0.74rem; font-weight:800; padding:2px 7px; border-radius:4px;">四肢誘導</span>
+                <span class="std-col-en" style="font-size:0.68rem; color:#94a3b8; font-weight:600;">Limb Leads</span>
+              </div>
+            </div>
+            <div class="std-col-leads" style="display:flex; flex-direction:column; gap:6px;">
     `;
 
     const limbLeads = leadsOrder.slice(0, 6);
@@ -317,15 +324,21 @@ export class QuizGame {
       }
       const amp = Math.abs(leadConfig.amp || 1.0);
 
-      // ecg-draw.js の本格SVGレンダラーを呼び出し
       const svgCode = generateEcgSvg(leadName, pat, amp, false, true, 1.0, '');
-      html += `<div style="margin-bottom:6px;">${svgCode}</div>`;
+      html += `<div class="citation-lead-box">${svgCode}</div>`;
     });
 
     html += `
-        </div>
-        <div class="chest-leads-col">
-          <div style="font-size:11px; font-weight:700; color:#38bdf8; margin-bottom:6px;">胸部誘導 (Chest Leads)</div>
+            </div>
+          </div>
+          <div class="std-vertical-col chest-col" style="background:#060b16; border:1px solid rgba(168,85,247,0.28); border-radius:10px; padding:10px;">
+            <div class="std-col-header" style="margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid rgba(255,255,255,0.08);">
+              <div class="std-col-header-top" style="display:flex; align-items:center; gap:6px;">
+                <span class="std-col-tag chest" style="background:rgba(168,85,247,0.18); color:#c084fc; border:1px solid rgba(168,85,247,0.35); font-size:0.74rem; font-weight:800; padding:2px 7px; border-radius:4px;">胸部誘導</span>
+                <span class="std-col-en" style="font-size:0.68rem; color:#94a3b8; font-weight:600;">Chest Leads</span>
+              </div>
+            </div>
+            <div class="std-col-leads" style="display:flex; flex-direction:column; gap:6px;">
     `;
 
     const chestLeads = leadsOrder.slice(6, 12);
@@ -335,10 +348,12 @@ export class QuizGame {
       const amp = Math.abs(leadConfig.amp || 1.0);
 
       const svgCode = generateEcgSvg(leadName, pat, amp, false, true, 1.0, '');
-      html += `<div style="margin-bottom:6px;">${svgCode}</div>`;
+      html += `<div class="citation-lead-box">${svgCode}</div>`;
     });
 
     html += `
+            </div>
+          </div>
         </div>
       </div>
     `;
