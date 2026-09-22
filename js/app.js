@@ -172,6 +172,7 @@ const dom = {
   colLimbLeads: document.getElementById('col-limb-leads'),
   colChestLeads: document.getElementById('col-chest-leads'),
   colVerticalInsights: document.getElementById('col-vertical-insights'),
+  colInsightsWrapper: document.getElementById('col-insights-wrapper'),
   citationCabreraSpatial: document.getElementById('citation-cabrera-spatial'),
   cabreraFrontalStage: document.getElementById('cabrera-frontal-stage'),
   cabreraThoraxStage: document.getElementById('cabrera-thorax-stage'),
@@ -299,6 +300,7 @@ function refreshDomReferences() {
   dom.colLimbLeads = document.getElementById('col-limb-leads');
   dom.colChestLeads = document.getElementById('col-chest-leads');
   dom.colVerticalInsights = document.getElementById('col-vertical-insights');
+  dom.colInsightsWrapper = document.getElementById('col-insights-wrapper');
   dom.citationCabreraSpatial = document.getElementById('citation-cabrera-spatial');
   dom.cabreraFrontalStage = document.getElementById('cabrera-frontal-stage');
   dom.cabreraThoraxStage = document.getElementById('cabrera-thorax-stage');
@@ -1956,13 +1958,21 @@ function renderPaperCitation(preset) {
     dom.stdLayoutGroup.style.display = isCabrera ? 'none' : 'inline-flex';
   }
 
+  // 重複表示防止: 一旦両方の解説領域をリセット
+  if (dom.colInsightsWrapper) dom.colInsightsWrapper.style.display = 'none';
+  if (dom.colVerticalInsights) dom.colVerticalInsights.innerHTML = '';
+  if (dom.citationInsightsContainer) {
+    dom.citationInsightsContainer.style.display = 'none';
+    dom.citationInsightsContainer.innerHTML = '';
+  }
+
   if (isCabrera) {
-    // カブレラ配列時: 標準グリッド & 縦型3列を非表示にし、空間配置ビューを表示
+    // カブレラ配列時: 標準グリッド & 縦型2列を非表示にし、空間配置ビューを表示
     if (dom.citationEcgGrid) dom.citationEcgGrid.style.display = 'none';
     if (dom.citationStdVertical) dom.citationStdVertical.style.display = 'none';
     if (dom.citationCabreraSpatial) dom.citationCabreraSpatial.style.display = 'block';
 
-    // 解説は下段コンテナに表示
+    // 解説は下段コンテナのみに表示
     if (dom.citationInsightsContainer) {
       dom.citationInsightsContainer.style.display = 'grid';
       dom.citationInsightsContainer.innerHTML = insightsHtml;
@@ -1971,10 +1981,9 @@ function renderPaperCitation(preset) {
     renderCabreraFrontalStage(preset);
     renderCabreraThoraxStage(preset);
   } else if (isVertical) {
-    // 標準配列・縦型3列配置 (四肢誘導 | 胸部誘導 | 臨床解説集約)
+    // 標準配列・縦型2列配置 (四肢誘導 | 胸部誘導)
     if (dom.citationCabreraSpatial) dom.citationCabreraSpatial.style.display = 'none';
     if (dom.citationEcgGrid) dom.citationEcgGrid.style.display = 'none';
-    if (dom.citationInsightsContainer) dom.citationInsightsContainer.style.display = 'none'; // 下段解説は非表示
     if (dom.citationStdVertical) dom.citationStdVertical.style.display = 'block';
 
     // 左列: 四肢誘導 6つ (I, II, III, aVR, aVL, aVF)
@@ -2001,7 +2010,8 @@ function renderPaperCitation(preset) {
       });
     }
 
-    // 右列: 臨床解説集約
+    // 縦型配置用の解説エリアを表示
+    if (dom.colInsightsWrapper) dom.colInsightsWrapper.style.display = 'block';
     if (dom.colVerticalInsights) {
       dom.colVerticalInsights.innerHTML = insightsHtml;
     }
