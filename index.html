@@ -133,10 +133,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10022_strict2col">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10022_strict2col">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10022_strict2col">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10022_strict2col">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10023_matrixrunbtn">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10023_matrixrunbtn">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10023_matrixrunbtn">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10023_matrixrunbtn">
 </head>
 <body>
   <div class="app-container">
@@ -622,7 +622,39 @@
 
           <div id="view-matrix" style="display: none;">
             <div id="matrix-container" class="matrix-grid"></div>
-            <button class="btn-reset" id="btn-reset" style="margin-top: 1rem;">パラメータリセット</button>
+
+            <!-- マトリックス用アクションボタンエリア（診断する！ / クリア） -->
+            <div class="diagnosis-action-bar" style="margin-top: 1.5rem; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <button class="btn-primary-action" id="btn-run-matrix-diagnosis" style="flex: 2; min-width: 180px; min-height: 48px; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; border: 1px solid #38bdf8; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                診断する！
+              </button>
+              <button class="btn-secondary-action" id="btn-clear-matrix-diagnosis" style="flex: 1; min-width: 110px; min-height: 48px; font-size: 0.9rem; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                クリア
+              </button>
+            </div>
+
+            <!-- 診断を実行すると表示されるマトリックス用カード「★選択中の起源部位」 -->
+            <div id="inline-matrix-diagnosis-result" class="inline-result-card" style="margin-top: 1.25rem; display: none; background: linear-gradient(145deg, #0e1a33, #152445); border: 2px solid #38bdf8; border-radius: 16px; padding: 1.25rem; box-shadow: 0 8px 32px rgba(2, 132, 199, 0.35);">
+              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding-bottom: 8px; margin-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                  <span>★ 選択中の起源部位</span>
+                </h3>
+                <span id="inline-matrix-winner-prob" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 800; padding: 4px 10px; border-radius: 999px; font-size: 0.88rem; border: 1px solid rgba(56, 189, 248, 0.4);">確率: -%</span>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <div id="inline-matrix-winner-name-ja" style="font-size: 1.35rem; font-weight: 900; color: #ffffff; letter-spacing: 0.02em;">-</div>
+                <div id="inline-matrix-winner-name-en" style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; margin-top: 2px;">-</div>
+              </div>
+              <div id="inline-matrix-winner-features" style="font-size: 0.82rem; color: #cbd5e1; background: rgba(15, 23, 42, 0.6); border-radius: 8px; padding: 10px; line-height: 1.5; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                波形を選択後「診断する！」を押してください。
+              </div>
+              <div id="inline-matrix-verdict-summary" style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+                <span id="inline-matrix-badge-endo-epi" style="font-size: 1.05rem; padding: 6px 12px; border-radius: 8px; background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 800; border: 1px solid rgba(16, 185, 129, 0.4);">心内膜側 (Endocardial)</span>
+                <span id="inline-matrix-badge-outflow" style="font-size: 1.05rem; padding: 6px 12px; border-radius: 8px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 800; border: 1px solid rgba(56, 189, 248, 0.4);">右室流出路 (RVOT)</span>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -820,6 +852,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10022_strict2col"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10023_matrixrunbtn"></script>
 </body>
 </html>

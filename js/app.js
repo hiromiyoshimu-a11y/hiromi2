@@ -92,6 +92,8 @@ const dom = {
   // 診断する！ & クリアボタン
   btnRunDiagnosis: document.getElementById('btn-run-diagnosis'),
   btnClearDiagnosis: document.getElementById('btn-clear-diagnosis'),
+  btnRunMatrixDiagnosis: document.getElementById('btn-run-matrix-diagnosis'),
+  btnClearMatrixDiagnosis: document.getElementById('btn-clear-matrix-diagnosis'),
 
   // インライン診断結果表示カード
   inlineDiagnosisResult: document.getElementById('inline-diagnosis-result'),
@@ -101,6 +103,14 @@ const dom = {
   inlineWinnerFeatures: document.getElementById('inline-winner-features'),
   inlineBadgeEndoEpi: document.getElementById('inline-badge-endo-epi'),
   inlineBadgeOutflow: document.getElementById('inline-badge-outflow'),
+
+  inlineMatrixDiagnosisResult: document.getElementById('inline-matrix-diagnosis-result'),
+  inlineMatrixWinnerProb: document.getElementById('inline-matrix-winner-prob'),
+  inlineMatrixWinnerNameJa: document.getElementById('inline-matrix-winner-name-ja'),
+  inlineMatrixWinnerNameEn: document.getElementById('inline-matrix-winner-name-en'),
+  inlineMatrixWinnerFeatures: document.getElementById('inline-matrix-winner-features'),
+  inlineMatrixBadgeEndoEpi: document.getElementById('inline-matrix-badge-endo-epi'),
+  inlineMatrixBadgeOutflow: document.getElementById('inline-matrix-badge-outflow'),
 
   // スライダー群
   inputV2sV3r: document.getElementById('input-v2s-v3r'),
@@ -210,6 +220,8 @@ function refreshDomReferences() {
 
   dom.btnRunDiagnosis = document.getElementById('btn-run-diagnosis');
   dom.btnClearDiagnosis = document.getElementById('btn-clear-diagnosis');
+  dom.btnRunMatrixDiagnosis = document.getElementById('btn-run-matrix-diagnosis');
+  dom.btnClearMatrixDiagnosis = document.getElementById('btn-clear-matrix-diagnosis');
 
   dom.inlineDiagnosisResult = document.getElementById('inline-diagnosis-result');
   dom.inlineWinnerProb = document.getElementById('inline-winner-prob');
@@ -218,6 +230,14 @@ function refreshDomReferences() {
   dom.inlineWinnerFeatures = document.getElementById('inline-winner-features');
   dom.inlineBadgeEndoEpi = document.getElementById('inline-badge-endo-epi');
   dom.inlineBadgeOutflow = document.getElementById('inline-badge-outflow');
+
+  dom.inlineMatrixDiagnosisResult = document.getElementById('inline-matrix-diagnosis-result');
+  dom.inlineMatrixWinnerProb = document.getElementById('inline-matrix-winner-prob');
+  dom.inlineMatrixWinnerNameJa = document.getElementById('inline-matrix-winner-name-ja');
+  dom.inlineMatrixWinnerNameEn = document.getElementById('inline-matrix-winner-name-en');
+  dom.inlineMatrixWinnerFeatures = document.getElementById('inline-matrix-winner-features');
+  dom.inlineMatrixBadgeEndoEpi = document.getElementById('inline-matrix-badge-endo-epi');
+  dom.inlineMatrixBadgeOutflow = document.getElementById('inline-matrix-badge-outflow');
   dom.valV2sV3r = document.getElementById('val-v2s-v3r');
   dom.inputV2Ratio = document.getElementById('input-v2-ratio');
   dom.valV2Ratio = document.getElementById('val-v2-ratio');
@@ -1051,6 +1071,52 @@ function setupEventListeners() {
       if (dom.inlineDiagnosisResult) {
         dom.inlineDiagnosisResult.style.display = 'none';
       }
+      if (dom.inlineMatrixDiagnosisResult) {
+        dom.inlineMatrixDiagnosisResult.style.display = 'none';
+      }
+      if (dom.layerVerdictGrid) {
+        dom.layerVerdictGrid.style.display = 'none';
+      }
+      if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'none';
+      if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'none';
+
+      runAnalysis();
+    });
+  }
+
+  // マトリックス「診断する！」ボタン
+  if (dom.btnRunMatrixDiagnosis) {
+    dom.btnRunMatrixDiagnosis.addEventListener('click', () => {
+      runAnalysis();
+
+      // 右パネルの心筋層別推定 & 流出路左右鑑別カードを表示
+      if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
+      if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
+      if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'block';
+
+      if (dom.inlineMatrixDiagnosisResult) {
+        dom.inlineMatrixDiagnosisResult.style.display = 'block';
+        dom.inlineMatrixDiagnosisResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  }
+
+  // マトリックス「クリア」ボタン
+  if (dom.btnClearMatrixDiagnosis) {
+    dom.btnClearMatrixDiagnosis.addEventListener('click', () => {
+      const confirmed = window.confirm('入力が消去されますがよいですか？');
+      if (!confirmed) return;
+
+      appState = JSON.parse(JSON.stringify(defaultState));
+      syncControlsWithState();
+      renderMatrix();
+
+      if (dom.inlineDiagnosisResult) {
+        dom.inlineDiagnosisResult.style.display = 'none';
+      }
+      if (dom.inlineMatrixDiagnosisResult) {
+        dom.inlineMatrixDiagnosisResult.style.display = 'none';
+      }
       if (dom.layerVerdictGrid) {
         dom.layerVerdictGrid.style.display = 'none';
       }
@@ -1385,6 +1451,30 @@ function runAnalysis() {
       dom.inlineBadgeOutflow.style.background = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
       dom.inlineBadgeOutflow.style.color = result.outflowAnalysis.verdict === 'right' ? '#38bdf8' : '#fbbf24';
       dom.inlineBadgeOutflow.style.borderColor = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+    }
+  }
+
+  // マトリックス用インライン結果カードの更新
+  if (dom.inlineMatrixDiagnosisResult) {
+    if (dom.inlineMatrixWinnerProb) dom.inlineMatrixWinnerProb.textContent = `確率: ${winner.probability}%`;
+    if (dom.inlineMatrixWinnerNameJa) dom.inlineMatrixWinnerNameJa.textContent = winner.nameJa || '-';
+    if (dom.inlineMatrixWinnerNameEn) dom.inlineMatrixWinnerNameEn.textContent = `${winner.nameEn || ''} / ${winner.category || ''}`;
+    if (dom.inlineMatrixWinnerFeatures) dom.inlineMatrixWinnerFeatures.textContent = winner.keyFeatures || '-';
+
+    if (dom.inlineMatrixBadgeEndoEpi && result.endoVsEpi) {
+      const endoLabel = result.endoVsEpi.verdict === 'endo' ? '心内膜側 (Endocardial)' : '心外膜側 (Epicardial)';
+      dom.inlineMatrixBadgeEndoEpi.textContent = endoLabel;
+      dom.inlineMatrixBadgeEndoEpi.style.background = result.endoVsEpi.verdict === 'endo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+      dom.inlineMatrixBadgeEndoEpi.style.color = result.endoVsEpi.verdict === 'endo' ? '#34d399' : '#f87171';
+      dom.inlineMatrixBadgeEndoEpi.style.borderColor = result.endoVsEpi.verdict === 'endo' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+    }
+
+    if (dom.inlineMatrixBadgeOutflow && result.outflowAnalysis) {
+      const outflowLabel = result.outflowAnalysis.verdict === 'right' ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
+      dom.inlineMatrixBadgeOutflow.textContent = outflowLabel;
+      dom.inlineMatrixBadgeOutflow.style.background = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+      dom.inlineMatrixBadgeOutflow.style.color = result.outflowAnalysis.verdict === 'right' ? '#38bdf8' : '#fbbf24';
+      dom.inlineMatrixBadgeOutflow.style.borderColor = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
     }
   }
 
