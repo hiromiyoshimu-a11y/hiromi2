@@ -1004,14 +1004,15 @@ body {
   border-color: #38bdf8;
 }
 
-/* 心電図表示枠：配列・縦横比(150:96)を100%維持したまま親カード幅いっぱいに心電図波形自体をドカンと拡大 */
+/* 心電図表示枠：配列・縦横比プロポーションを維持したまま枠端から端まで波形自体を超巨大拡大 */
 .matrix-lead-svg-wrap {
   width: 100%;
-  aspect-ratio: 150 / 96;
+  height: 100px;
+  aspect-ratio: 150 / 90;
   border-radius: 6px;
   overflow: hidden;
   background: #040812;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
