@@ -750,6 +750,10 @@ function switchMainSection(sectionName) {
   const btnDiag = document.getElementById('btn-tab-diag');
   const btnQuiz = document.getElementById('btn-tab-quiz');
 
+  const mSim = document.getElementById('mobile-tab-sim');
+  const mDiag = document.getElementById('mobile-tab-diag');
+  const mQuiz = document.getElementById('mobile-tab-quiz');
+
   const secSim = document.getElementById('section-simulation');
   const secDiag = document.getElementById('section-diagnosis');
   const secQuiz = document.getElementById('section-quiz');
@@ -760,9 +764,22 @@ function switchMainSection(sectionName) {
   if (btnDiag) btnDiag.classList.toggle('active', sectionName === 'diagnosis');
   if (btnQuiz) btnQuiz.classList.toggle('active', sectionName === 'quiz');
 
-  if (secSim) secSim.style.display = sectionName === 'simulation' ? 'block' : 'none';
-  if (secDiag) secDiag.style.display = sectionName === 'diagnosis' ? 'block' : 'none';
-  if (secQuiz) secQuiz.style.display = sectionName === 'quiz' ? 'block' : 'none';
+  if (mSim) mSim.classList.toggle('active', sectionName === 'simulation');
+  if (mDiag) mDiag.classList.toggle('active', sectionName === 'diagnosis');
+  if (mQuiz) mQuiz.classList.toggle('active', sectionName === 'quiz');
+
+  if (secSim) {
+    secSim.classList.toggle('active', sectionName === 'simulation');
+    secSim.style.display = sectionName === 'simulation' ? 'block' : 'none';
+  }
+  if (secDiag) {
+    secDiag.classList.toggle('active', sectionName === 'diagnosis');
+    secDiag.style.display = sectionName === 'diagnosis' ? 'block' : 'none';
+  }
+  if (secQuiz) {
+    secQuiz.classList.toggle('active', sectionName === 'quiz');
+    secQuiz.style.display = sectionName === 'quiz' ? 'block' : 'none';
+  }
 
   if (subtitle) {
     if (sectionName === 'simulation') subtitle.textContent = '臨床症例シミュレーション';
