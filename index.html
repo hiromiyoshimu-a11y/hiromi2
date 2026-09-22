@@ -133,10 +133,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10012_mobilesafe">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10012_mobilesafe">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10012_mobilesafe">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10012_mobilesafe">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10013_stepchoice">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10013_stepchoice">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10013_stepchoice">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10013_stepchoice">
 </head>
 <body>
   <div class="app-container">
@@ -443,7 +443,7 @@
                 <span><span class="step-num-badge">1</span>下壁誘導 (II, III, aVF) の極性 / 電気軸</span>
               </div>
               <div class="button-options-grid" id="opt-axis">
-                <button class="opt-btn active" data-value="inferior">下軸 (陽性 / 高R波)</button>
+                <button class="opt-btn" data-value="inferior">下軸 (陽性 / 高R波)</button>
                 <button class="opt-btn" data-value="superior">上軸 (陰性 / 深いQS)</button>
                 <button class="opt-btn" data-value="normal">中間軸 / 二相性</button>
               </div>
@@ -454,7 +454,7 @@
                 <span><span class="step-num-badge">2</span>V1 誘導の形態 (脚ブロック型)</span>
               </div>
               <div class="button-options-grid" id="opt-v1">
-                <button class="opt-btn active" data-value="lbbb_qs">LBBB型 (QS / rS型 - 右室起源強示唆)</button>
+                <button class="opt-btn" data-value="lbbb_qs">LBBB型 (QS / rS型 - 右室起源強示唆)</button>
                 <button class="opt-btn" data-value="rbbb_r">RBBB型 (R / Rs / rsR'型 - 左室起源強示唆)</button>
               </div>
             </div>
@@ -467,7 +467,7 @@
                 <button class="trans-btn" data-value="V1">V1</button>
                 <button class="trans-btn" data-value="V2">V2</button>
                 <button class="trans-btn" data-value="V3">V3</button>
-                <button class="trans-btn active" data-value="V4">V4</button>
+                <button class="trans-btn" data-value="V4">V4</button>
                 <button class="trans-btn" data-value="V5">V5</button>
                 <button class="trans-btn" data-value="V6">V6</button>
               </div>
@@ -478,83 +478,134 @@
                 <span><span class="step-num-badge">4</span>I 誘導の極性</span>
               </div>
               <div class="button-options-grid" id="opt-lead1">
-                <button class="opt-btn active" data-value="positive">陽性 (R波優位)</button>
+                <button class="opt-btn" data-value="positive">陽性 (R波優位)</button>
                 <button class="opt-btn" data-value="negative">陰性 (QS / rS波)</button>
                 <button class="opt-btn" data-value="biphasic">二相性 / 低電位</button>
               </div>
             </div>
 
-            <div class="step-group">
-              <div class="step-title">
-                <span><span class="step-num-badge">5</span>定量・鑑別指標 (S/R比, MDI, QRS幅)</span>
+            <!-- ステップ5: チェックボックス付きアコーディオン展開 -->
+            <div class="step-group collapsible-step" id="step-group-5">
+              <div class="step-title step-title-toggle">
+                <label class="step-checkbox-label">
+                  <input type="checkbox" id="chk-step-5" class="step-toggle-checkbox">
+                  <span><span class="step-num-badge">5</span>定量・鑑別指標 (S/R比, MDI, QRS幅) を入力する</span>
+                </label>
               </div>
-              <div class="slider-control-group">
-                <div class="slider-row">
-                  <div class="slider-label"><span>V2S / V3R 振幅比:</span><strong id="val-v2s-v3r">1.8</strong></div>
-                  <input type="range" id="input-v2s-v3r" min="0.5" max="3.5" step="0.1" value="1.8">
-                </div>
-                <div class="slider-row">
-                  <div class="slider-label"><span>V2 Transition Ratio:</span><strong id="val-v2-ratio">0.40</strong></div>
-                  <input type="range" id="input-v2-ratio" min="0.1" max="1.5" step="0.05" value="0.40">
-                </div>
-                <div class="slider-row">
-                  <div class="slider-label"><span>MDI (Maximum Deflection Index):</span><strong id="val-mdi">0.42</strong></div>
-                  <input type="range" id="input-mdi" min="0.30" max="0.75" step="0.01" value="0.42">
-                </div>
-                <div class="slider-row">
-                  <div class="slider-label"><span>QRS 幅 (ms):</span><strong id="val-qrs">140 ms</strong></div>
-                  <input type="range" id="input-qrs" min="100" max="220" step="5" value="140">
-                </div>
-              </div>
-            </div>
-
-            <div class="step-group" style="border-left: 3px solid var(--accent-amber); padding-left: 10px;">
-              <div class="step-title">
-                <span><span class="step-num-badge" style="background: var(--accent-amber);">6</span>Ito 2003 / 拡張流出路局在指標</span>
-              </div>
-              <div class="slider-control-group">
-                <div class="slider-row">
-                  <div class="slider-label"><span>R-wave duration index (Ito):</span><strong id="val-r-duration">35%</strong></div>
-                  <input type="range" id="input-r-duration" min="0.10" max="0.80" step="0.01" value="0.35">
-                </div>
-                <div class="slider-row">
-                  <div class="slider-label"><span>R/S amplitude index (Ito):</span><strong id="val-rs-amplitude">15%</strong></div>
-                  <input type="range" id="input-rs-amplitude" min="0.05" max="0.70" step="0.01" value="0.15">
-                </div>
-              </div>
-              <div class="sub-options-grid" id="opt-lead1-s-wave" style="margin-top: 8px;">
-                <span class="sub-label">I誘導 s波存在:</span>
-                <div class="sub-pill-group">
-                  <button class="sub-pill active" data-value="false">なし (中隔特異度96%)</button>
-                  <button class="sub-pill" data-value="true">あり (自由壁方向)</button>
-                </div>
-              </div>
-              <div class="sub-options-grid" id="opt-avl-vs-avr" style="margin-top: 8px;">
-                <span class="sub-label">aVL vs aVR Q波関係:</span>
-                <div class="sub-pill-group">
-                  <button class="sub-pill active" data-value="normal">通常</button>
-                  <button class="sub-pill" data-value="avr_q_early_deep">aVR Q先行・大</button>
+              <div class="step-content-body" id="body-step-5" style="display: none; margin-top: 10px;">
+                <div class="slider-control-group">
+                  <div class="slider-row">
+                    <div class="slider-label"><span>V2S / V3R 振幅比:</span><strong id="val-v2s-v3r">1.8</strong></div>
+                    <input type="range" id="input-v2s-v3r" min="0.5" max="3.5" step="0.1" value="1.8">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label"><span>V2 Transition Ratio:</span><strong id="val-v2-ratio">0.40</strong></div>
+                    <input type="range" id="input-v2-ratio" min="0.1" max="1.5" step="0.05" value="0.40">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label"><span>MDI (Maximum Deflection Index):</span><strong id="val-mdi">0.42</strong></div>
+                    <input type="range" id="input-mdi" min="0.30" max="0.75" step="0.01" value="0.42">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label"><span>QRS 幅 (ms):</span><strong id="val-qrs">140 ms</strong></div>
+                    <input type="range" id="input-qrs" min="100" max="220" step="5" value="140">
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div class="step-group" style="border-left: 3px solid #a855f7; padding-left: 10px;">
-              <div class="step-title">
-                <span><span class="step-num-badge" style="background: #a855f7;">7</span>特殊鑑別 (Lin 2008 / Yamashina 2004)</span>
+            <!-- ステップ6: チェックボックス付きアコーディオン展開 -->
+            <div class="step-group collapsible-step" id="step-group-6" style="border-left: 3px solid var(--accent-amber); padding-left: 10px;">
+              <div class="step-title step-title-toggle">
+                <label class="step-checkbox-label">
+                  <input type="checkbox" id="chk-step-6" class="step-toggle-checkbox">
+                  <span><span class="step-num-badge" style="background: var(--accent-amber);">6</span>Ito 2003 / 拡張流出路局在指標 を入力する</span>
+                </label>
               </div>
-              <div class="sub-options-grid" id="opt-v2-small-r">
-                <span class="sub-label">V2 r波 (Lin 2008):</span>
-                <div class="sub-pill-group">
-                  <button class="sub-pill active" data-value="false">なし / 通常</button>
-                  <button class="sub-pill" data-value="true">小r波あり (rS)</button>
+              <div class="step-content-body" id="body-step-6" style="display: none; margin-top: 10px;">
+                <div class="slider-control-group">
+                  <div class="slider-row">
+                    <div class="slider-label"><span>R-wave duration index (Ito):</span><strong id="val-r-duration">35%</strong></div>
+                    <input type="range" id="input-r-duration" min="0.10" max="0.80" step="0.01" value="0.35">
+                  </div>
+                  <div class="slider-row">
+                    <div class="slider-label"><span>R/S amplitude index (Ito):</span><strong id="val-rs-amplitude">15%</strong></div>
+                    <input type="range" id="input-rs-amplitude" min="0.05" max="0.70" step="0.01" value="0.15">
+                  </div>
+                </div>
+                <div class="sub-options-grid" id="opt-lead1-s-wave" style="margin-top: 8px;">
+                  <span class="sub-label">I誘導 s波存在:</span>
+                  <div class="sub-pill-group">
+                    <button class="sub-pill" data-value="false">なし (中隔特異度96%)</button>
+                    <button class="sub-pill" data-value="true">あり (自由壁方向)</button>
+                  </div>
+                </div>
+                <div class="sub-options-grid" id="opt-avl-vs-avr" style="margin-top: 8px;">
+                  <span class="sub-label">aVL vs aVR Q波関係:</span>
+                  <div class="sub-pill-group">
+                    <button class="sub-pill" data-value="normal">通常</button>
+                    <button class="sub-pill" data-value="avr_q_early_deep">aVR Q先行・大</button>
+                  </div>
                 </div>
               </div>
-              <div class="sub-options-grid" id="opt-has-notch-rr20" style="margin-top: 8px;">
-                <span class="sub-label">下壁ノッチ R-R' &gt; 20ms:</span>
-                <div class="sub-pill-group">
-                  <button class="sub-pill active" data-value="false">なし</button>
-                  <button class="sub-pill" data-value="true">あり (自由壁)</button>
+            </div>
+
+            <!-- ステップ7: チェックボックス付きアコーディオン展開 -->
+            <div class="step-group collapsible-step" id="step-group-7" style="border-left: 3px solid #a855f7; padding-left: 10px;">
+              <div class="step-title step-title-toggle">
+                <label class="step-checkbox-label">
+                  <input type="checkbox" id="chk-step-7" class="step-toggle-checkbox">
+                  <span><span class="step-num-badge" style="background: #a855f7;">7</span>特殊鑑別 (Lin 2008 / Yamashina 2004) を入力する</span>
+                </label>
+              </div>
+              <div class="step-content-body" id="body-step-7" style="display: none; margin-top: 10px;">
+                <div class="sub-options-grid" id="opt-v2-small-r">
+                  <span class="sub-label">V2 r波 (Lin 2008):</span>
+                  <div class="sub-pill-group">
+                    <button class="sub-pill" data-value="false">なし / 通常</button>
+                    <button class="sub-pill" data-value="true">小r波あり (rS)</button>
+                  </div>
                 </div>
+                <div class="sub-options-grid" id="opt-has-notch-rr20" style="margin-top: 8px;">
+                  <span class="sub-label">下壁ノッチ R-R' &gt; 20ms:</span>
+                  <div class="sub-pill-group">
+                    <button class="sub-pill" data-value="false">なし</button>
+                    <button class="sub-pill" data-value="true">あり (自由壁)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ⑦の下に配置するアクションボタンエリア（診断する！ / クリア） -->
+            <div class="diagnosis-action-bar" style="margin-top: 1.5rem; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+              <button class="btn-primary-action" id="btn-run-diagnosis" style="flex: 2; min-width: 180px; min-height: 48px; font-size: 1.05rem; font-weight: 800; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; border: 1px solid #38bdf8; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 16px rgba(2, 132, 199, 0.4); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s ease;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                診断する！
+              </button>
+              <button class="btn-secondary-action" id="btn-clear-diagnosis" style="flex: 1; min-width: 110px; min-height: 48px; font-size: 0.9rem; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s ease;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                クリア
+              </button>
+            </div>
+
+            <!-- 診断を実行すると表示されるカード「★選択中の起源部位」 -->
+            <div id="inline-diagnosis-result" class="inline-result-card" style="margin-top: 1.25rem; display: none; background: linear-gradient(145deg, #0e1a33, #152445); border: 2px solid #38bdf8; border-radius: 16px; padding: 1.25rem; box-shadow: 0 8px 32px rgba(2, 132, 199, 0.35);">
+              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(56, 189, 248, 0.3); padding-bottom: 8px; margin-bottom: 12px;">
+                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
+                  <span>★ 選択中の起源部位</span>
+                </h3>
+                <span id="inline-winner-prob" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 800; padding: 4px 10px; border-radius: 999px; font-size: 0.88rem; border: 1px solid rgba(56, 189, 248, 0.4);">確率: -%</span>
+              </div>
+              <div style="margin-bottom: 10px;">
+                <div id="inline-winner-name-ja" style="font-size: 1.35rem; font-weight: 900; color: #ffffff; letter-spacing: 0.02em;">-</div>
+                <div id="inline-winner-name-en" style="font-size: 0.85rem; color: #94a3b8; font-weight: 600; margin-top: 2px;">-</div>
+              </div>
+              <div id="inline-winner-features" style="font-size: 0.82rem; color: #cbd5e1; background: rgba(15, 23, 42, 0.6); border-radius: 8px; padding: 10px; line-height: 1.5; margin-bottom: 10px; border: 1px solid rgba(255, 255, 255, 0.08);">
+                パラメータを選択後「診断する！」を押してください。
+              </div>
+              <div id="inline-verdict-summary" style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <span id="inline-badge-endo-epi" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 700; border: 1px solid rgba(16, 185, 129, 0.4);">心内膜側 (Endocardial)</span>
+                <span id="inline-badge-outflow" style="font-size: 0.75rem; padding: 4px 8px; border-radius: 6px; background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight: 700; border: 1px solid rgba(56, 189, 248, 0.4);">右室流出路 (RVOT)</span>
               </div>
             </div>
           </div>
@@ -759,6 +810,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10012_mobilesafe"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10013_stepchoice"></script>
 </body>
 </html>

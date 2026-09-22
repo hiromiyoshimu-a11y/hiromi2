@@ -12,10 +12,13 @@ let quizInstance = null;
 
 // デフォルト状態
 const defaultState = {
-  axis: 'inferior',
-  v1Pattern: 'lbbb_qs',
-  transition: 'V4',
-  lead1: 'positive',
+  axis: null, // 初期未選択
+  v1Pattern: null, // 初期未選択
+  transition: null, // 初期未選択
+  lead1: null, // 初期未選択
+  enableStep5: false, // ⑤チェックオフ
+  enableStep6: false, // ⑥チェックオフ
+  enableStep7: false, // ⑦チェックオフ
   leadAVL: 'negative_shallow',
   qrsDuration: 140,
   v2s_v3r_ratio: 1.8,
@@ -78,6 +81,27 @@ const dom = {
   optTransition: document.getElementById('opt-transition'),
   optLead1: document.getElementById('opt-lead1'),
   
+  // ステップ5〜7 チェックボックス & アコーディオンボディ
+  chkStep5: document.getElementById('chk-step-5'),
+  chkStep6: document.getElementById('chk-step-6'),
+  chkStep7: document.getElementById('chk-step-7'),
+  bodyStep5: document.getElementById('body-step-5'),
+  bodyStep6: document.getElementById('body-step-6'),
+  bodyStep7: document.getElementById('body-step-7'),
+  
+  // 診断する！ & クリアボタン
+  btnRunDiagnosis: document.getElementById('btn-run-diagnosis'),
+  btnClearDiagnosis: document.getElementById('btn-clear-diagnosis'),
+
+  // インライン診断結果表示カード
+  inlineDiagnosisResult: document.getElementById('inline-diagnosis-result'),
+  inlineWinnerProb: document.getElementById('inline-winner-prob'),
+  inlineWinnerNameJa: document.getElementById('inline-winner-name-ja'),
+  inlineWinnerNameEn: document.getElementById('inline-winner-name-en'),
+  inlineWinnerFeatures: document.getElementById('inline-winner-features'),
+  inlineBadgeEndoEpi: document.getElementById('inline-badge-endo-epi'),
+  inlineBadgeOutflow: document.getElementById('inline-badge-outflow'),
+
   // スライダー群
   inputV2sV3r: document.getElementById('input-v2s-v3r'),
   valV2sV3r: document.getElementById('val-v2s-v3r'),
@@ -176,7 +200,23 @@ function refreshDomReferences() {
   dom.optTransition = document.getElementById('opt-transition');
   dom.optLead1 = document.getElementById('opt-lead1');
 
-  dom.inputV2sV3r = document.getElementById('input-v2s-v3r');
+  dom.chkStep5 = document.getElementById('chk-step-5');
+  dom.chkStep6 = document.getElementById('chk-step-6');
+  dom.chkStep7 = document.getElementById('chk-step-7');
+  dom.bodyStep5 = document.getElementById('body-step-5');
+  dom.bodyStep6 = document.getElementById('body-step-6');
+  dom.bodyStep7 = document.getElementById('body-step-7');
+
+  dom.btnRunDiagnosis = document.getElementById('btn-run-diagnosis');
+  dom.btnClearDiagnosis = document.getElementById('btn-clear-diagnosis');
+
+  dom.inlineDiagnosisResult = document.getElementById('inline-diagnosis-result');
+  dom.inlineWinnerProb = document.getElementById('inline-winner-prob');
+  dom.inlineWinnerNameJa = document.getElementById('inline-winner-name-ja');
+  dom.inlineWinnerNameEn = document.getElementById('inline-winner-name-en');
+  dom.inlineWinnerFeatures = document.getElementById('inline-winner-features');
+  dom.inlineBadgeEndoEpi = document.getElementById('inline-badge-endo-epi');
+  dom.inlineBadgeOutflow = document.getElementById('inline-badge-outflow');
   dom.valV2sV3r = document.getElementById('val-v2s-v3r');
   dom.inputV2Ratio = document.getElementById('input-v2-ratio');
   dom.valV2Ratio = document.getElementById('val-v2-ratio');
@@ -425,9 +465,19 @@ function setupPresetFilterListeners() {
  */
 function applyPreset(preset) {
   currentPreset = preset;
+
+  // プリセットに含まれるパラメータに応じてステップ5, 6, 7を自動有効化
+  const p = preset.params || {};
+  const hasStep5 = p.v2s_v3r_ratio !== undefined || p.v2_trans_ratio !== undefined || p.mdi !== undefined || p.qrsDuration !== undefined;
+  const hasStep6 = p.r_wave_duration_index !== undefined || p.rs_amplitude_index !== undefined || p.lead1_has_s_wave !== undefined || p.avl_vs_avr !== undefined;
+  const hasStep7 = p.v2_has_small_r !== undefined || p.has_notch_rr_gt_20ms !== undefined || p.hasNotch !== undefined;
+
   appState = {
     ...appState,
-    ...preset.params
+    ...preset.params,
+    enableStep5: hasStep5,
+    enableStep6: hasStep6,
+    enableStep7: hasStep7
   };
 
   syncControlsWithState();
@@ -465,7 +515,7 @@ function syncControlsWithState() {
 
   if (dom.optTransition) {
     dom.optTransition.querySelectorAll('.trans-btn').forEach(btn => {
-      if (btn.dataset.value === appState.transition) {
+      if (appState.transition && btn.dataset.value === appState.transition) {
         btn.classList.add('active');
       } else {
         btn.classList.remove('active');
@@ -474,6 +524,20 @@ function syncControlsWithState() {
   }
 
   if (dom.optLead1) updateButtonGroup(dom.optLead1, appState.lead1);
+
+  // ステップ 5, 6, 7 チェックボックスと開閉の同期
+  if (dom.chkStep5 && dom.bodyStep5) {
+    dom.chkStep5.checked = !!appState.enableStep5;
+    dom.bodyStep5.style.display = appState.enableStep5 ? 'block' : 'none';
+  }
+  if (dom.chkStep6 && dom.bodyStep6) {
+    dom.chkStep6.checked = !!appState.enableStep6;
+    dom.bodyStep6.style.display = appState.enableStep6 ? 'block' : 'none';
+  }
+  if (dom.chkStep7 && dom.bodyStep7) {
+    dom.chkStep7.checked = !!appState.enableStep7;
+    dom.bodyStep7.style.display = appState.enableStep7 ? 'block' : 'none';
+  }
 
   if (dom.inputV2sV3r && dom.valV2sV3r) {
     dom.inputV2sV3r.value = appState.v2s_v3r_ratio;
@@ -864,6 +928,54 @@ function setupEventListeners() {
     });
   }
 
+  // Step 5, 6, 7 チェックボックス トグルリスナー
+  if (dom.chkStep5) {
+    dom.chkStep5.addEventListener('change', (e) => {
+      appState.enableStep5 = e.target.checked;
+      if (dom.bodyStep5) dom.bodyStep5.style.display = appState.enableStep5 ? 'block' : 'none';
+      runAnalysis();
+    });
+  }
+
+  if (dom.chkStep6) {
+    dom.chkStep6.addEventListener('change', (e) => {
+      appState.enableStep6 = e.target.checked;
+      if (dom.bodyStep6) dom.bodyStep6.style.display = appState.enableStep6 ? 'block' : 'none';
+      runAnalysis();
+    });
+  }
+
+  if (dom.chkStep7) {
+    dom.chkStep7.addEventListener('change', (e) => {
+      appState.enableStep7 = e.target.checked;
+      if (dom.bodyStep7) dom.bodyStep7.style.display = appState.enableStep7 ? 'block' : 'none';
+      runAnalysis();
+    });
+  }
+
+  // 「診断する！」ボタン
+  if (dom.btnRunDiagnosis) {
+    dom.btnRunDiagnosis.addEventListener('click', () => {
+      runAnalysis();
+      if (dom.inlineDiagnosisResult) {
+        dom.inlineDiagnosisResult.style.display = 'block';
+        dom.inlineDiagnosisResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  }
+
+  // 「クリア」ボタン
+  if (dom.btnClearDiagnosis) {
+    dom.btnClearDiagnosis.addEventListener('click', () => {
+      appState = JSON.parse(JSON.stringify(defaultState));
+      syncControlsWithState();
+      if (dom.inlineDiagnosisResult) {
+        dom.inlineDiagnosisResult.style.display = 'none';
+      }
+      runAnalysis();
+    });
+  }
+
   // Step 5: Sliders
   if (dom.inputV2sV3r) {
     dom.inputV2sV3r.addEventListener('input', (e) => {
@@ -1137,6 +1249,30 @@ function runAnalysis() {
   if (dom.winnerNameEn) dom.winnerNameEn.textContent = `${winner.nameEn} / ${winner.category}`;
   if (dom.winnerFeatures) dom.winnerFeatures.textContent = winner.keyFeatures;
   if (dom.ablationTipText) dom.ablationTipText.textContent = winner.ablationTips;
+
+  // 2-B. 直下のインライン結果カード（★選択中の起源部位）の更新
+  if (dom.inlineDiagnosisResult) {
+    if (dom.inlineWinnerProb) dom.inlineWinnerProb.textContent = `確率: ${winner.probability}%`;
+    if (dom.inlineWinnerNameJa) dom.inlineWinnerNameJa.textContent = winner.nameJa || '-';
+    if (dom.inlineWinnerNameEn) dom.inlineWinnerNameEn.textContent = `${winner.nameEn || ''} / ${winner.category || ''}`;
+    if (dom.inlineWinnerFeatures) dom.inlineWinnerFeatures.textContent = winner.keyFeatures || '-';
+
+    if (dom.inlineBadgeEndoEpi && result.endoVsEpi) {
+      const endoLabel = result.endoVsEpi.verdict === 'endo' ? '心内膜側 (Endocardial)' : '心外膜側 (Epicardial)';
+      dom.inlineBadgeEndoEpi.textContent = endoLabel;
+      dom.inlineBadgeEndoEpi.style.background = result.endoVsEpi.verdict === 'endo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+      dom.inlineBadgeEndoEpi.style.color = result.endoVsEpi.verdict === 'endo' ? '#34d399' : '#f87171';
+      dom.inlineBadgeEndoEpi.style.borderColor = result.endoVsEpi.verdict === 'endo' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+    }
+
+    if (dom.inlineBadgeOutflow && result.outflowAnalysis) {
+      const outflowLabel = result.outflowAnalysis.verdict === 'right' ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
+      dom.inlineBadgeOutflow.textContent = outflowLabel;
+      dom.inlineBadgeOutflow.style.background = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+      dom.inlineBadgeOutflow.style.color = result.outflowAnalysis.verdict === 'right' ? '#38bdf8' : '#fbbf24';
+      dom.inlineBadgeOutflow.style.borderColor = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+    }
+  }
 
   // 3. 鑑別候補ランキング (Rank 2 & 3)
   if (dom.rankingContainer) {

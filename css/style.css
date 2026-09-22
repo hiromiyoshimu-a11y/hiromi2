@@ -3346,4 +3346,56 @@ body {
   pointer-events: auto !important;
 }
 
+/* ==========================================================================
+   ステップ5〜7 チェックボックス付きアコーディオン & 診断アクションエリア
+   ========================================================================== */
+.step-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+  width: 100%;
+}
+
+.step-toggle-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent-sky);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.collapsible-step {
+  transition: all 0.25s ease;
+}
+
+.btn-primary-action:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5) !important;
+}
+
+.btn-primary-action:active {
+  transform: translateY(0);
+}
+
+.btn-secondary-action:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+}
+
+@keyframes fadeInSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 
