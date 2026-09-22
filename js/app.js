@@ -988,6 +988,9 @@ function setupEventListeners() {
   // 「クリア」ボタン
   if (dom.btnClearDiagnosis) {
     dom.btnClearDiagnosis.addEventListener('click', () => {
+      const confirmed = window.confirm('入力が消去されますがよいですか？');
+      if (!confirmed) return;
+
       appState = JSON.parse(JSON.stringify(defaultState));
       syncControlsWithState();
       if (dom.inlineDiagnosisResult) {
@@ -1169,6 +1172,9 @@ function setupEventListeners() {
   // リセットボタン
   if (dom.btnReset) {
     dom.btnReset.addEventListener('click', () => {
+      const confirmed = window.confirm('入力が消去されますがよいですか？');
+      if (!confirmed) return;
+
       appState = JSON.parse(JSON.stringify(defaultState));
       syncControlsWithState();
       renderMatrix();
