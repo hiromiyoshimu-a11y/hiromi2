@@ -96,7 +96,7 @@ export function generateEcgSvg(leadName, pattern = 'R', amplitude = 1.0, isSelec
 
   // 医療用心電図方眼紙グリッド（5mm大マス、1mm小マス）
   return `
-    <svg class="ecg-lead-svg ${isSelected ? 'selected' : ''}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" style="overflow: visible;">
+    <svg class="ecg-lead-svg ${isSelected ? 'selected' : ''}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
       <defs>
         <pattern id="ecg-small-grid" width="7.5" height="7.5" patternUnits="userSpaceOnUse">
           <path d="M 7.5 0 L 0 0 0 7.5" fill="none" stroke="rgba(20, 184, 166, 0.08)" stroke-width="0.5"/>
