@@ -55,9 +55,9 @@
     .main-section.active { display: block !important; }
 
     /* スタンドアロン用インラインUI救済スタイル */
-    .app-header { background: #0b1326; padding: 12px 16px; border-bottom: 2px solid #ef4444; overflow: hidden; max-width: 100%; box-sizing: border-box; }
-    .origin-brand-wrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; max-width: 100%; }
-    .origin-logo-row { display: inline-flex !important; flex-direction: row !important; align-items: center !important; gap: 14px !important; flex-wrap: nowrap !important; }
+    .app-header { background: #0b1326; padding: 12px 16px; border-bottom: 2px solid #ef4444; overflow: visible; max-width: 100%; box-sizing: border-box; }
+    .origin-brand-wrap { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; max-width: 100%; }
+    .origin-logo-row { display: inline-flex !important; flex-direction: row !important; align-items: center !important; gap: 12px !important; flex-wrap: wrap !important; }
     .origin-subtitle-box { display: flex; align-items: center; margin: 0; flex-shrink: 0; }
     .origin-subtitle {
       display: inline-flex; align-items: center; padding: 5px 14px;
@@ -76,7 +76,7 @@
     .nav-tab-btn#btn-tab-quiz.active { background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important; border-color: #f59e0b !important; }
     
     .btn-header { background: #1e293b; color: #38bdf8; border: 1px solid #334155; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
-    .title-logo-img { height: 95px !important; width: auto; max-width: 480px !important; object-fit: contain; }
+    .title-logo-img { height: 140px !important; width: auto; max-width: min(650px, 60vw) !important; object-fit: contain; }
 
     /* モバイル固定ボトムナビ */
     .ios-tab-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: #070c18; border-top: 1px solid #0284c7; z-index: 9999; justify-content: space-around; align-items: center; }
@@ -139,10 +139,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10007_hugelogo">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10007_hugelogo">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10007_hugelogo">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10007_hugelogo">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10008_unclipfix">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10008_unclipfix">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10008_unclipfix">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10008_unclipfix">
 </head>
 <body>
   <div class="app-container">
@@ -212,9 +212,9 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
             </svg>
-            臨床症例シミュレーション（解剖領域分岐・1クリック選択）
+            臨床症例シミュレーション（解剖領域分岐）
           </span>
-          <span style="font-size: 0.75rem; color: var(--text-muted);">下の解剖領域（右室・左室・その他）を選んで症例を絞り込めます</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted);">解剖領域（右室・左室・その他）を選んで症例を絞り込めます</span>
         </div>
 
         <!-- 解剖領域 分岐フィルターピルボタン群 (右室 / 左室 / その他) -->
@@ -765,6 +765,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10007_hugelogo"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10008_unclipfix"></script>
 </body>
 </html>
