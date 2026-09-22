@@ -62,6 +62,7 @@ let appState = JSON.parse(JSON.stringify(defaultState));
 let currentPreset = PRESETS[0] || null;
 let heartMapInstance = null;
 let imageAnalyzerInstance = null;
+let isDiagnosisRevealed = false;
 
 // DOM要素の取得
 const dom = {
@@ -526,6 +527,7 @@ function applyDetectedParameters(detected) {
 
   syncControlsWithState();
   renderMatrix();
+  isDiagnosisRevealed = true;
   runAnalysis();
 
   // ステップ診断タブに自動切替して確認させる
@@ -1044,14 +1046,10 @@ function setupEventListeners() {
   // 「診断する！」ボタン
   if (dom.btnRunDiagnosis) {
     dom.btnRunDiagnosis.addEventListener('click', () => {
+      isDiagnosisRevealed = true;
       runAnalysis();
 
-      // 右パネルの心筋層別推定カードを表示
-      if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
-      if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
-
       if (dom.inlineDiagnosisResult) {
-        dom.inlineDiagnosisResult.style.display = 'block';
         dom.inlineDiagnosisResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
@@ -1065,19 +1063,7 @@ function setupEventListeners() {
 
       appState = JSON.parse(JSON.stringify(defaultState));
       syncControlsWithState();
-
-      if (dom.inlineDiagnosisResult) {
-        dom.inlineDiagnosisResult.style.display = 'none';
-      }
-      if (dom.inlineMatrixDiagnosisResult) {
-        dom.inlineMatrixDiagnosisResult.style.display = 'none';
-      }
-      if (dom.layerVerdictGrid) {
-        dom.layerVerdictGrid.style.display = 'none';
-      }
-      if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'none';
-      if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'none';
-
+      isDiagnosisRevealed = false;
       runAnalysis();
     });
   }
@@ -1085,14 +1071,10 @@ function setupEventListeners() {
   // マトリックス「診断する！」ボタン
   if (dom.btnRunMatrixDiagnosis) {
     dom.btnRunMatrixDiagnosis.addEventListener('click', () => {
+      isDiagnosisRevealed = true;
       runAnalysis();
 
-      // 右パネルの心筋層別推定カードを表示
-      if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
-      if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
-
       if (dom.inlineMatrixDiagnosisResult) {
-        dom.inlineMatrixDiagnosisResult.style.display = 'block';
         dom.inlineMatrixDiagnosisResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     });
@@ -1107,19 +1089,7 @@ function setupEventListeners() {
       appState = JSON.parse(JSON.stringify(defaultState));
       syncControlsWithState();
       renderMatrix();
-
-      if (dom.inlineDiagnosisResult) {
-        dom.inlineDiagnosisResult.style.display = 'none';
-      }
-      if (dom.inlineMatrixDiagnosisResult) {
-        dom.inlineMatrixDiagnosisResult.style.display = 'none';
-      }
-      if (dom.layerVerdictGrid) {
-        dom.layerVerdictGrid.style.display = 'none';
-      }
-      if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'none';
-      if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'none';
-
+      isDiagnosisRevealed = false;
       runAnalysis();
     });
   }
@@ -1572,19 +1542,31 @@ function runAnalysis() {
     });
   }
 
-  // 5. 心内膜 vs 心外膜 鑑別診断パネルの更新
-  if (result.endoVsEpi && dom.endoEpiCard) {
-    renderEndoVsEpi(result.endoVsEpi);
-  }
+  // 5. 心内膜 vs 心外膜 鑑別診断パネル & 流出路左右鑑別パネルの更新
+  if (isDiagnosisRevealed) {
+    if (dom.inlineDiagnosisResult) dom.inlineDiagnosisResult.style.display = 'block';
+    if (dom.inlineMatrixDiagnosisResult) dom.inlineMatrixDiagnosisResult.style.display = 'block';
+    if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
+    if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
 
-  // 6. 流出路起源：右側 (RVOT) vs 左側 (LVOT/LCC) 精密鑑別パネル (Ito 2003) の更新
-  if (dom.outflowSideCard) {
-    if (showOutflowCard && result.outflowAnalysis) {
-      renderOutflowSideCard(result.outflowAnalysis);
-      dom.outflowSideCard.style.display = 'block';
-    } else {
-      dom.outflowSideCard.style.display = 'none';
+    if (result.endoVsEpi && dom.endoEpiCard) {
+      renderEndoVsEpi(result.endoVsEpi);
     }
+
+    if (dom.outflowSideCard) {
+      if (showOutflowCard && result.outflowAnalysis) {
+        renderOutflowSideCard(result.outflowAnalysis);
+        dom.outflowSideCard.style.display = 'block';
+      } else {
+        dom.outflowSideCard.style.display = 'none';
+      }
+    }
+  } else {
+    if (dom.inlineDiagnosisResult) dom.inlineDiagnosisResult.style.display = 'none';
+    if (dom.inlineMatrixDiagnosisResult) dom.inlineMatrixDiagnosisResult.style.display = 'none';
+    if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'none';
+    if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'none';
+    if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'none';
   }
 
   // 7. 診断根拠となる参考論文＆日本語サマリーのレンダリング
