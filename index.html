@@ -123,7 +123,7 @@
       }
 
       if (subtitle) {
-        if (sectionName === 'simulation') subtitle.textContent = '臨床症例シミュレーション';
+        if (sectionName === 'simulation') subtitle.textContent = '症例 simulator';
         if (sectionName === 'diagnosis') subtitle.textContent = 'PVC起源診断ツール';
         if (sectionName === 'quiz') subtitle.textContent = '心電図クイズ';
       }
@@ -137,10 +137,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10004_2linesfix">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10004_2linesfix">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10004_2linesfix">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10004_2linesfix">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10005_simulator">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10005_simulator">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10005_simulator">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10005_simulator">
 </head>
 <body>
   <div class="app-container">
@@ -151,7 +151,7 @@
           <div class="origin-badge-row" style="margin-bottom: 6px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <span class="yoshimura-tag">吉村流！</span>
             <span class="spec-code">EP-TACTICS // MS-PVC-01</span>
-            <span class="origin-subtitle" id="header-subtitle-text">臨床症例シミュレーション</span>
+            <span class="origin-subtitle" id="header-subtitle-text">症例 simulator</span>
           </div>
           <img src="assets/title-logo.png?v=3" alt="PVC THE ORIGIN - PVC起源特定システム" class="title-logo-img" title="吉村流！PVC The Origin">
         </div>
@@ -159,11 +159,11 @@
 
       <!-- 3部门 共通ナビゲーションタブ (単一ページ完全SPA切り替え ＆ フェールセーフリンク対応) -->
       <nav class="main-nav-tabs">
-        <a href="#section-simulation" class="nav-tab-btn active" id="btn-tab-sim" title="3D心臓モデル・立体解剖・臨床症例シミュレーション" onclick="if(window.switchMainSection){window.switchMainSection('simulation');return false;}">
+        <a href="#section-simulation" class="nav-tab-btn active" id="btn-tab-sim" title="3D心臓モデル・立体解剖・症例 simulator" onclick="if(window.switchMainSection){window.switchMainSection('simulation');return false;}">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
-          <span>症例<br>シミュレーション</span>
+          <span>症例<br>simulator</span>
         </a>
         <a href="#section-diagnosis" class="nav-tab-btn" id="btn-tab-diag" title="12誘導心電図 パラメータ入力・波形解析・起源同定ツール" onclick="if(window.switchMainSection){window.switchMainSection('diagnosis');return false;}">
           <svg class="nav-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -742,7 +742,7 @@
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l8.72-8.72 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
       </svg>
-      <span>症例シミュ</span>
+      <span>症例 simulator</span>
     </button>
     <button type="button" class="ios-tab-item" id="mobile-tab-diag" onclick="window.switchMainSection('diagnosis')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -759,6 +759,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10004_2linesfix"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10005_simulator"></script>
 </body>
 </html>

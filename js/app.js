@@ -782,7 +782,7 @@ function switchMainSection(sectionName) {
   }
 
   if (subtitle) {
-    if (sectionName === 'simulation') subtitle.textContent = '臨床症例シミュレーション';
+    if (sectionName === 'simulation') subtitle.textContent = '症例 simulator';
     if (sectionName === 'diagnosis') subtitle.textContent = 'PVC起源診断ツール';
     if (sectionName === 'quiz') subtitle.textContent = '心電図クイズ';
   }
