@@ -1438,19 +1438,21 @@ function runAnalysis() {
     if (dom.inlineWinnerFeatures) dom.inlineWinnerFeatures.textContent = winner.keyFeatures || '-';
 
     if (dom.inlineBadgeEndoEpi && result.endoVsEpi) {
-      const endoLabel = result.endoVsEpi.verdict === 'endo' ? '心内膜側 (Endocardial)' : '心外膜側 (Epicardial)';
+      const isEndo = result.endoVsEpi.layer === 'endocardial' || (result.endoVsEpi.endoProb >= result.endoVsEpi.epiProb);
+      const endoLabel = isEndo ? '心内膜側 (Endocardial)' : '心外膜側 (Epicardial)';
       dom.inlineBadgeEndoEpi.textContent = endoLabel;
-      dom.inlineBadgeEndoEpi.style.background = result.endoVsEpi.verdict === 'endo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
-      dom.inlineBadgeEndoEpi.style.color = result.endoVsEpi.verdict === 'endo' ? '#34d399' : '#f87171';
-      dom.inlineBadgeEndoEpi.style.borderColor = result.endoVsEpi.verdict === 'endo' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+      dom.inlineBadgeEndoEpi.style.background = isEndo ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+      dom.inlineBadgeEndoEpi.style.color = isEndo ? '#34d399' : '#f87171';
+      dom.inlineBadgeEndoEpi.style.borderColor = isEndo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
     }
 
     if (dom.inlineBadgeOutflow && result.outflowAnalysis) {
-      const outflowLabel = result.outflowAnalysis.verdict === 'right' ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
+      const isRight = result.outflowAnalysis.verdict === 'right_rvot' || result.outflowAnalysis.verdict === 'right' || (result.outflowAnalysis.rightProb >= result.outflowAnalysis.leftProb);
+      const outflowLabel = isRight ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
       dom.inlineBadgeOutflow.textContent = outflowLabel;
-      dom.inlineBadgeOutflow.style.background = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
-      dom.inlineBadgeOutflow.style.color = result.outflowAnalysis.verdict === 'right' ? '#38bdf8' : '#fbbf24';
-      dom.inlineBadgeOutflow.style.borderColor = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+      dom.inlineBadgeOutflow.style.background = isRight ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+      dom.inlineBadgeOutflow.style.color = isRight ? '#38bdf8' : '#fbbf24';
+      dom.inlineBadgeOutflow.style.borderColor = isRight ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
     }
   }
 
@@ -1462,19 +1464,21 @@ function runAnalysis() {
     if (dom.inlineMatrixWinnerFeatures) dom.inlineMatrixWinnerFeatures.textContent = winner.keyFeatures || '-';
 
     if (dom.inlineMatrixBadgeEndoEpi && result.endoVsEpi) {
-      const endoLabel = result.endoVsEpi.verdict === 'endo' ? '心内膜側 (Endocardial)' : '心外膜側 (Epicardial)';
+      const isEndo = result.endoVsEpi.layer === 'endocardial' || (result.endoVsEpi.endoProb >= result.endoVsEpi.epiProb);
+      const endoLabel = isEndo ? '心内膜側 (Endocardial)' : '心外膜側 (Epicardial)';
       dom.inlineMatrixBadgeEndoEpi.textContent = endoLabel;
-      dom.inlineMatrixBadgeEndoEpi.style.background = result.endoVsEpi.verdict === 'endo' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
-      dom.inlineMatrixBadgeEndoEpi.style.color = result.endoVsEpi.verdict === 'endo' ? '#34d399' : '#f87171';
-      dom.inlineMatrixBadgeEndoEpi.style.borderColor = result.endoVsEpi.verdict === 'endo' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+      dom.inlineMatrixBadgeEndoEpi.style.background = isEndo ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+      dom.inlineMatrixBadgeEndoEpi.style.color = isEndo ? '#34d399' : '#f87171';
+      dom.inlineMatrixBadgeEndoEpi.style.borderColor = isEndo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
     }
 
     if (dom.inlineMatrixBadgeOutflow && result.outflowAnalysis) {
-      const outflowLabel = result.outflowAnalysis.verdict === 'right' ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
+      const isRight = result.outflowAnalysis.verdict === 'right_rvot' || result.outflowAnalysis.verdict === 'right' || (result.outflowAnalysis.rightProb >= result.outflowAnalysis.leftProb);
+      const outflowLabel = isRight ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
       dom.inlineMatrixBadgeOutflow.textContent = outflowLabel;
-      dom.inlineMatrixBadgeOutflow.style.background = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
-      dom.inlineMatrixBadgeOutflow.style.color = result.outflowAnalysis.verdict === 'right' ? '#38bdf8' : '#fbbf24';
-      dom.inlineMatrixBadgeOutflow.style.borderColor = result.outflowAnalysis.verdict === 'right' ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+      dom.inlineMatrixBadgeOutflow.style.background = isRight ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+      dom.inlineMatrixBadgeOutflow.style.color = isRight ? '#38bdf8' : '#fbbf24';
+      dom.inlineMatrixBadgeOutflow.style.borderColor = isRight ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
     }
   }
 
