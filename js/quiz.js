@@ -80,6 +80,23 @@ export class QuizGame {
   }
 
   /**
+   * 名前・文字の類似性チェック（同一・重複選択肢の出現防止）
+   */
+  isSimilarOptionName(name1, name2) {
+    if (!name1 || !name2) return false;
+    const clean1 = name1.replace(/[\s\-_・\/\(\)（）]/g, '').toLowerCase();
+    const clean2 = name2.replace(/[\s\-_・\/\(\)（）]/g, '').toLowerCase();
+    if (clean1 === clean2) return true;
+
+    // 括弧部分等を除去した核名称での比較
+    const base1 = name1.replace(/[（\(].*?[）\)]/g, '').replace(/[\s\-_・\/]/g, '').toLowerCase();
+    const base2 = name2.replace(/[（\(].*?[）\)]/g, '').replace(/[\s\-_・\/]/g, '').toLowerCase();
+    if (base1.length > 2 && base2.length > 2 && base1 === base2) return true;
+
+    return false;
+  }
+
+  /**
    * ゲームの初期化 ＆ 10問をランダム抽出
    */
   startNewGame() {
@@ -88,39 +105,101 @@ export class QuizGame {
     this.correctCount = 0;
     this.answered = false;
 
+    // プリセットIDからSITE_DEFINITIONSキーへの対応マップ
+    const PRESET_TO_SITE_ID = {
+      rvot_post_sep: 'rvot_post_sep',
+      rvot_free_wall: 'rvot_free_wall',
+      lvot_lcc: 'lvot_lcc',
+      lv_summit: 'lv_summit',
+      ilvt_fascicular: 'fascicular_post',
+      lv_inferior_omi: 'cardiac_crux',
+      lv_pmpm: 'pmpm',
+      amc_junction: 'amc',
+      parahisian_septal: 'parahisian_septal',
+      moderator_band: 'moderator_band',
+      tricuspid_lateral: 'tricuspid_lateral',
+      cardiac_crux: 'cardiac_crux',
+      lvot_rcc: 'lvot_rcc',
+      mva_posteroseptal: 'mva',
+      mva_anterolateral: 'mva',
+      mva_posterior: 'mva',
+      lv_alpm: 'alpm',
+      rv_papillary: 'rv_papillary',
+      bbrvt_bundle_branch: 'bbrvt_bundle_branch'
+    };
+
     // PRESETS 配列から 10問選出
     const shuffledPresets = this.shuffleArray([...PRESETS]);
     const selectedPresets = shuffledPresets.slice(0, this.totalQuestions);
 
     this.questions = selectedPresets.map(preset => {
-      const correctSiteId = preset.id;
-      const correctSite = SITE_DEFINITIONS[correctSiteId] || {};
-      const correctName = correctSite.nameJa || correctSite.name || preset.name;
+      const siteIdKey = PRESET_TO_SITE_ID[preset.id] || preset.id;
+      const correctSite = SITE_DEFINITIONS[siteIdKey] || SITE_DEFINITIONS[preset.id] || {};
+      
+      const correctName = (correctSite.nameJa || correctSite.name || preset.name).trim();
       const correctSub = correctSite.category || preset.category || '';
 
-      const otherSiteIds = Object.keys(SITE_DEFINITIONS).filter(id => id !== correctSiteId);
-      const shuffledOthers = this.shuffleArray([...otherSiteIds]);
-      const dummySiteIds = shuffledOthers.slice(0, 3);
+      const usedSiteKeys = new Set([siteIdKey, preset.id]);
+      const usedNames = [correctName];
 
-      const options = this.shuffleArray([
-        { id: correctSiteId, name: correctName, sub: correctSub, isCorrect: true },
-        ...dummySiteIds.map(id => {
-          const s = SITE_DEFINITIONS[id] || {};
-          return {
-            id: id,
-            name: s.nameJa || s.name || id,
-            sub: s.category || '',
+      const optionsList = [
+        { id: siteIdKey, name: correctName, sub: correctSub, isCorrect: true }
+      ];
+
+      // 全ダミー候補（SITE_DEFINITIONS の全キー）をシャッフル
+      const allSiteKeys = this.shuffleArray(Object.keys(SITE_DEFINITIONS));
+
+      for (const candidateKey of allSiteKeys) {
+        if (optionsList.length >= 4) break;
+        if (usedSiteKeys.has(candidateKey)) continue;
+
+        const candSite = SITE_DEFINITIONS[candidateKey];
+        if (!candSite) continue;
+
+        const candName = (candSite.nameJa || candSite.name || candidateKey).trim();
+        const candSub = candSite.category || '';
+
+        // 既に使用されている選択肢名と重複・酷似していないか厳重チェック
+        const isDuplicate = usedNames.some(existingName => 
+          this.isSimilarOptionName(existingName, candName)
+        );
+
+        if (isDuplicate) continue;
+
+        usedSiteKeys.add(candidateKey);
+        usedNames.push(candName);
+        optionsList.push({
+          id: candidateKey,
+          name: candName,
+          sub: candSub,
+          isCorrect: false
+        });
+      }
+
+      // 4つに満たない場合のフォールバック処理
+      if (optionsList.length < 4) {
+        for (const candidateKey of allSiteKeys) {
+          if (optionsList.length >= 4) break;
+          if (optionsList.some(o => o.id === candidateKey)) continue;
+          const candSite = SITE_DEFINITIONS[candidateKey];
+          if (!candSite) continue;
+          const candName = (candSite.nameJa || candSite.name || candidateKey).trim();
+          if (optionsList.some(o => o.name === candName)) continue;
+          optionsList.push({
+            id: candidateKey,
+            name: candName,
+            sub: candSite.category || '',
             isCorrect: false
-          };
-        })
-      ]);
+          });
+        }
+      }
 
       return {
         key: preset.id,
         preset: preset,
-        correctSiteId: correctSiteId,
+        correctSiteId: siteIdKey,
         correctSite: { name: correctName, subName: correctSub },
-        options: options
+        options: this.shuffleArray(optionsList)
       };
     });
 
