@@ -698,19 +698,29 @@
             </div>
           </div>
 
-          <div class="results-card" style="margin-top: 1rem;">
+          <div class="results-card" id="card-ranking" style="margin-top: 1rem; display: none;">
             <h3 class="card-title">鑑別候補ランキング (Differential Ranking)</h3>
             <div id="ranking-container" class="ranking-list"></div>
           </div>
 
-          <div class="results-card" style="margin-top: 1rem;">
+          <div class="results-card" id="card-reasoning" style="margin-top: 1rem; display: none;">
             <h3 class="card-title">臨床診断推論 (Diagnostic Reasoning Steps)</h3>
             <div id="reasoning-container" class="reasoning-timeline"></div>
           </div>
 
-          <div class="results-card" style="margin-top: 1rem;">
-            <h3 class="card-title">エビデンス論文・ガイドライン照合 (Literature &amp; Guidelines)</h3>
-            <div id="literature-container" class="literature-list"></div>
+          <div class="results-card collapsible-card" id="card-literature" style="margin-top: 1rem; display: none;">
+            <div class="card-header-toggle" id="literature-toggle-btn" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+              <h3 class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.3s ease;">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+                エビデンス論文・ガイドライン照合 (Literature &amp; Guidelines)
+              </h3>
+              <span class="toggle-hint-badge" id="literature-toggle-hint" style="font-size: 0.75rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 3px 8px; border-radius: 6px; font-weight: 700;">タップで展開</span>
+            </div>
+            <div id="literature-collapse-body" class="collapse-body" style="display: none; margin-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
+              <div id="literature-container" class="literature-list"></div>
+            </div>
           </div>
         </section>
       </main>
@@ -856,6 +866,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10038_revealdiag"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10039_literature_collapse"></script>
 </body>
 </html>

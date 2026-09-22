@@ -143,6 +143,12 @@ const dom = {
   reasoningContainer: document.getElementById('reasoning-container'),
   ablationTipText: document.getElementById('ablation-tip-text'),
   literatureContainer: document.getElementById('literature-container'),
+  cardRanking: document.getElementById('card-ranking'),
+  cardReasoning: document.getElementById('card-reasoning'),
+  cardLiterature: document.getElementById('card-literature'),
+  literatureToggleBtn: document.getElementById('literature-toggle-btn'),
+  literatureCollapseBody: document.getElementById('literature-collapse-body'),
+  literatureToggleHint: document.getElementById('literature-toggle-hint'),
   
   // アクション
   btnReset: document.getElementById('btn-reset'),
@@ -266,6 +272,12 @@ function refreshDomReferences() {
   dom.reasoningContainer = document.getElementById('reasoning-container');
   dom.ablationTipText = document.getElementById('ablation-tip-text');
   dom.literatureContainer = document.getElementById('literature-container');
+  dom.cardRanking = document.getElementById('card-ranking');
+  dom.cardReasoning = document.getElementById('card-reasoning');
+  dom.cardLiterature = document.getElementById('card-literature');
+  dom.literatureToggleBtn = document.getElementById('literature-toggle-btn');
+  dom.literatureCollapseBody = document.getElementById('literature-collapse-body');
+  dom.literatureToggleHint = document.getElementById('literature-toggle-hint');
 
   dom.btnReset = document.getElementById('btn-reset');
   dom.btnShowNaitoFlowchart = document.getElementById('btn-show-naito-flowchart');
@@ -1064,6 +1076,13 @@ function setupEventListeners() {
       appState = JSON.parse(JSON.stringify(defaultState));
       syncControlsWithState();
       isDiagnosisRevealed = false;
+
+      // エビデンス論文の折りたたみ状態も閉じた状態にリセット
+      if (dom.literatureCollapseBody) dom.literatureCollapseBody.style.display = 'none';
+      if (dom.literatureToggleHint) dom.literatureToggleHint.textContent = 'タップで展開';
+      const icon = dom.literatureToggleBtn ? dom.literatureToggleBtn.querySelector('.toggle-icon') : null;
+      if (icon) icon.style.transform = 'rotate(0deg)';
+
       runAnalysis();
     });
   }
@@ -1090,7 +1109,31 @@ function setupEventListeners() {
       syncControlsWithState();
       renderMatrix();
       isDiagnosisRevealed = false;
+
+      // エビデンス論文の折りたたみ状態も閉じた状態にリセット
+      if (dom.literatureCollapseBody) dom.literatureCollapseBody.style.display = 'none';
+      if (dom.literatureToggleHint) dom.literatureToggleHint.textContent = 'タップで展開';
+      const icon = dom.literatureToggleBtn ? dom.literatureToggleBtn.querySelector('.toggle-icon') : null;
+      if (icon) icon.style.transform = 'rotate(0deg)';
+
       runAnalysis();
+    });
+  }
+
+  // エビデンス論文・ガイドライン照合カードのアコーディオン開閉
+  if (dom.literatureToggleBtn) {
+    dom.literatureToggleBtn.addEventListener('click', () => {
+      const isHidden = !dom.literatureCollapseBody || dom.literatureCollapseBody.style.display === 'none';
+      if (dom.literatureCollapseBody) {
+        dom.literatureCollapseBody.style.display = isHidden ? 'block' : 'none';
+      }
+      const icon = dom.literatureToggleBtn.querySelector('.toggle-icon');
+      if (icon) {
+        icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+      if (dom.literatureToggleHint) {
+        dom.literatureToggleHint.textContent = isHidden ? 'タップで閉じる' : 'タップで展開';
+      }
     });
   }
 
@@ -1542,7 +1585,7 @@ function runAnalysis() {
     });
   }
 
-  // 5. 心内膜 vs 心外膜 鑑別診断パネル & 流出路左右鑑別パネルの更新
+  // 5. 心内膜 vs 心外膜 鑑別診断パネル & 各結果カードの表示制御
   if (isDiagnosisRevealed) {
     if (dom.inlineDiagnosisResult) dom.inlineDiagnosisResult.style.display = 'block';
     if (dom.inlineMatrixDiagnosisResult) dom.inlineMatrixDiagnosisResult.style.display = 'block';
@@ -1561,12 +1604,19 @@ function runAnalysis() {
         dom.outflowSideCard.style.display = 'none';
       }
     }
+
+    if (dom.cardRanking) dom.cardRanking.style.display = 'block';
+    if (dom.cardReasoning) dom.cardReasoning.style.display = 'block';
+    if (dom.cardLiterature) dom.cardLiterature.style.display = 'block';
   } else {
     if (dom.inlineDiagnosisResult) dom.inlineDiagnosisResult.style.display = 'none';
     if (dom.inlineMatrixDiagnosisResult) dom.inlineMatrixDiagnosisResult.style.display = 'none';
     if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'none';
     if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'none';
     if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'none';
+    if (dom.cardRanking) dom.cardRanking.style.display = 'none';
+    if (dom.cardReasoning) dom.cardReasoning.style.display = 'none';
+    if (dom.cardLiterature) dom.cardLiterature.style.display = 'none';
   }
 
   // 7. 診断根拠となる参考論文＆日本語サマリーのレンダリング
