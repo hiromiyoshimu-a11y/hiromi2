@@ -132,7 +132,10 @@ export class QuizGame {
     this.answered = false;
     this.currentQuestion = this.questions[this.currentStep];
 
-    if (this.elExplanationCard) this.elExplanationCard.classList.remove('active');
+    if (this.elExplanationCard) {
+      this.elExplanationCard.style.display = 'none';
+      this.elExplanationCard.classList.remove('active');
+    }
 
     this.renderCurrentECG();
     this.renderOptions();
@@ -210,7 +213,11 @@ export class QuizGame {
 
     this.updateUI();
     this.renderExplanation();
-    if (this.elExplanationCard) this.elExplanationCard.classList.add('active');
+    if (this.elExplanationCard) {
+      this.elExplanationCard.style.display = 'block';
+      this.elExplanationCard.classList.add('active');
+      this.elExplanationCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   renderExplanation() {
