@@ -2046,7 +2046,7 @@ function renderCabreraFrontalStage(preset) {
 
   // 1. 背景SVG（前額面 Cabrera 6軸サークル ＆ 心臓伝導系ガイド）
   const bgSvg = `
-    <svg class="spatial-bg-svg" viewBox="0 0 530 485" xmlns="http://www.w3.org/2000/svg">
+    <svg class="spatial-bg-svg" viewBox="0 0 540 510" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <marker id="cabrera-arr-cyan" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
           <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
@@ -2061,25 +2061,25 @@ function renderCabreraFrontalStage(preset) {
         </radialGradient>
       </defs>
 
-      <!-- サークルガイド (中心: 265, 238, 半径: 165px) -->
-      <circle cx="265" cy="238" r="165" fill="none" stroke="rgba(56, 189, 248, 0.22)" stroke-width="1.8" stroke-dasharray="4,4"/>
-      <circle cx="265" cy="238" r="130" fill="none" stroke="rgba(56, 189, 248, 0.10)" stroke-width="1"/>
+      <!-- サークルガイド (中心: 270, 245, 半径: 165px) -->
+      <circle cx="270" cy="245" r="165" fill="none" stroke="rgba(56, 189, 248, 0.22)" stroke-width="1.8" stroke-dasharray="4,4"/>
+      <circle cx="270" cy="245" r="130" fill="none" stroke="rgba(56, 189, 248, 0.10)" stroke-width="1"/>
 
       <!-- 時計回り進行方向の大きなガイドライン円弧矢印 (+30°から+90°へ向かう円弧) -->
-      <path d="M 390 320 A 165 165 0 0 1 265 403" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6,3" marker-end="url(#cabrera-arr-amber)"/>
-      <text x="365" y="380" fill="#f59e0b" font-size="10.5" font-weight="700">↻ 電気軸進行順</text>
+      <path d="M 395 327 A 165 165 0 0 1 270 410" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="6,3" marker-end="url(#cabrera-arr-amber)"/>
+      <text x="370" y="388" fill="#f59e0b" font-size="10.5" font-weight="700">↻ 電気軸進行順</text>
 
-      <!-- 6軸基準矢印ライン (中心 265, 238 から各誘導方向へ) -->
-      <line x1="265" y1="238" x2="395" y2="163" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3"/> <!-- aVL (-30°) -->
-      <line x1="265" y1="238" x2="430" y2="238" stroke="#38bdf8" stroke-width="1.8"/> <!-- I (0°) -->
-      <line x1="265" y1="238" x2="395" y2="313" stroke="#0284c7" stroke-width="2"/> <!-- -aVR (+30°) -->
-      <line x1="265" y1="238" x2="347" y2="380" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3"/> <!-- II (+60°) -->
-      <line x1="265" y1="238" x2="265" y2="403" stroke="#38bdf8" stroke-width="1.8"/> <!-- aVF (+90°) -->
-      <line x1="265" y1="238" x2="182" y2="380" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3"/> <!-- III (+120°) -->
-      <line x1="265" y1="238" x2="135" y2="163" stroke="rgba(148, 163, 184, 0.4)" stroke-width="1.2" stroke-dasharray="2,2"/> <!-- aVR参考 (-150°) -->
+      <!-- 6軸基準矢印ライン (中心 270, 245 から各誘導カードまで) -->
+      <line x1="270" y1="245" x2="441" y2="146" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3"/> <!-- aVL (-30°) -->
+      <line x1="270" y1="245" x2="488" y2="245" stroke="#38bdf8" stroke-width="1.8"/> <!-- I (0°) -->
+      <line x1="270" y1="245" x2="433" y2="339" stroke="#0284c7" stroke-width="2"/> <!-- -aVR (+30°) -->
+      <line x1="270" y1="245" x2="381" y2="437" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3"/> <!-- II (+60°) -->
+      <line x1="270" y1="245" x2="270" y2="435" stroke="#38bdf8" stroke-width="1.8"/> <!-- aVF (+90°) -->
+      <line x1="270" y1="245" x2="159" y2="437" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3"/> <!-- III (+120°) -->
+      <line x1="270" y1="245" x2="99" y2="146" stroke="rgba(148, 163, 184, 0.4)" stroke-width="1.2" stroke-dasharray="2,2"/> <!-- aVR参考 (-150°) -->
 
       <!-- 中央：心臓イラスト ＆ 刺激伝導系背景シェイプ -->
-      <g transform="translate(265, 238)">
+      <g transform="translate(270, 245)">
         <ellipse cx="0" cy="0" rx="56" ry="44" fill="url(#heart-center-grad)" stroke="#38bdf8" stroke-width="1.8"/>
         <!-- 房室結節 & 刺激伝導系パルスライン -->
         <path d="M -15 -18 L 0 -4 L 14 18 M 0 -4 L -12 20" stroke="#fbbf24" stroke-width="2.2" fill="none" stroke-linecap="round"/>
@@ -2092,15 +2092,15 @@ function renderCabreraFrontalStage(preset) {
 
   stage.insertAdjacentHTML('beforeend', bgSvg);
 
-  // 2. 前額面 Cabrera 6誘導カードの配置 (6軸サークル角度に正確に連動するパーセンテージ座標)
+  // 2. 前額面 Cabrera 6誘導カードの配置 (重なりを防止する放射状交互スタッガード配置)
   const cabreraFrontalConfigs = [
-    { id: 'aVL', label: 'aVL', leftPct: 78.104, topPct: 31.340, angle: '-30°' },
-    { id: 'I', label: 'I', leftPct: 82.453, topPct: 49.072, angle: '0°' },
-    { id: '-aVR', label: '-aVR', leftPct: 78.104, topPct: 66.804, angle: '+30°', sourceLead: 'aVR', inverted: true },
-    { id: 'II', label: 'II', leftPct: 66.226, topPct: 79.784, angle: '+60°' },
-    { id: 'aVF', label: 'aVF', leftPct: 50.000, topPct: 84.536, angle: '+90°' },
-    { id: 'III', label: 'III', leftPct: 33.774, topPct: 79.784, angle: '+120°' },
-    { id: 'aVR', label: 'aVR (参考)', leftPct: 21.896, topPct: 31.340, angle: '-150°', isRef: true }
+    { id: 'aVL', label: 'aVL', leftPct: 81.754, topPct: 28.627, angle: '-30°' },
+    { id: 'I', label: 'I', leftPct: 90.370, topPct: 48.039, angle: '0°' },
+    { id: '-aVR', label: '-aVR', leftPct: 80.150, topPct: 66.471, angle: '+30°', sourceLead: 'aVR', inverted: true },
+    { id: 'II', label: 'II', leftPct: 70.556, topPct: 85.737, angle: '+60°' },
+    { id: 'aVF', label: 'aVF', leftPct: 50.000, topPct: 85.294, angle: '+90°' },
+    { id: 'III', label: 'III', leftPct: 29.444, topPct: 85.737, angle: '+120°' },
+    { id: 'aVR', label: 'aVR (参考)', leftPct: 18.246, topPct: 28.627, angle: '-150°', isRef: true }
   ];
 
   cabreraFrontalConfigs.forEach(cfg => {

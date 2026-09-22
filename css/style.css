@@ -2474,8 +2474,8 @@ body {
 .spatial-canvas {
   position: relative;
   width: 100%;
-  max-width: 530px;
-  aspect-ratio: 530 / 485;
+  max-width: 540px;
+  aspect-ratio: 540 / 510;
   height: auto;
   background: radial-gradient(circle at 50% 50%, #0d1527 0%, #050811 100%);
   border-radius: 8px;
@@ -2497,9 +2497,9 @@ body {
 .spatial-lead-node {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 21.5%;
-  min-width: 76px;
-  max-width: 114px;
+  width: 20%;
+  min-width: 72px;
+  max-width: 108px;
   background: #090e1c;
   border: 1.5px solid rgba(56, 189, 248, 0.35);
   border-radius: 6px;
