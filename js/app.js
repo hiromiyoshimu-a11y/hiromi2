@@ -781,12 +781,6 @@ function switchMainSection(sectionName) {
     secQuiz.style.display = sectionName === 'quiz' ? 'block' : 'none';
   }
 
-  if (subtitle) {
-    if (sectionName === 'simulation') subtitle.textContent = '症例 simulator';
-    if (sectionName === 'diagnosis') subtitle.textContent = 'PVC起源診断ツール';
-    if (sectionName === 'quiz') subtitle.textContent = '心電図クイズ';
-  }
-
   if (sectionName === 'quiz' && !quizInstance) {
     try {
       quizInstance = new QuizGame();

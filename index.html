@@ -124,12 +124,6 @@
         secQuiz.style.display = sectionName === 'quiz' ? 'block' : 'none';
       }
 
-      if (subtitle) {
-        if (sectionName === 'simulation') subtitle.textContent = '症例 simulator';
-        if (sectionName === 'diagnosis') subtitle.textContent = 'PVC起源診断ツール';
-        if (sectionName === 'quiz') subtitle.textContent = '心電図クイズ';
-      }
-
       if (history && history.replaceState) {
         try { history.replaceState(null, '', '#section-' + sectionName); } catch(e) {}
       }
@@ -139,10 +133,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10010_sourcebottom">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10010_sourcebottom">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10010_sourcebottom">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10010_sourcebottom">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10012_mobilesafe">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10012_mobilesafe">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10012_mobilesafe">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10012_mobilesafe">
 </head>
 <body>
   <div class="app-container">
@@ -158,7 +152,7 @@
             <img src="assets/title-logo.png?v=3" alt="PVC THE ORIGIN - PVC起源特定システム" class="title-logo-img" title="吉村流！PVC The Origin">
           </div>
           <div class="origin-subtitle-box">
-            <span class="origin-subtitle" id="header-subtitle-text">症例 simulator</span>
+            <span class="origin-subtitle" id="header-subtitle-text">臨床症例シミュレーター</span>
           </div>
         </div>
       </div>
@@ -765,6 +759,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10010_sourcebottom"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10012_mobilesafe"></script>
 </body>
 </html>

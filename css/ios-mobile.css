@@ -404,19 +404,15 @@ html, body {
     gap: 4px !important;
     padding: 4px !important;
     overflow-x: visible !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
 
   .tab-btn {
     padding: 8px 4px !important;
     font-size: 0.72rem !important;
-    letter-spacing: -0.02em !important;
-    white-space: nowrap !important;
-    justify-content: center !important;
-    text-align: center !important;
-  }
-    padding: 8px 4px !important;
-    font-size: 0.72rem !important;
     white-space: normal !important;
+    word-break: break-word !important;
     line-height: 1.25 !important;
     text-align: center !important;
     display: flex !important;
@@ -424,22 +420,135 @@ html, body {
     align-items: center !important;
     gap: 4px !important;
     justify-content: center !important;
+    min-height: 44px !important;
+    box-sizing: border-box !important;
   }
 
   .tab-btn svg {
     width: 16px !important;
     height: 16px !important;
+    flex-shrink: 0 !important;
   }
 
-  /* ステップボタングループの折り返しとタッチ最適化 */
-  .step-card {
+  /* ================= PVC起源診断ツール モバイル完全最適化 ================= */
+  #section-diagnosis {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    padding-bottom: calc(var(--sab, 0px) + 90px) !important; /* ボトムナビゲーションによる隠れ防止 */
+  }
+
+  #section-diagnosis .input-panel,
+  #section-diagnosis .results-panel {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
     padding: 1rem !important;
   }
 
+  /* ステップ選択ボタングリッド */
+  .button-options-grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
   .opt-btn {
-    min-height: 42px !important;
+    width: 100% !important;
+    min-height: 44px !important;
     font-size: 0.82rem !important;
-    padding: 8px 10px !important;
+    padding: 10px 12px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    box-sizing: border-box !important;
+    line-height: 1.35 !important;
+  }
+
+  /* 胸部誘導移行帯 (V1〜V6 ボタン) */
+  .transition-picker,
+  .transition-btn-group {
+    display: grid !important;
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 4px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .trans-btn {
+    padding: 10px 2px !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    text-align: center !important;
+    min-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  /* サブ選択オプション & ピルボタン (I誘導s波, aVR/aVL, V2 small r, 下壁ノッチなど) */
+  .sub-options-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    margin-top: 8px !important;
+  }
+
+  .sub-label {
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    color: #94a3b8 !important;
+  }
+
+  .sub-pill-group,
+  .sub-toggle-pills {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .sub-pill {
+    width: 100% !important;
+    min-height: 42px !important;
+    padding: 6px 8px !important;
+    font-size: 0.76rem !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+    line-height: 1.25 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+
+  /* スライダー領域のモジュール幅最適化 */
+  .slider-control-group,
+  .slider-group,
+  .slider-row {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .slider-row input[type="range"] {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* マトリックス表示部 */
+  #matrix-container {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
   }
 
   /* 3D心臓ビューアーのスマホ表示 */
