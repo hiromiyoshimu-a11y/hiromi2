@@ -133,10 +133,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10017_confirmclear">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10017_confirmclear">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10017_confirmclear">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10017_confirmclear">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10018_verdicttrigger">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10018_verdicttrigger">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10018_verdicttrigger">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10018_verdicttrigger">
 </head>
 <body>
   <div class="app-container">
@@ -627,8 +627,8 @@
         </section>
 
         <section class="results-panel">
-          <div class="layer-verdict-grid">
-            <div class="layer-card endo-epi-card" id="endo-epi-card">
+          <div class="layer-verdict-grid" id="layer-verdict-grid" style="display: none;">
+            <div class="layer-card endo-epi-card" id="endo-epi-card" style="display: none;">
               <div class="layer-header">
                 <span class="layer-title">心筋層別推定 (Endo vs Epi)</span>
                 <span class="endo-epi-verdict-badge" id="endo-epi-verdict-badge">心内膜側 (Endocardial)</span>
@@ -645,7 +645,7 @@
               <div class="strategy-box" id="endo-epi-strategy-box"></div>
             </div>
 
-            <div class="layer-card outflow-side-card" id="outflow-side-card">
+            <div class="layer-card outflow-side-card" id="outflow-side-card" style="display: none;">
               <div class="layer-header">
                 <span class="layer-title">流出路 左右鑑別 (RVOT vs LVOT)</span>
                 <span class="outflow-verdict-badge" id="outflow-verdict-badge">右室流出路 (RVOT)</span>
@@ -820,6 +820,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10017_confirmclear"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10018_verdicttrigger"></script>
 </body>
 </html>

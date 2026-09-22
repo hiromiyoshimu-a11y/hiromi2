@@ -161,6 +161,7 @@ const dom = {
   citationInsightsContainer: document.getElementById('citation-insights-container'),
 
   // 心内膜 vs 心外膜 鑑別パネル要素
+  layerVerdictGrid: document.getElementById('layer-verdict-grid'),
   endoEpiCard: document.getElementById('endo-epi-card'),
   endoEpiVerdictBadge: document.getElementById('endo-epi-verdict-badge'),
   valEndoProb: document.getElementById('val-endo-prob'),
@@ -270,6 +271,7 @@ function refreshDomReferences() {
   dom.cabreraThoraxStage = document.getElementById('cabrera-thorax-stage');
   dom.citationInsightsContainer = document.getElementById('citation-insights-container');
 
+  dom.layerVerdictGrid = document.getElementById('layer-verdict-grid');
   dom.endoEpiCard = document.getElementById('endo-epi-card');
   dom.endoEpiVerdictBadge = document.getElementById('endo-epi-verdict-badge');
   dom.valEndoProb = document.getElementById('val-endo-prob');
@@ -483,6 +485,11 @@ function applyPreset(preset) {
   syncControlsWithState();
   renderMatrix();
   renderPaperCitation(preset);
+
+  if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
+  if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
+  if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'block';
+
   runAnalysis();
 }
 
@@ -978,6 +985,12 @@ function setupEventListeners() {
   if (dom.btnRunDiagnosis) {
     dom.btnRunDiagnosis.addEventListener('click', () => {
       runAnalysis();
+
+      // 右パネルの心筋層別推定 & 流出路左右鑑別カードを表示
+      if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
+      if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
+      if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'block';
+
       if (dom.inlineDiagnosisResult) {
         dom.inlineDiagnosisResult.style.display = 'block';
         dom.inlineDiagnosisResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -993,9 +1006,16 @@ function setupEventListeners() {
 
       appState = JSON.parse(JSON.stringify(defaultState));
       syncControlsWithState();
+
       if (dom.inlineDiagnosisResult) {
         dom.inlineDiagnosisResult.style.display = 'none';
       }
+      if (dom.layerVerdictGrid) {
+        dom.layerVerdictGrid.style.display = 'none';
+      }
+      if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'none';
+      if (dom.outflowSideCard) dom.outflowSideCard.style.display = 'none';
+
       runAnalysis();
     });
   }
