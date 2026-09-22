@@ -73,7 +73,9 @@ export class QuizGame {
 
     if (this.elBtnRestart) {
       this.elBtnRestart.addEventListener('click', () => {
-        this.elSummaryModal.classList.remove('active');
+        if (this.elSummaryModal) {
+          this.elSummaryModal.classList.remove('active', 'open');
+        }
         this.startNewGame();
       });
     }
@@ -216,12 +218,22 @@ export class QuizGame {
       this.elExplanationCard.classList.remove('active');
     }
 
+    if (this.elNextBtn) {
+      this.elNextBtn.innerHTML = '次の問題へ進む ➔';
+    }
+
     this.renderCurrentECG();
     this.renderOptions();
 
     const pct = ((this.currentStep + 1) / this.totalQuestions) * 100;
     if (this.elProgressFill) this.elProgressFill.style.width = `${pct}%`;
     if (this.elStepIndicator) this.elStepIndicator.textContent = `QUESTION ${this.currentStep + 1} / ${this.totalQuestions}`;
+
+    // 新しい問題の先頭（心電図波形の位置）へ自動スムーズスクロール
+    const secQuiz = document.getElementById('section-quiz');
+    if (secQuiz) {
+      secQuiz.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   renderCurrentECG() {
@@ -292,6 +304,17 @@ export class QuizGame {
 
     this.updateUI();
     this.renderExplanation();
+
+    // 最終問題(10問目)の場合はボタンを「結果を見る 🎉」に変更
+    const isLastQuestion = (this.currentStep === this.totalQuestions - 1);
+    if (this.elNextBtn) {
+      if (isLastQuestion) {
+        this.elNextBtn.innerHTML = '結果を見る 🎉';
+      } else {
+        this.elNextBtn.innerHTML = '次の問題へ進む ➔';
+      }
+    }
+
     if (this.elExplanationCard) {
       this.elExplanationCard.style.display = 'block';
       this.elExplanationCard.classList.add('active');
@@ -360,7 +383,9 @@ export class QuizGame {
     if (this.elSummaryRankBadge) this.elSummaryRankBadge.textContent = rank;
     if (this.elSummaryFeedbackMsg) this.elSummaryFeedbackMsg.textContent = msg;
 
-    if (this.elSummaryModal) this.elSummaryModal.classList.add('active');
+    if (this.elSummaryModal) {
+      this.elSummaryModal.classList.add('active', 'open');
+    }
   }
 
   updateUI() {
