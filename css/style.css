@@ -1004,24 +1004,26 @@ body {
   border-color: #38bdf8;
 }
 
-/* 心電図表示枠：症例シミュレーターと100%同一の縦横比(150:96)を厳格維持しつつ拡大表示 */
+/* 心電図表示枠：症例シミュレーターと100%同一の縦横比(150:96)で黒枠いっぱいまで波形をドカンと巨大拡大 */
 .matrix-lead-svg-wrap {
-  width: 100%;
-  aspect-ratio: 150 / 96;
+  width: 100% !important;
+  aspect-ratio: 150 / 96 !important;
   border-radius: 6px;
   overflow: hidden;
   background: #040812;
   border: 1px solid rgba(56, 189, 248, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   box-sizing: border-box;
+  position: relative;
 }
 
+.matrix-lead-svg-wrap .ecg-lead-svg,
 .matrix-lead-svg-wrap svg {
-  width: 100%;
-  height: 100%;
-  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  aspect-ratio: unset !important;
+  display: block !important;
 }
 
 /* ==========================================================================
