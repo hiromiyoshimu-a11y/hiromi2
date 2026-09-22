@@ -2177,7 +2177,7 @@ body {
 
 .std-vertical-grid {
   display: grid;
-  grid-template-columns: 240px 240px minmax(320px, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   width: 100%;
   box-sizing: border-box;

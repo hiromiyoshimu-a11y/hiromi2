@@ -133,10 +133,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260922_v10014_deselect">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10014_deselect">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10014_deselect">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10014_deselect">
+  <link rel="stylesheet" href="./css/style.css?v=20260922_v10015_ctrlpos">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260922_v10015_ctrlpos">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260922_v10015_ctrlpos">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260922_v10015_ctrlpos">
 </head>
 <body>
   <div class="app-container">
@@ -258,36 +258,10 @@
           <div class="citation-ecg-header">
             <div class="citation-header-left">
               <span class="citation-ecg-title">典型的な12誘導PVC波形（25mm/s規格）</span>
-              <div class="lead-format-group" id="lead-format-group">
-                <span class="format-label">配列:</span>
-                <div class="format-pill-group">
-                  <button type="button" class="format-pill active" id="btn-format-std" data-format="standard">標準配列</button>
-                  <button type="button" class="format-pill" id="btn-format-cabrera" data-format="cabrera">カブレラ配列 (Cabrera)</button>
-                </div>
-              </div>
-              <div class="std-layout-group" id="std-layout-group">
-                <span class="format-label">配置:</span>
-                <div class="format-pill-group">
-                  <button type="button" class="format-pill active" id="btn-layout-vertical" data-layout="vertical">縦型2列 (肢/胸)</button>
-                  <button type="button" class="format-pill" id="btn-layout-horizontal" data-layout="horizontal">横並び (2行)</button>
-                </div>
-              </div>
-            </div>
-            <div class="ecg-gain-control" id="citation-gain-control">
-              <span class="gain-label">感度(波高):</span>
-              <div class="gain-pill-group">
-                <button type="button" class="gain-pill" data-gain="0.5">×0.5</button>
-                <button type="button" class="gain-pill active" data-gain="1.0">×1.0</button>
-                <button type="button" class="gain-pill" data-gain="1.5">×1.5</button>
-                <button type="button" class="gain-pill" data-gain="2.0">×2.0</button>
-              </div>
-              <button type="button" class="ecg-calibration-mark clickable" id="btn-toggle-gain">
-                <span id="citation-gain-display">10mm/mV</span> | 200ms
-              </button>
             </div>
           </div>
 
-          <!-- 1. 標準配列: 縦型3列/2列配置 -->
+          <!-- 1. 標準配列: 縦型2列配置 (四肢誘導 | 胸部誘導) -->
           <div class="citation-standard-vertical" id="citation-standard-vertical">
             <div class="std-vertical-grid">
               <div class="std-vertical-col limb-col">
@@ -311,22 +285,13 @@
                 </div>
                 <div class="std-col-leads" id="col-chest-leads"></div>
               </div>
-
-              <div class="std-vertical-col insights-col">
-                <div class="std-col-header">
-                  <div class="std-col-header-top">
-                    <span class="std-col-tag insights">臨床解説 &amp; 治療戦略</span>
-                    <span class="std-col-en">Clinical Insights</span>
-                  </div>
-                  <span class="std-col-sub">心電図特徴・機序・アブレーション戦略</span>
-                </div>
-                <div class="std-col-insights" id="col-vertical-insights"></div>
-              </div>
             </div>
           </div>
 
+          <!-- 2. 横並びグリッド (2行×6列) -->
           <div class="citation-ecg-grid" id="citation-ecg-grid" style="display: none;"></div>
 
+          <!-- 3. カブレラ空間配置ビュー -->
           <div class="citation-cabrera-spatial" id="citation-cabrera-spatial" style="display: none;">
             <div class="cabrera-spatial-grid">
               <div class="spatial-block frontal-block">
@@ -353,9 +318,54 @@
               </div>
             </div>
           </div>
+
+          <!-- 心電図の下（臨床解説の上）に配置されたコントロールツールバー -->
+          <div class="citation-ecg-controls-bar" style="margin-top: 1rem; margin-bottom: 1rem; padding: 12px 16px; background: rgba(11, 19, 38, 0.95); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);">
+            <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+              <div class="lead-format-group" id="lead-format-group" style="display: flex; align-items: center; gap: 6px;">
+                <span class="format-label" style="font-size: 0.8rem; font-weight: 700; color: #94a3b8;">配列:</span>
+                <div class="format-pill-group" style="display: flex; gap: 4px;">
+                  <button type="button" class="format-pill active" id="btn-format-std" data-format="standard">標準配列</button>
+                  <button type="button" class="format-pill" id="btn-format-cabrera" data-format="cabrera">カブレラ配列 (Cabrera)</button>
+                </div>
+              </div>
+              <div class="std-layout-group" id="std-layout-group" style="display: flex; align-items: center; gap: 6px;">
+                <span class="format-label" style="font-size: 0.8rem; font-weight: 700; color: #94a3b8;">配置:</span>
+                <div class="format-pill-group" style="display: flex; gap: 4px;">
+                  <button type="button" class="format-pill active" id="btn-layout-vertical" data-layout="vertical">縦型2列 (肢/胸)</button>
+                  <button type="button" class="format-pill" id="btn-layout-horizontal" data-layout="horizontal">横並び (2行)</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="ecg-gain-control" id="citation-gain-control" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <span class="gain-label" style="font-size: 0.8rem; font-weight: 700; color: #94a3b8;">感度(波高):</span>
+              <div class="gain-pill-group" style="display: flex; gap: 4px;">
+                <button type="button" class="gain-pill" data-gain="0.5">×0.5</button>
+                <button type="button" class="gain-pill active" data-gain="1.0">×1.0</button>
+                <button type="button" class="gain-pill" data-gain="1.5">×1.5</button>
+                <button type="button" class="gain-pill" data-gain="2.0">×2.0</button>
+              </div>
+              <button type="button" class="ecg-calibration-mark clickable" id="btn-toggle-gain" style="font-size: 0.78rem; padding: 5px 10px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 8px; color: #38bdf8; font-weight: 700; cursor: pointer;">
+                <span id="citation-gain-display">10mm/mV</span> | 200ms
+              </button>
+            </div>
+          </div>
+
+          <!-- 臨床解説 & 治療戦略 (コントロールツールバーの下に配置) -->
+          <div class="std-vertical-col insights-col" style="width: 100%; margin-top: 8px;">
+            <div class="std-col-header" style="margin-bottom: 10px;">
+              <div class="std-col-header-top">
+                <span class="std-col-tag insights">臨床解説 &amp; 治療戦略</span>
+                <span class="std-col-en">Clinical Insights</span>
+              </div>
+              <span class="std-col-sub">心電図特徴・機序・アブレーション戦略</span>
+            </div>
+            <div class="std-col-insights" id="col-vertical-insights"></div>
+          </div>
         </div>
 
-        <div class="citation-insights-container" id="citation-insights-container"></div>
+        <div class="citation-insights-container" id="citation-insights-container" style="display: none;"></div>
 
         <div class="citation-source-info" id="citation-source-info" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(56, 189, 248, 0.2);">
           <!-- JSで動的生成 -->
@@ -810,6 +820,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260922_v10014_deselect"></script>
+  <script type="module" src="./js/app.js?v=20260922_v10015_ctrlpos"></script>
 </body>
 </html>
