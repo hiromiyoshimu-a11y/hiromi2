@@ -40,6 +40,7 @@ export class QuizGame {
     this.elSummaryRankBadge = document.getElementById('summary-rank-badge');
     this.elSummaryFeedbackMsg = document.getElementById('summary-feedback-msg');
     this.elBtnRestart = document.getElementById('quiz-btn-restart');
+    this.elBtnExit = document.getElementById('quiz-btn-exit');
 
     // 配列ボタン
     this.btnStandard = document.getElementById('quiz-btn-standard');
@@ -75,6 +76,18 @@ export class QuizGame {
       this.elBtnRestart.addEventListener('click', () => {
         if (this.elSummaryModal) {
           this.elSummaryModal.classList.remove('active', 'open');
+        }
+        this.startNewGame();
+      });
+    }
+
+    if (this.elBtnExit) {
+      this.elBtnExit.addEventListener('click', () => {
+        if (this.elSummaryModal) {
+          this.elSummaryModal.classList.remove('active', 'open');
+        }
+        if (window.switchMainSection) {
+          window.switchMainSection('simulation');
         }
         this.startNewGame();
       });
