@@ -2127,7 +2127,23 @@ function renderCabreraFrontalStage(preset) {
       cfg.angle
     );
 
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isActive = card.classList.contains('active');
+      stage.querySelectorAll('.spatial-lead-node').forEach(node => node.classList.remove('active', 'selected'));
+      if (!isActive) {
+        card.classList.add('active', 'selected');
+      }
+    });
+
     stage.appendChild(card);
+  });
+
+  // キャンバス領域タップで選択解除
+  stage.addEventListener('click', (e) => {
+    if (!e.target.closest('.spatial-lead-node')) {
+      stage.querySelectorAll('.spatial-lead-node').forEach(node => node.classList.remove('active', 'selected'));
+    }
   });
 }
 
@@ -2257,7 +2273,23 @@ function renderCabreraThoraxStage(preset) {
       ''
     );
 
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isActive = card.classList.contains('active');
+      stage.querySelectorAll('.spatial-lead-node').forEach(node => node.classList.remove('active', 'selected'));
+      if (!isActive) {
+        card.classList.add('active', 'selected');
+      }
+    });
+
     stage.appendChild(card);
+  });
+
+  // キャンバス領域タップで選択解除
+  stage.addEventListener('click', (e) => {
+    if (!e.target.closest('.spatial-lead-node')) {
+      stage.querySelectorAll('.spatial-lead-node').forEach(node => node.classList.remove('active', 'selected'));
+    }
   });
 }
 
