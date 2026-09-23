@@ -59,8 +59,8 @@
 .heart-svg-wrapper {
   position: relative;
   width: 100%;
-  max-width: 530px;
-  height: 420px;
+  max-width: 680px;
+  height: 480px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -150,10 +150,10 @@
 }
 
 .site-label-text {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  fill: #cbd5e1;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  font-size: 13.5px;
+  font-weight: 800;
+  fill: #ffffff;
   pointer-events: none;
   transition: all 0.25s ease;
 }
@@ -166,14 +166,15 @@
 }
 
 .origin-site:hover .site-label-bg {
-  fill: rgba(2, 132, 199, 0.9);
+  fill: rgba(2, 132, 199, 0.95);
   stroke: #ffffff;
+  stroke-width: 2;
 }
 
 .origin-site:hover .site-label-text {
   fill: #ffffff;
-  font-weight: 700;
-  font-size: 10.5px;
+  font-weight: 900;
+  font-size: 14.5px;
 }
 
 /* 推定 1位 ハイライト (最有力部位) */
