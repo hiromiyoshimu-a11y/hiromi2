@@ -559,4 +559,59 @@ html, body {
   .heart-svg-container {
     min-height: 300px !important;
   }
+
+  /* ================= 症例シミュレーター 臨床解説カード モバイル幅最大化 ================= */
+  .paper-citation-panel {
+    padding: 1rem 0.75rem !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+  }
+
+  .citation-insights-container,
+  #col-insights-wrapper,
+  .std-vertical-col.insights-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  .citation-insights-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .std-col-insights {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .insight-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 12px 14px !important;
+    margin: 0 !important;
+  }
+
+  .insight-card h4 {
+    font-size: 0.92rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .insight-card p,
+  .insight-card ul {
+    font-size: 0.85rem !important;
+    line-height: 1.5 !important;
+  }
+
+  .insight-card ul {
+    padding-left: 18px !important;
+  }
 }
