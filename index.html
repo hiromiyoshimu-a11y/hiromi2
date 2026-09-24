@@ -55,29 +55,29 @@
     .main-section.active { display: block !important; }
 
     /* スタンドアロン用インラインUI救済スタイル */
-    .app-header { background: #0b1326; padding: 12px 16px; border-bottom: 2px solid #ef4444; overflow: visible; max-width: 100%; box-sizing: border-box; }
-    .origin-brand-wrap { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; max-width: 100%; }
-    .origin-logo-row { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; flex-shrink: 0 !important; }
+    .app-header { background: #0b1326; padding: 6px 14px !important; border-bottom: 2px solid #0284c7; overflow: visible; max-width: 100%; box-sizing: border-box; }
+    .origin-brand-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; max-width: 100%; }
+    .origin-logo-row { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 2px !important; flex-shrink: 0 !important; }
     .origin-logo-and-subtitle { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important; flex-wrap: nowrap !important; }
     .origin-subtitle-box { display: flex; align-items: center; margin: 0; flex-shrink: 0; }
     .origin-subtitle {
-      display: inline-flex; align-items: center; padding: 4px 10px;
+      display: inline-flex; align-items: center; padding: 3px 8px;
       background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.5);
-      border-radius: 9999px; color: #38bdf8; font-size: 0.8rem; font-weight: 800;
+      border-radius: 9999px; color: #38bdf8; font-size: 0.78rem; font-weight: 800;
       letter-spacing: 0.03em; box-shadow: 0 0 12px rgba(56, 189, 248, 0.3); margin: 0; white-space: nowrap; flex-shrink: 0;
     }
-    .main-nav-tabs { display: flex; gap: 8px; margin-top: 8px; background: rgba(15, 23, 42, 0.85); padding: 4px; border-radius: 12px; max-width: 100%; flex-wrap: wrap; }
+    .main-nav-tabs { display: flex; gap: 6px; margin-top: 4px; background: rgba(15, 23, 42, 0.85); padding: 4px; border-radius: 12px; max-width: 100%; flex-wrap: wrap; }
     .nav-tab-btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; min-height: 44px; height: auto;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 10px; min-height: 38px; height: auto;
       background: #1e293b; color: #94a3b8; border: 1px solid #334155; border-radius: 8px;
-      font-size: 0.82rem; font-weight: 700; line-height: 1.22; text-align: center; white-space: normal !important; cursor: pointer; text-decoration: none !important;
+      font-size: 0.8rem; font-weight: 700; line-height: 1.2; text-align: center; white-space: normal !important; cursor: pointer; text-decoration: none !important;
     }
     .nav-tab-btn span { display: inline-block; white-space: normal !important; text-align: center; }
     .nav-tab-btn.active { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important; color: #ffffff !important; border-color: #38bdf8 !important; }
     .nav-tab-btn#btn-tab-quiz.active { background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important; border-color: #f59e0b !important; }
     
-    .btn-header { background: #1e293b; color: #38bdf8; border: 1px solid #334155; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.8rem; }
-    .title-logo-img { height: 115px !important; width: auto; max-width: 480px !important; object-fit: contain; }
+    .btn-header { background: #1e293b; color: #38bdf8; border: 1px solid #334155; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; }
+    .title-logo-img { height: 80px !important; width: auto; max-width: 480px !important; object-fit: contain; }
 
     /* モバイル固定ボトムナビ */
     .ios-tab-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: #070c18; border-top: 1px solid #0284c7; z-index: 9999; justify-content: space-around; align-items: center; }
@@ -85,8 +85,8 @@
     .ios-tab-item.active { color: #38bdf8; }
     @media (max-width: 900px) {
       .ios-tab-bar { display: flex !important; }
-      .title-logo-img { height: 68px !important; max-width: 240px !important; }
-      .origin-subtitle { font-size: 0.72rem !important; padding: 3px 8px !important; }
+      .title-logo-img { height: 54px !important; max-width: 220px !important; }
+      .origin-subtitle { font-size: 0.7rem !important; padding: 2px 6px !important; }
     }
   </style>
 
@@ -228,19 +228,19 @@
         <div class="preset-filter-row" id="preset-filter-container">
           <div class="preset-filter-pills">
             <button type="button" class="preset-filter-btn active" data-category="all">
-              <span>全領域 (ALL)</span>
+              <span>全領域</span>
             </button>
 
             <button type="button" class="preset-filter-btn" data-category="rv">
-              <span>🫀 右室起源 (RV)</span>
+              <span>🫀 右室起源</span>
             </button>
 
             <button type="button" class="preset-filter-btn" data-category="lv">
-              <span>🫀 左室起源 (LV)</span>
+              <span>🫀 左室起源</span>
             </button>
 
             <button type="button" class="preset-filter-btn" data-category="other">
-              <span>⚡ その他 / 特殊 (Other)</span>
+              <span>⚡ その他</span>
             </button>
           </div>
         </div>
@@ -1059,15 +1059,15 @@
       <button class="modal-close-btn" id="figure-modal-close-btn" title="閉じる" onclick="if(window.closePaperFigureModal){window.closePaperFigureModal();return false;}">✕</button>
       
       <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
-        <h3 class="modal-title" id="figure-modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8; font-weight: 800;">図表・アルゴリズム表示</h3>
-        <span class="citation-badge" id="figure-modal-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 700; padding: 3px 10px; border-radius: 6px; font-size: 0.8rem;">図表参照</span>
+        <h3 class="modal-title" id="paper-fig-modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8; font-weight: 800;">図表・アルゴリズム表示</h3>
+        <span class="citation-badge" id="paper-fig-modal-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 700; padding: 3px 10px; border-radius: 6px; font-size: 0.8rem;">図表参照</span>
       </div>
 
-      <div class="figure-viewer-container" id="figure-viewer-container" style="flex-shrink: 0; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 16px; min-height: 380px; max-height: 60vh; -webkit-overflow-scrolling: touch;">
-        <div id="figure-modal-render-area" style="width: 100%; height: auto;"></div>
+      <div class="figure-viewer-container" id="figure-viewer-container" style="flex-shrink: 0; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 12px; min-height: 300px; max-height: 65vh; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y;">
+        <div id="paper-fig-modal-body" style="width: 100%; height: auto; min-width: 100%;"></div>
       </div>
 
-      <div id="figure-modal-caption" style="margin-top: 12px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 0.84rem; line-height: 1.5; color: #cbd5e1;"></div>
+      <div id="paper-fig-modal-caption" style="margin-top: 12px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 0.84rem; line-height: 1.5; color: #cbd5e1;"></div>
       <div style="height: 20px; flex-shrink: 0;"></div>
     </div>
   </div>
@@ -1136,6 +1136,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10138_paper_figures_lightbox"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10139_perfect_lightbox_equal_buttons_glow_fix"></script>
 </body>
 </html>
