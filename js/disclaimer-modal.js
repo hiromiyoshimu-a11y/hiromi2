@@ -2,7 +2,7 @@
  * CardioOrigin - 医療免責事項 & インフォームド・コンセント (Apple App Store Guideline 1.4.1 準拠)
  */
 
-const STORAGE_KEY = 'cardio_origin_medical_disclaimer_accepted_v1';
+const STORAGE_KEY = 'cardio_origin_disclaimer_accepted_v2';
 
 export function checkAndShowMedicalDisclaimer(onAccepted) {
   const isAccepted = localStorage.getItem(STORAGE_KEY);
@@ -23,8 +23,12 @@ export function showDisclaimerModal(onAccepted) {
     document.body.appendChild(modalEl);
   }
 
+  const alreadyAccepted = localStorage.getItem(STORAGE_KEY) === 'true';
+
   const closeModal = () => {
     modalEl.classList.remove('open');
+    modalEl.style.setProperty('display', 'none', 'important');
+    modalEl.style.setProperty('pointer-events', 'none', 'important');
   };
 
   modalEl.innerHTML = `
@@ -39,7 +43,7 @@ export function showDisclaimerModal(onAccepted) {
           </div>
           <div>
             <h3>医療免責事項およびご利用上の注意</h3>
-            <p class="disclaimer-subtitle">Important Medical Disclaimer & Terms of Use</p>
+            <p class="disclaimer-subtitle">Important Medical Disclaimer &amp; Terms of Use</p>
           </div>
         </div>
         <button type="button" class="disclaimer-close-btn" id="disclaimer-close-btn" aria-label="閉じる">✕</button>
@@ -49,7 +53,7 @@ export function showDisclaimerModal(onAccepted) {
         <div class="disclaimer-box warning">
           <h4>⚠️ 医療機器非該当および確定診断の禁止</h4>
           <p>
-            本アプリケーション<strong>「CardioOrigin」</strong>は、医師・不整脈専門医・医療従事者および医学生の学習・診断支援・臨床推論の補助を目的として開発されたソフトウェアであり、<strong>薬機法（医薬品医療機器等法）に基づく医療機器プログラムではありません。</strong>
+            本アプリケーション<strong>「吉村流！PVC The Origin」</strong>は、医師・不整脈専門医・医療従事者および医学生の学習・診断支援・臨床推論の補助を目的として開発されたソフトウェアであり、<strong>薬機法（医薬品医療機器等法）に基づく医療機器プログラムではありません。</strong>
           </p>
           <p>
             本アプリが提示する心室性期外収縮（PVC）の発生起源推定、確率、および心電図特徴は、公開された学術文献（Betensky 2011, Yoshida 2011, Ouyang 2002等）に基づくアルゴリズムによる参考情報であり、<strong>確定的な医学的診断・治療方針の決定を行うものではありません。</strong>
@@ -76,12 +80,12 @@ export function showDisclaimerModal(onAccepted) {
 
       <div class="disclaimer-footer">
         <label class="disclaimer-checkbox-label">
-          <input type="checkbox" id="disclaimer-agree-checkbox">
+          <input type="checkbox" id="disclaimer-agree-checkbox" ${alreadyAccepted ? 'checked' : ''}>
           <span>上記の内容を十分に理解し、臨床判断の参考補助ツールとして利用することに同意します。</span>
         </label>
 
-        <button type="button" id="disclaimer-accept-btn" class="disclaimer-btn-primary" disabled>
-          同意してアプリを開始する
+        <button type="button" id="disclaimer-accept-btn" class="disclaimer-btn-primary" ${alreadyAccepted ? '' : 'disabled'}>
+          ${alreadyAccepted ? '確認しました（閉じる）' : '同意してアプリを開始する'}
         </button>
       </div>
     </div>
@@ -102,15 +106,20 @@ export function showDisclaimerModal(onAccepted) {
   const checkbox = modalEl.querySelector('#disclaimer-agree-checkbox');
   const acceptBtn = modalEl.querySelector('#disclaimer-accept-btn');
 
-  checkbox.addEventListener('change', () => {
-    acceptBtn.disabled = !checkbox.checked;
-  });
+  if (checkbox && acceptBtn) {
+    checkbox.addEventListener('change', () => {
+      acceptBtn.disabled = !checkbox.checked;
+    });
 
-  acceptBtn.addEventListener('click', () => {
-    localStorage.setItem(STORAGE_KEY, 'true');
-    closeModal();
-    if (onAccepted) onAccepted();
-  });
+    acceptBtn.addEventListener('click', () => {
+      localStorage.setItem(STORAGE_KEY, 'true');
+      closeModal();
+      if (onAccepted) onAccepted();
+    });
+  }
 
   modalEl.classList.add('open');
+  modalEl.style.setProperty('display', 'flex', 'important');
+  modalEl.style.setProperty('pointer-events', 'auto', 'important');
+  modalEl.style.setProperty('z-index', '999999', 'important');
 }
