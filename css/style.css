@@ -280,10 +280,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   padding: 6px 14px;
-  min-height: 44px;
+  min-height: 42px;
   height: auto;
+  flex: 1 1 0px;
+  min-width: 105px;
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
@@ -293,7 +295,6 @@ body {
   font-weight: 700;
   line-height: 1.25;
   text-align: center;
-  white-space: normal !important;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   touch-action: manipulation;
@@ -301,6 +302,12 @@ body {
   user-select: none;
   position: relative;
   z-index: 101;
+}
+
+.nav-tab-btn span {
+  display: inline-block;
+  white-space: nowrap !important;
+  text-align: center;
 }
 
 .nav-tab-btn:hover {
