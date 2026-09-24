@@ -1958,12 +1958,12 @@ function renderPaperCitation(preset) {
     dom.stdLayoutGroup.style.display = isCabrera ? 'none' : 'inline-flex';
   }
 
-  // 重複表示防止: 一旦両方の解説領域をリセット
+  // 臨床解説を常に下部全幅コンテナ (citationInsightsContainer) に統一描画
   if (dom.colInsightsWrapper) dom.colInsightsWrapper.style.display = 'none';
   if (dom.colVerticalInsights) dom.colVerticalInsights.innerHTML = '';
   if (dom.citationInsightsContainer) {
-    dom.citationInsightsContainer.style.display = 'none';
-    dom.citationInsightsContainer.innerHTML = '';
+    dom.citationInsightsContainer.style.display = insightsHtml ? 'grid' : 'none';
+    dom.citationInsightsContainer.innerHTML = insightsHtml;
   }
 
   if (isCabrera) {
@@ -1971,12 +1971,6 @@ function renderPaperCitation(preset) {
     if (dom.citationEcgGrid) dom.citationEcgGrid.style.display = 'none';
     if (dom.citationStdVertical) dom.citationStdVertical.style.display = 'none';
     if (dom.citationCabreraSpatial) dom.citationCabreraSpatial.style.display = 'block';
-
-    // 解説は下段コンテナのみに表示
-    if (dom.citationInsightsContainer) {
-      dom.citationInsightsContainer.style.display = 'grid';
-      dom.citationInsightsContainer.innerHTML = insightsHtml;
-    }
 
     renderCabreraFrontalStage(preset);
     renderCabreraThoraxStage(preset);
@@ -2009,14 +2003,8 @@ function renderPaperCitation(preset) {
         dom.colChestLeads.appendChild(box);
       });
     }
-
-    // 縦型配置用の解説エリアを表示
-    if (dom.colInsightsWrapper) dom.colInsightsWrapper.style.display = 'block';
-    if (dom.colVerticalInsights) {
-      dom.colVerticalInsights.innerHTML = insightsHtml;
-    }
   } else {
-    // 標準配列・従来の横並びグリッド (2行×6列) + 下段解説
+    // 標準配列・従来の横並びグリッド (2行×6列)
     if (dom.citationCabreraSpatial) dom.citationCabreraSpatial.style.display = 'none';
     if (dom.citationStdVertical) dom.citationStdVertical.style.display = 'none';
     if (dom.citationEcgGrid) {
@@ -2032,12 +2020,6 @@ function renderPaperCitation(preset) {
           dom.citationEcgGrid.appendChild(leadBox);
         });
       }
-    }
-
-    // 下段解説を表示
-    if (dom.citationInsightsContainer) {
-      dom.citationInsightsContainer.style.display = 'grid';
-      dom.citationInsightsContainer.innerHTML = insightsHtml;
     }
   }
 }

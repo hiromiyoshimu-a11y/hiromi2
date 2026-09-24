@@ -136,10 +136,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10050_move_naito_algorithm_buttons">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10050_move_naito_algorithm_buttons">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10050_move_naito_algorithm_buttons">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10050_move_naito_algorithm_buttons">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10052_fullwidth_clinical_insights">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10052_fullwidth_clinical_insights">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10052_fullwidth_clinical_insights">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10052_fullwidth_clinical_insights">
 </head>
 <body>
   <div class="app-container">
@@ -339,21 +339,19 @@
               </button>
             </div>
           </div>
+        </div><!-- /citation-ecg-grid-wrapper (12誘導表示エリア・操作バーで枠を一旦分離) -->
 
-          <!-- 臨床解説 & 治療戦略 (コントロールツールバーの下に配置) -->
-          <div class="std-vertical-col insights-col" id="col-insights-wrapper" style="width: 100%; margin-top: 8px;">
-            <div class="std-col-header" style="margin-bottom: 10px;">
-              <div class="std-col-header-top">
-                <span class="std-col-tag insights">臨床解説 &amp; 治療戦略</span>
-                <span class="std-col-en">Clinical Insights</span>
-              </div>
-              <span class="std-col-sub">心電図特徴・機序・アブレーション戦略</span>
+        <!-- 独立した全幅 臨床解説 & 治療戦略パネル -->
+        <div class="citation-insights-section" style="margin-top: 1.25rem;">
+          <div class="citation-insights-header" style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+            <div class="std-col-header-top" style="display: flex; align-items: center; gap: 8px;">
+              <span class="std-col-tag insights" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 0.84rem;">臨床解説 &amp; 治療戦略</span>
+              <span class="std-col-en" style="color: #94a3b8; font-size: 0.78rem;">Clinical Insights &amp; Ablation Strategy</span>
             </div>
-            <div class="std-col-insights" id="col-vertical-insights"></div>
+            <span class="std-col-sub" style="font-size: 0.76rem; color: #64748b;">心電図特徴・機序・アブレーション戦略</span>
           </div>
+          <div class="citation-insights-container" id="citation-insights-container" style="display: grid;"></div>
         </div>
-
-        <div class="citation-insights-container" id="citation-insights-container" style="display: none;"></div>
 
         <div class="citation-source-info" id="citation-source-info" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid rgba(56, 189, 248, 0.2);">
           <!-- JSで動的生成 -->
@@ -866,6 +864,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10050_move_naito_algorithm_buttons"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10052_fullwidth_clinical_insights"></script>
 </body>
 </html>
