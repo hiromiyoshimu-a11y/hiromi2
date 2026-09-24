@@ -3703,3 +3703,35 @@ body[data-text-size="lg"] .lit-title {
     font-size: 0.72rem !important;
   }
 }
+
+/* ==========================================================================
+   PVC起源診断ツール：心筋層別推定・流出路左右鑑別パネルの左右最大幅拡張
+   ========================================================================== */
+#section-diagnosis .layer-verdict-grid {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.5rem !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 1.25rem !important;
+}
+
+#section-diagnosis .layer-card {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 1.25rem 1.4rem !important;
+  margin-bottom: 0 !important;
+}
+
+@media (max-width: 900px) {
+  #section-diagnosis .layer-verdict-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1rem !important;
+  }
+  #section-diagnosis .layer-card {
+    padding: 1rem !important;
+  }
+}

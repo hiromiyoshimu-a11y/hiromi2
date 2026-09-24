@@ -154,10 +154,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10075_inline_svg_scroll_lock">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10075_inline_svg_scroll_lock">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10075_inline_svg_scroll_lock">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10075_inline_svg_scroll_lock">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10080_fullwidth_pinch_zoom">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10080_fullwidth_pinch_zoom">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10080_fullwidth_pinch_zoom">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10080_fullwidth_pinch_zoom">
 </head>
 <body>
   <div class="app-container">
@@ -1001,7 +1001,30 @@
               <text x="40" y="441" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">15. LVOT サミット (LV Summit): 切除難易度高 / 外膜側</text>
             </g>
           </svg>
-          <img src="assets/flowchart_naito2005.jpg?v=20260924_v10070" id="naito-flowchart-img" alt="内藤 2005 流出路7ステップ局在診断フローチャート" style="max-width: 100%; height: auto; display: block; margin: 15px auto 0; border-radius: 4px; transition: all 0.3s ease;">
+        </div>
+      </div>
+
+      <!-- 復元された臨床解説テキストエリア -->
+      <div class="naito-explanation-box" style="margin-top: 10px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 12px 16px; color: #cbd5e1; font-size: 0.86rem; line-height: 1.6; text-align: left;">
+        <h4 style="margin: 0 0 6px 0; color: #38bdf8; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+          <span>💡 内藤 2005 流出路局在アルゴリズムの臨床解説 ＆ 活用ガイド</span>
+        </h4>
+        <p style="margin: 0 0 8px 0; color: #e2e8f0; font-size: 0.85rem;">
+          本フローチャートは、12誘導心電図から右室流出路 (RVOT) および左室流出路 (LVOT/大動脈冠尖/AMC) 起源のPVC/VT発生部位を7つのステップで精密に同定する確立された臨床アルゴリズムです。
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px; font-size: 0.82rem; color: #94a3b8;">
+          <div style="background: rgba(56, 189, 248, 0.08); padding: 8px 10px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+            <strong style="color: #38bdf8; display: block; margin-bottom: 2px;">Step 1-2 (極性 ＆ 脚ブロック型)</strong>
+            下方軸 (II,III,aVF R優位) を確認後、V1誘導がLBBB型 (QS/rS) ならRVOT主示唆、RBBB型 (R/Rs) ならLVOT主示唆。
+          </div>
+          <div style="background: rgba(245, 158, 11, 0.08); padding: 8px 10px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+            <strong style="color: #f59e0b; display: block; margin-bottom: 2px;">Step 3-4 (移行帯 ＆ I誘導極性)</strong>
+            LBBB型でV4以降移行は右室自由壁、V3移行は右室中隔/弁上。I誘導陽性は前壁、陰性/二相性は後壁を示唆。
+          </div>
+          <div style="background: rgba(16, 185, 129, 0.08); padding: 8px 10px; border-radius: 8px; border-left: 3px solid #10b981;">
+            <strong style="color: #10b981; display: block; margin-bottom: 2px;">Step 5-7 (精密指標 ＆ Ito基準)</strong>
+            V2S/V3R比, MDI (≥0.55で心外膜側), Ito基準(b/a, c/d)を統合し、全15部位から最適なアブレーション標的を同定。
+          </div>
         </div>
       </div>
     </div>
@@ -1068,6 +1091,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10075_inline_svg_scroll_lock"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10080_fullwidth_pinch_zoom"></script>
 </body>
 </html>

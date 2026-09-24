@@ -419,70 +419,130 @@ function init() {
 }
 
 /**
- * 内藤2005フローチャートの拡大/縮小（ズーム・スクロール）制御
+ * 内藤2005フローチャートの拡大/縮小（3段階ズーム & タッチピンチ無段階ズーム）制御
  */
 function initNaitoFlowchartZoom() {
   const container = document.getElementById('naito-flowchart-container');
   const imgWrapper = document.getElementById('naito-img-wrapper');
-  const img = document.getElementById('naito-flowchart-img');
   const svg = document.getElementById('naito-flowchart-svg');
   const zoomBtn = document.getElementById('btn-toggle-naito-zoom');
   const zoomLabel = document.getElementById('naito-zoom-btn-label');
 
   if (!container || !imgWrapper) return;
 
-  let isZoomed = false;
+  // 3段階の拡大率設定: 100% (1.0), 160% (1.6), 230% (2.3)
+  const ZOOM_LEVELS = [1.0, 1.6, 2.3];
+  const ZOOM_LABELS = ['拡大 (1.6x)', '特大 (2.3x)', '標準 (1.0x)'];
+  let currentLevelIndex = 0;
+  let currentScale = 1.0;
 
-  function toggleZoom() {
-    isZoomed = !isZoomed;
-    if (isZoomed) {
-      imgWrapper.style.width = '195%';
-      if (img) {
-        img.style.maxWidth = 'none';
-        img.style.width = '100%';
-      }
-      if (svg) {
-        svg.style.maxWidth = 'none';
-        svg.style.width = '100%';
-      }
-      imgWrapper.style.cursor = 'zoom-out';
-      if (zoomLabel) zoomLabel.textContent = '標準サイズに縮小';
+  function updateZoom(scale, updateIndex = false) {
+    currentScale = Math.min(Math.max(scale, 0.9), 3.2); // 90%〜320%の範囲にクランプ
+    const widthPercent = (currentScale * 100).toFixed(0) + '%';
+    
+    imgWrapper.style.width = widthPercent;
+    if (svg) {
+      svg.style.maxWidth = currentScale > 1.05 ? 'none' : '100%';
+      svg.style.width = '100%';
+    }
+
+    if (currentScale > 1.05) {
+      imgWrapper.style.cursor = 'grab';
       if (zoomBtn) {
         zoomBtn.style.background = 'rgba(245, 158, 11, 0.25)';
         zoomBtn.style.borderColor = '#f59e0b';
         zoomBtn.style.color = '#fbbf24';
       }
     } else {
-      imgWrapper.style.width = '100%';
-      if (img) {
-        img.style.maxWidth = '100%';
-        img.style.width = '100%';
-      }
-      if (svg) {
-        svg.style.maxWidth = '100%';
-        svg.style.width = '100%';
-      }
       imgWrapper.style.cursor = 'zoom-in';
-      if (zoomLabel) zoomLabel.textContent = '拡大表示 (Zoom)';
       if (zoomBtn) {
         zoomBtn.style.background = 'rgba(56, 189, 248, 0.2)';
         zoomBtn.style.borderColor = 'rgba(56, 189, 248, 0.5)';
         zoomBtn.style.color = '#38bdf8';
       }
+    }
+
+    if (zoomLabel) {
+      if (updateIndex) {
+        zoomLabel.textContent = ZOOM_LABELS[currentLevelIndex];
+      } else {
+        zoomLabel.textContent = `ズーム (${(currentScale * 100).toFixed(0)}%)`;
+      }
+    }
+  }
+
+  // 3段階トグルボタン
+  function cycleZoomLevel() {
+    currentLevelIndex = (currentLevelIndex + 1) % ZOOM_LEVELS.length;
+    const targetScale = ZOOM_LEVELS[currentLevelIndex];
+    updateZoom(targetScale, true);
+    if (targetScale === 1.0) {
       container.scrollTop = 0;
       container.scrollLeft = 0;
     }
   }
 
-  imgWrapper.removeEventListener('click', toggleZoom);
-  imgWrapper.addEventListener('click', toggleZoom);
-
   if (zoomBtn) {
     zoomBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggleZoom();
+      cycleZoomLevel();
     });
   }
+
+  // タップ/クリックで次の段階に切換
+  imgWrapper.addEventListener('click', () => {
+    if (!isDragging) {
+      cycleZoomLevel();
+    }
+  });
+
+  // タッチ操作でのピンチイン・ピンチアウト無段階ズーム
+  let initialPinchDistance = 0;
+  let initialScaleOnPinch = 1.0;
+  let isDragging = false;
+  let startX = 0, startY = 0;
+  let scrollLeftStart = 0, scrollTopStart = 0;
+
+  container.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      initialPinchDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      initialScaleOnPinch = currentScale;
+    } else if (e.touches.length === 1 && currentScale > 1.05) {
+      isDragging = true;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      scrollLeftStart = container.scrollLeft;
+      scrollTopStart = container.scrollTop;
+    }
+  }, { passive: true });
+
+  container.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && initialPinchDistance > 0) {
+      const newDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const factor = newDist / initialPinchDistance;
+      updateZoom(initialScaleOnPinch * factor);
+    } else if (e.touches.length === 1 && isDragging) {
+      const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+      container.scrollLeft = scrollLeftStart - dx;
+      container.scrollTop = scrollTopStart - dy;
+    }
+  }, { passive: true });
+
+  container.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      initialPinchDistance = 0;
+    }
+    if (e.touches.length === 0) {
+      setTimeout(() => { isDragging = false; }, 50);
+    }
+  });
 }
 
 /**
