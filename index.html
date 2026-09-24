@@ -154,10 +154,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10090_fullwidth_modal_fix">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10090_fullwidth_modal_fix">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10090_fullwidth_modal_fix">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10090_fullwidth_modal_fix">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10100_two_figures_scroll_padding_fix">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10100_two_figures_scroll_padding_fix">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10100_two_figures_scroll_padding_fix">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10100_two_figures_scroll_padding_fix">
 </head>
 <body>
   <div class="app-container">
@@ -823,23 +823,29 @@
   </div>
 
   <div class="modal-overlay" id="naito-flowchart-modal">
-    <div class="modal-content flowchart-modal-content" style="max-width: 980px; width: 95vw; max-height: 92vh; overflow-y: auto; display: flex; flex-direction: column; padding: 1.25rem; -webkit-overflow-scrolling: touch;">
+    <div class="modal-content flowchart-modal-content" style="max-width: 980px; width: 95vw; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; padding: 1.25rem 1.25rem 2.5rem 1.25rem; -webkit-overflow-scrolling: touch;">
       <button class="modal-close-btn" id="naito-modal-close-btn" title="閉じる" onclick="if(window.closeNaitoModal){window.closeNaitoModal();return false;}">✕</button>
       
       <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
-        <h3 class="modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8; font-weight: 800;">内藤 2005 流出路7ステップ局在診断フローチャート</h3>
+        <h3 class="modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8; font-weight: 800;">内藤 2005 流出路7ステップ局在診断フローチャート ＆ 原本スライド</h3>
         <button type="button" class="btn-zoom-toggle" id="btn-toggle-naito-zoom" style="padding: 6px 14px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); color: #38bdf8; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           <span id="naito-zoom-btn-label">拡大表示 (Zoom)</span>
         </button>
       </div>
 
-      <div class="flowchart-viewer-container" id="naito-flowchart-container" style="flex-shrink: 0; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 8px; min-height: 450px; max-height: 60vh; -webkit-overflow-scrolling: touch;">
+      <!-- 2つの図（図1: ベクターSVGフローチャート, 図2: 原本スライド）を含むビューアーコンテナ -->
+      <div class="flowchart-viewer-container" id="naito-flowchart-container" style="flex-shrink: 0; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 12px; min-height: 480px; max-height: 65vh; -webkit-overflow-scrolling: touch;">
         <span class="zoom-hint-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.9); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.5); padding: 5px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; pointer-events: none; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
           💡 タップで拡大 / 縮小 (スクロール・移動可能)
         </span>
+        
         <div class="flowchart-img-wrapper" id="naito-img-wrapper" style="display: block; cursor: zoom-in; text-align: center; width: 100%; margin: 0 auto;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1560" id="naito-flowchart-svg" style="width: 100%; height: auto; min-height: 550px; max-width: 100%; display: block; margin: 0 auto; border-radius: 4px; transition: width 0.2s ease;">
+          <!-- 【図1】 12誘導心電図 7ステップ局在診断アルゴリズム（高解像度ベクター） -->
+          <div style="margin-bottom: 8px; font-size: 0.82rem; font-weight: 800; color: #38bdf8; text-align: left; padding-left: 4px;">
+            ▼ 【図 1】 12誘導心電図 7ステップ局在同定フローチャート (ベクター高精細版)
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1560" id="naito-flowchart-svg" style="width: 100%; height: auto; min-height: 550px; max-width: 100%; display: block; margin: 0 auto 20px auto; border-radius: 6px; border: 1px solid rgba(56, 189, 248, 0.2); transition: width 0.2s ease;">
             <rect width="100%" height="100%" fill="#070c18"/>
             <defs>
               <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -1002,32 +1008,39 @@
               <text x="40" y="441" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">15. LVOT サミット (LV Summit): 切除難易度高 / 外膜側</text>
             </g>
           </svg>
+
+          <!-- 【図2】 原本スライド ＆ 心臓局在判定基準図 (original_user_ppt.jpg) -->
+          <div style="margin-top: 24px; margin-bottom: 8px; font-size: 0.82rem; font-weight: 800; color: #f59e0b; text-anchor: middle; text-align: left; padding-left: 4px; border-top: 1px dashed rgba(245, 158, 11, 0.3); padding-top: 16px;">
+            ▼ 【図 2】 12誘導心電図判読原本スライド ＆ 心臓局在判定マトリックス (原本照合版)
+          </div>
+          <img src="assets/original_user_ppt.jpg" id="naito-flowchart-original-img" alt="内藤 2005 判読原本スライド ＆ 心臓局在判定マトリックス" style="width: 100%; height: auto; max-width: 100%; display: block; margin: 0 auto; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.4); box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
         </div>
       </div>
 
-      <!-- 復元された臨床解説テキストエリア -->
-      <div class="naito-explanation-box" style="margin-top: 10px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 12px 16px; color: #cbd5e1; font-size: 0.86rem; line-height: 1.6; text-align: left;">
-        <h4 style="margin: 0 0 6px 0; color: #38bdf8; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+      <!-- 復元された臨床解説テキストエリア (下端に見切れが起きないよう末尾余白をしっかり確保) -->
+      <div class="naito-explanation-box" style="margin-top: 14px; margin-bottom: 1.5rem; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 12px; padding: 14px 18px 18px 18px; color: #cbd5e1; font-size: 0.88rem; line-height: 1.65; text-align: left; flex-shrink: 0;">
+        <h4 style="margin: 0 0 8px 0; color: #38bdf8; font-size: 0.98rem; font-weight: 800; display: flex; align-items: center; gap: 6px;">
           <span>💡 内藤 2005 流出路局在アルゴリズムの臨床解説 ＆ 活用ガイド</span>
         </h4>
-        <p style="margin: 0 0 8px 0; color: #e2e8f0; font-size: 0.85rem;">
+        <p style="margin: 0 0 10px 0; color: #e2e8f0; font-size: 0.86rem;">
           本フローチャートは、12誘導心電図から右室流出路 (RVOT) および左室流出路 (LVOT/大動脈冠尖/AMC) 起源のPVC/VT発生部位を7つのステップで精密に同定する確立された臨床アルゴリズムです。
         </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px; font-size: 0.82rem; color: #94a3b8;">
-          <div style="background: rgba(56, 189, 248, 0.08); padding: 8px 10px; border-radius: 8px; border-left: 3px solid #38bdf8;">
-            <strong style="color: #38bdf8; display: block; margin-bottom: 2px;">Step 1-2 (極性 ＆ 脚ブロック型)</strong>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 0.83rem; color: #94a3b8; margin-bottom: 6px;">
+          <div style="background: rgba(56, 189, 248, 0.08); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #38bdf8;">
+            <strong style="color: #38bdf8; display: block; margin-bottom: 3px;">Step 1-2 (極性 ＆ 脚ブロック型)</strong>
             下方軸 (II,III,aVF R優位) を確認後、V1誘導がLBBB型 (QS/rS) ならRVOT主示唆、RBBB型 (R/Rs) ならLVOT主示唆。
           </div>
-          <div style="background: rgba(245, 158, 11, 0.08); padding: 8px 10px; border-radius: 8px; border-left: 3px solid #f59e0b;">
-            <strong style="color: #f59e0b; display: block; margin-bottom: 2px;">Step 3-4 (移行帯 ＆ I誘導極性)</strong>
+          <div style="background: rgba(245, 158, 11, 0.08); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+            <strong style="color: #f59e0b; display: block; margin-bottom: 3px;">Step 3-4 (移行帯 ＆ I誘導極性)</strong>
             LBBB型でV4以降移行は右室自由壁、V3移行は右室中隔/弁上。I誘導陽性は前壁、陰性/二相性は後壁を示唆。
           </div>
-          <div style="background: rgba(16, 185, 129, 0.08); padding: 8px 10px; border-radius: 8px; border-left: 3px solid #10b981;">
-            <strong style="color: #10b981; display: block; margin-bottom: 2px;">Step 5-7 (精密指標 ＆ Ito基準)</strong>
+          <div style="background: rgba(16, 185, 129, 0.08); padding: 10px 12px; border-radius: 8px; border-left: 3px solid #10b981;">
+            <strong style="color: #10b981; display: block; margin-bottom: 3px;">Step 5-7 (精密指標 ＆ Ito基準)</strong>
             V2S/V3R比, MDI (≥0.55で心外膜側), Ito基準(b/a, c/d)を統合し、全15部位から最適なアブレーション標的を同定。
           </div>
         </div>
       </div>
+      <div style="height: 30px; flex-shrink: 0;"></div>
     </div>
   </div>
 
@@ -1092,6 +1105,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10090_fullwidth_modal_fix"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10100_two_figures_scroll_padding_fix"></script>
 </body>
 </html>
