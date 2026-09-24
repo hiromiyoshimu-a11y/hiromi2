@@ -396,6 +396,13 @@ function init() {
     // 内藤2005フローチャートの拡大（ズーム・スクロール）マネージャーの初期化
     initNaitoFlowchartZoom();
 
+    // 初回立ち上げ時の医療免責事項チェック＆自動立ち上げ (Apple Guideline 準拠)
+    try {
+      checkAndShowMedicalDisclaimer();
+    } catch(e) {
+      console.error('Medical disclaimer check error:', e);
+    }
+
     // iOSボトムタブバーのセットアップ
     try {
       setupIosTabBar();
