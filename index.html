@@ -136,10 +136,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10049_original_tracing_restore">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10049_original_tracing_restore">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10049_original_tracing_restore">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10049_original_tracing_restore">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10050_move_naito_algorithm_buttons">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10050_move_naito_algorithm_buttons">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10050_move_naito_algorithm_buttons">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10050_move_naito_algorithm_buttons">
 </head>
 <body>
   <div class="app-container">
@@ -181,21 +181,6 @@
           <span>心電図<br>クイズ</span>
         </a>
       </nav>
-
-      <div class="header-actions">
-        <button id="btn-show-naito-flowchart" class="btn-header" title="内藤 2005 流出路7ステップ局在診断フローチャートを表示">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-          内藤2005フローチャート
-        </button>
-        <button id="btn-show-algorithm" class="btn-header" title="判定アルゴリズムと参考文献">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
-          </svg>
-          判定基準・文献
-        </button>
-      </div>
     </header>
 
     <!-- ===================================================================
@@ -830,9 +815,24 @@
     </div>
   </div>
 
-  <!-- ページ最下部 フッター (医療免責事項 & 利用規約) -->
+  <!-- ページ最下部 フッター (内藤2005 / 判定基準 / 医療免責事項 & 利用規約) -->
   <footer class="app-footer">
     <div class="footer-content">
+      <div class="footer-action-buttons">
+        <button id="btn-show-naito-flowchart" class="btn-footer-action" title="内藤 2005 流出路7ステップ局在診断フローチャートを表示">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          内藤2005フローチャート
+        </button>
+        <button id="btn-show-algorithm" class="btn-footer-action" title="判定アルゴリズムと参考文献">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+          判定基準・文献
+        </button>
+      </div>
+
       <button id="btn-show-disclaimer" class="btn-footer-disclaimer" title="医療免責事項と利用規約">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -866,6 +866,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10049_original_tracing_restore"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10050_move_naito_algorithm_buttons"></script>
 </body>
 </html>
