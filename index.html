@@ -55,9 +55,9 @@
     .main-section.active { display: block !important; }
 
     /* スタンドアロン用インラインUI救済スタイル */
-    .app-header { background: #0b1326; padding: 6px 14px !important; border-bottom: 2px solid #0284c7; overflow: visible; max-width: 100%; box-sizing: border-box; }
-    .origin-brand-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; max-width: 100%; }
-    .origin-logo-row { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 2px !important; flex-shrink: 0 !important; }
+    .app-header { background: #0b1326; padding: 4px 12px !important; border-bottom: 2px solid #0284c7; overflow: visible; max-width: 100%; box-sizing: border-box; }
+    .origin-brand-wrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; max-width: 100%; }
+    .origin-logo-row { display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 2px !important; flex-shrink: 0 !important; width: 100%; }
     .origin-logo-and-subtitle { display: flex !important; flex-direction: row !important; align-items: center !important; gap: 8px !important; flex-wrap: nowrap !important; }
     .origin-subtitle-box { display: flex; align-items: center; margin: 0; flex-shrink: 0; }
     .origin-subtitle {
@@ -66,31 +66,32 @@
       border-radius: 9999px; color: #38bdf8; font-size: 0.78rem; font-weight: 800;
       letter-spacing: 0.03em; box-shadow: 0 0 12px rgba(56, 189, 248, 0.3); margin: 0; white-space: nowrap; flex-shrink: 0;
     }
-    .main-nav-tabs { display: grid !important; grid-template-columns: 1.1fr 1.35fr 1fr !important; gap: 6px !important; margin-top: 4px !important; background: rgba(15, 23, 42, 0.85); padding: 4px !important; border-radius: 12px; width: 100% !important; max-width: 100%; box-sizing: border-box; }
+    .main-nav-tabs { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 6px !important; margin-top: 4px !important; background: rgba(15, 23, 42, 0.85); padding: 4px !important; border-radius: 12px; width: 100% !important; max-width: 100%; box-sizing: border-box; }
     .nav-tab-btn {
-      display: flex !important; align-items: center !important; justify-content: center !important; gap: 4px !important; padding: 6px 4px !important; min-height: 42px !important; height: auto !important; width: 100% !important;
+      display: flex !important; align-items: center !important; justify-content: center !important; text-align: center !important; gap: 4px !important; padding: 6px 2px !important; min-height: 42px !important; height: auto !important; width: 100% !important;
       background: #1e293b; color: #94a3b8; border: 1px solid #334155; border-radius: 8px;
-      font-size: 0.78rem; font-weight: 700; line-height: 1.2; text-align: center; cursor: pointer; text-decoration: none !important; box-sizing: border-box;
+      font-size: 0.8rem; font-weight: 700; line-height: 1.2; cursor: pointer; text-decoration: none !important; box-sizing: border-box;
     }
-    .nav-tab-btn span { display: inline-block; white-space: nowrap !important; text-align: center; }
+    .nav-tab-btn span { display: inline-block !important; white-space: nowrap !important; text-align: center !important; width: 100% !important; }
     .nav-tab-btn.active { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important; color: #ffffff !important; border-color: #38bdf8 !important; }
     .nav-tab-btn#btn-tab-quiz.active { background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important; border-color: #f59e0b !important; }
-    @media (max-width: 480px) {
-      .nav-tab-btn { font-size: 0.72rem !important; padding: 5px 2px !important; gap: 3px !important; }
-      .nav-tab-btn svg.nav-icon { width: 13px !important; height: 13px !important; flex-shrink: 0 !important; }
-    }
     
     .btn-header { background: #1e293b; color: #38bdf8; border: 1px solid #334155; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 0.78rem; }
-    .title-logo-img { height: 80px !important; width: auto; max-width: 480px !important; object-fit: contain; }
+    .title-logo-img { height: 76px !important; width: auto; max-width: 480px !important; object-fit: contain; }
 
-    /* モバイル固定ボトムナビ */
+    /* モバイル固定ボトムナビ ＆ 上端最密着レスポンシブ */
     .ios-tab-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: #070c18; border-top: 1px solid #0284c7; z-index: 9999; justify-content: space-around; align-items: center; }
     .ios-tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; background: transparent; border: none; font-size: 0.65rem; height: 100%; }
     .ios-tab-item.active { color: #38bdf8; }
     @media (max-width: 900px) {
+      body { padding-top: 0 !important; }
+      .app-container { padding-top: 0.1rem !important; padding-left: 0.4rem !important; padding-right: 0.4rem !important; }
+      .app-header { padding-top: 2px !important; padding-bottom: 4px !important; margin-top: 0 !important; }
       .ios-tab-bar { display: flex !important; }
-      .title-logo-img { height: 54px !important; max-width: 220px !important; }
-      .origin-subtitle { font-size: 0.7rem !important; padding: 2px 6px !important; }
+      .title-logo-img { height: 48px !important; max-width: 200px !important; }
+      .origin-subtitle { font-size: 0.68rem !important; padding: 2px 5px !important; }
+      .nav-tab-btn { font-size: 0.74rem !important; padding: 5px 1px !important; gap: 2px !important; }
+      .nav-tab-btn svg.nav-icon { width: 12px !important; height: 12px !important; flex-shrink: 0 !important; }
     }
   </style>
 
@@ -1140,6 +1141,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260925_v10142_perfect_tab_ratio_balance"></script>
+  <script type="module" src="./js/app.js?v=20260925_v10143_perfect_fullwidth_tabs_tight_header_large_buttons"></script>
 </body>
 </html>
