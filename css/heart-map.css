@@ -146,7 +146,7 @@
 
 .site-label-text {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  font-size: 17.5px;
+  font-size: 14.5px;
   font-weight: 800;
   fill: #ffffff;
   pointer-events: none;
@@ -163,13 +163,13 @@
 .origin-site:hover .site-label-bg {
   fill: rgba(225, 29, 72, 0.96);
   stroke: #ffffff;
-  stroke-width: 3;
+  stroke-width: 2.8;
 }
 
 .origin-site:hover .site-label-text {
   fill: #ffffff;
   font-weight: 900;
-  font-size: 18.5px;
+  font-size: 15.5px;
 }
 
 /* 推定 1位 ハイライト (最有力部位) */
@@ -191,7 +191,7 @@
 .origin-site.rank-1 .site-label-text {
   fill: #ffffff;
   font-weight: 900;
-  font-size: 17.5px;
+  font-size: 15px;
 }
 
 .origin-site.rank-1 .site-ring {
@@ -218,13 +218,7 @@
 .origin-site.rank-2 .site-label-text {
   fill: #ffffff;
   font-weight: 900;
-  font-size: 17.5px;
-}
-
-.origin-site.rank-2 .site-label-text {
-  fill: #ffffff;
-  font-weight: 700;
-  font-size: 10.5px;
+  font-size: 15px;
 }
 
 .origin-site.rank-2 .site-ring {
