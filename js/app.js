@@ -2186,21 +2186,25 @@ window.closePaperFigureModal = function() {
   }
 };
 
-// モーダル背景＆図の枠外クリックで自動クローズ & ズームコントローラー初期化
+// モーダル背景＆図（画像）の枠外クリックで自動クローズ & ズームコントローラー初期化
 document.addEventListener('DOMContentLoaded', () => {
   initPaperFigureZoomController();
 
   const pModal = document.getElementById('paper-figure-modal');
   if (pModal) {
     pModal.addEventListener('click', (e) => {
-      const container = document.getElementById('figure-viewer-container');
+      // 1. ズームコントロールバー (＋ / － / リセット ボタン) の内部は閉じない
       const zoomBar = pModal.querySelector('.fig-zoom-control-bar');
-      
-      // クリック/タップされた要素が 図表示エリア (container) または ズーム操作バー (zoomBar) の内部である場合は閉じない
-      if (container && container.contains(e.target)) return;
       if (zoomBar && zoomBar.contains(e.target)) return;
-      
-      // それ以外の「図の外側（モーダル背景・ヘッダー・キャプション・余白等）」をタップした場合は拡大解除（モーダルを閉じる）
+
+      // 2. 図表の本体 (img または svg) 自体の内部は閉じない（ズーム・スワイプ・ダブルタップ等の操作用）
+      const figBody = document.getElementById('paper-fig-modal-body');
+      if (figBody) {
+        const imgOrSvg = figBody.querySelector('img, svg');
+        if (imgOrSvg && imgOrSvg.contains(e.target)) return;
+      }
+
+      // 3. それ以外のすべての場所（画像の外の黒い余白、タイトル、キャプション、カラム枠内の余白、モーダル外背景）をタップした場合は拡大解除（モーダルを閉じる）
       window.closePaperFigureModal();
     });
   }
