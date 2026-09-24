@@ -91,6 +91,24 @@
   </style>
 
   <script>
+    window.showNaitoModal = function() {
+      var modal = document.getElementById('naito-flowchart-modal');
+      if (modal) {
+        modal.classList.add('open');
+        modal.style.setProperty('display', 'flex', 'important');
+        modal.style.setProperty('pointer-events', 'auto', 'important');
+      }
+    };
+
+    window.closeNaitoModal = function() {
+      var modal = document.getElementById('naito-flowchart-modal');
+      if (modal) {
+        modal.classList.remove('open');
+        modal.style.setProperty('display', 'none', 'important');
+        modal.style.setProperty('pointer-events', 'none', 'important');
+      }
+    };
+
     window.switchMainSection = function(sectionName) {
       var secSim = document.getElementById('section-simulation');
       var secDiag = document.getElementById('section-diagnosis');
@@ -136,10 +154,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10058_naito_zoom_and_large_close_button">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10058_naito_zoom_and_large_close_button">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10058_naito_zoom_and_large_close_button">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10058_naito_zoom_and_large_close_button">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10059_fix_naito_modal_display">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10059_fix_naito_modal_display">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10059_fix_naito_modal_display">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10059_fix_naito_modal_display">
 </head>
 <body>
   <div class="app-container">
@@ -805,7 +823,7 @@
 
   <div class="modal-overlay" id="naito-flowchart-modal">
     <div class="modal-content flowchart-modal-content" style="max-width: 980px; width: 95vw; max-height: 90vh; display: flex; flex-direction: column; padding: 1.25rem;">
-      <button class="modal-close-btn" id="naito-modal-close-btn" title="閉じる">✕</button>
+      <button class="modal-close-btn" id="naito-modal-close-btn" title="閉じる" onclick="if(window.closeNaitoModal){window.closeNaitoModal();return false;}">✕</button>
       
       <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
         <h3 class="modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8;">内藤 2005 流出路7ステップ局在診断フローチャート</h3>
@@ -830,7 +848,7 @@
   <footer class="app-footer">
     <div class="footer-content">
       <div class="footer-action-buttons">
-        <button id="btn-show-naito-flowchart" class="btn-footer-action" title="内藤 2005 流出路7ステップ局在診断フローチャートを表示">
+        <button id="btn-show-naito-flowchart" class="btn-footer-action" title="内藤 2005 流出路7ステップ局在診断フローチャートを表示" onclick="if(window.showNaitoModal){window.showNaitoModal();return false;}">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
           </svg>
@@ -887,6 +905,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10058_naito_zoom_and_large_close_button"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10059_fix_naito_modal_display"></script>
 </body>
 </html>
