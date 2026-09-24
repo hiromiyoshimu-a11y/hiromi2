@@ -1958,14 +1958,14 @@ function renderLiteratureForWinner(siteId) {
 }
 
 let figZoomState = {
-  scale: 1.0,
+  scale: 1.8,
   translateX: 0,
   translateY: 0,
   isDragging: false,
   startX: 0,
   startY: 0,
   initialDistance: 0,
-  initialScale: 1.0
+  initialScale: 1.8
 };
 
 /**
@@ -1982,12 +1982,10 @@ function initPaperFigureZoomController() {
   if (!container || !target) return;
 
   function updateTransform() {
-    // 限界範囲のクランプ
-    figZoomState.scale = Math.min(Math.max(figZoomState.scale, 1.0), 4.5);
+    // 限界範囲のクランプ (0.8倍 ~ 4.5倍)
+    figZoomState.scale = Math.min(Math.max(figZoomState.scale, 0.8), 4.5);
     
-    if (figZoomState.scale === 1.0) {
-      figZoomState.translateX = 0;
-      figZoomState.translateY = 0;
+    if (figZoomState.scale <= 1.0) {
       container.style.cursor = 'grab';
     } else {
       container.style.cursor = figZoomState.isDragging ? 'grabbing' : 'grab';
@@ -1999,16 +1997,16 @@ function initPaperFigureZoomController() {
     }
   }
 
-  function resetZoom() {
-    figZoomState.scale = 1.0;
+  function resetZoom(defaultScale = 1.8) {
+    figZoomState.scale = defaultScale;
     figZoomState.translateX = 0;
     figZoomState.translateY = 0;
     figZoomState.isDragging = false;
     updateTransform();
   }
 
-  // 外部からリセットを呼べるようにグローバルアタッチ
-  window.resetPaperFigureZoom = resetZoom;
+  // 外部からリセット・初期拡大を呼べるようにグローバルアタッチ
+  window.resetPaperFigureZoom = (scale = 1.8) => resetZoom(scale);
 
   if (btnIn) {
     btnIn.onclick = (e) => {
@@ -2029,18 +2027,21 @@ function initPaperFigureZoomController() {
   if (btnReset) {
     btnReset.onclick = (e) => {
       e.stopPropagation();
-      resetZoom();
+      resetZoom(1.8);
     };
   }
 
-  // ダブルタップ・ダブルクリックでトグルズーム
+  // ダブルタップ・ダブルクリックで拡大切り替え
   let lastTapTime = 0;
   container.ondblclick = (e) => {
     e.preventDefault();
-    if (figZoomState.scale > 1.2) {
-      resetZoom();
+    if (figZoomState.scale > 2.0) {
+      resetZoom(1.8);
+    } else if (figZoomState.scale >= 1.5) {
+      figZoomState.scale = 2.8;
+      updateTransform();
     } else {
-      figZoomState.scale = 2.2;
+      figZoomState.scale = 1.8;
       updateTransform();
     }
   };
@@ -2084,7 +2085,7 @@ function initPaperFigureZoomController() {
       const factor = currentDist / figZoomState.initialDistance;
       figZoomState.scale = figZoomState.initialScale * factor;
       updateTransform();
-    } else if (e.touches.length === 1 && (figZoomState.isDragging || figZoomState.scale > 1.0)) {
+    } else if (e.touches.length === 1 && (figZoomState.isDragging || figZoomState.scale >= 0.8)) {
       e.preventDefault();
       figZoomState.translateX = e.touches[0].clientX - figZoomState.startX;
       figZoomState.translateY = e.touches[0].clientY - figZoomState.startY;
