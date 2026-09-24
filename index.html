@@ -154,10 +154,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10133_intramural_bailout_fix">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10133_intramural_bailout_fix">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10133_intramural_bailout_fix">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10133_intramural_bailout_fix">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10134_star_sparkle_logo_flash">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10134_star_sparkle_logo_flash">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10134_star_sparkle_logo_flash">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10134_star_sparkle_logo_flash">
 </head>
 <body>
   <div class="app-container">
@@ -170,7 +170,11 @@
             <span class="spec-code">EP-TACTICS // MS-PVC-01</span>
           </div>
           <div class="origin-logo-and-subtitle logo-title-group">
-            <img src="assets/title-logo.png?v=4" alt="PVC THE ORIGIN - PVC起源特定システム" class="title-logo-img" title="吉村流！PVC The Origin">
+            <div style="position: relative; display: inline-block;">
+              <img src="assets/title-logo.png?v=4" alt="PVC THE ORIGIN - PVC起源特定システム" class="title-logo-img" title="吉村流！PVC The Origin">
+              <!-- PVCとThe Originの間の星マーク位置に閃光エフェクト -->
+              <span class="logo-star-flash" aria-hidden="true"></span>
+            </div>
             <div class="origin-subtitle-box">
               <span class="origin-subtitle" id="header-subtitle-text">臨床症例シミュレーター</span>
             </div>
@@ -684,24 +688,9 @@
             <h3 class="card-title">臨床診断推論 (Diagnostic Reasoning Steps)</h3>
             <div id="reasoning-container" class="reasoning-timeline"></div>
           </div>
-
-          <div class="results-card collapsible-card" id="card-literature" style="margin-top: 1rem; display: none;">
-            <div class="card-header-toggle" id="literature-toggle-btn" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
-              <h3 class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-                <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.3s ease;">
-                  <polyline points="6 9 12 15 18 9"></polyline>
-                </svg>
-                エビデンス論文・ガイドライン照合 (Literature &amp; Guidelines)
-              </h3>
-              <span class="toggle-hint-badge" id="literature-toggle-hint" style="font-size: 0.75rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 3px 8px; border-radius: 6px; font-weight: 700;">タップで展開</span>
-            </div>
-            <div id="literature-collapse-body" class="collapse-body" style="display: none; margin-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
-              <div id="literature-container" class="literature-list"></div>
-            </div>
-          </div>
         </section>
 
-        <!-- 心筋層別推定 ＆ 流出路左右鑑別 (main-gridの直接の子要素に引き出し、左右両端限界ギリギリまで100%全幅拡張！) -->
+        <!-- 心筋層別推定 ＆ 流出路左右鑑別 ＆ エビデンス論文 (100%全幅拡張 ＆ 動的直下配置) -->
         <div class="layer-verdict-grid" id="layer-verdict-grid" style="display: none; grid-column: 1 / -1; width: 100%; margin-top: 1.5rem;">
           <div class="layer-card endo-epi-card" id="endo-epi-card" style="display: none;">
             <div class="layer-header">
@@ -735,6 +724,22 @@
             </div>
             <div class="outflow-criteria-grid" id="outflow-criteria-grid"></div>
             <div class="pearls-box" id="outflow-pearls-box"></div>
+          </div>
+
+          <!-- エビデンス論文・ガイドライン照合 (流出路左右鑑別、または心筋層別推定の直下に全幅で配置) -->
+          <div class="results-card collapsible-card" id="card-literature" style="grid-column: 1 / -1; width: 100%; margin-top: 1rem; display: none;">
+            <div class="card-header-toggle" id="literature-toggle-btn" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;">
+              <h3 class="card-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                <svg class="toggle-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition: transform 0.3s ease;">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+                エビデンス論文・ガイドライン照合 (Literature &amp; Guidelines)
+              </h3>
+              <span class="toggle-hint-badge" id="literature-toggle-hint" style="font-size: 0.75rem; color: #38bdf8; background: rgba(56, 189, 248, 0.12); padding: 3px 8px; border-radius: 6px; font-weight: 700;">タップで展開</span>
+            </div>
+            <div id="literature-collapse-body" class="collapse-body" style="display: none; margin-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px;">
+              <div id="literature-container" class="literature-list"></div>
+            </div>
           </div>
         </div>
       </main>
@@ -1111,6 +1116,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10133_intramural_bailout_fix"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10134_star_sparkle_logo_flash"></script>
 </body>
 </html>

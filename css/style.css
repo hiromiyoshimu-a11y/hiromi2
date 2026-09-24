@@ -3817,79 +3817,110 @@ body[data-text-size="lg"] .intramural-badge {
 }
 
 /* ==========================================================================
-   PVC The Origin タイトルロゴ 起動時キラリ輝くアニメーション (Shine Sweep & Pulse)
+   PVC The Origin タイトルロゴ内の星マーク位置でのピカッ！と輝く星状スパークル閃光
    ========================================================================== */
 .logo-title-group {
   position: relative !important;
   display: inline-flex !important;
   align-items: center !important;
-  overflow: hidden !important;
-  border-radius: var(--radius-md) !important;
   padding: 4px 6px !important;
 }
 
-/* 光の輝きスイープライン */
-.logo-title-group::after {
-  content: '' !important;
-  position: absolute !important;
-  top: -50% !important;
-  left: -130% !important;
-  width: 75% !important;
-  height: 200% !important;
-  background: linear-gradient(
-    115deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.15) 25%,
-    rgba(255, 255, 255, 0.95) 50%,
-    rgba(56, 189, 248, 0.95) 65%,
-    transparent 100%
-  ) !important;
-  transform: rotate(25deg) !important;
-  pointer-events: none !important;
-  z-index: 10 !important;
-  animation: logoShineSweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s 1 normal forwards !important;
-}
-
-/* ロゴ画像本体の輝きパルス */
+/* ロゴ画像本体 */
 .title-logo-img {
-  animation: logoGlowPulse 2.2s ease-out 0.2s 1 normal forwards !important;
   transition: transform 0.3s ease, filter 0.3s ease !important;
 }
 
 .title-logo-img:hover {
-  transform: scale(1.03) !important;
-  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) brightness(1.1) !important;
+  transform: scale(1.02) !important;
+  filter: brightness(1.1) drop-shadow(0 0 8px rgba(56, 189, 248, 0.4)) !important;
 }
 
-@keyframes logoShineSweep {
+/* PVC と The Origin の間の星マーク位置にジャスト配置する閃光スポット */
+.logo-star-flash {
+  position: absolute !important;
+  top: 48% !important;
+  left: 45% !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none !important;
+  z-index: 10 !important;
+}
+
+/* 放射状のまばゆい中心コア輝き */
+.logo-star-flash::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 36px !important;
+  height: 36px !important;
+  margin-top: -18px !important;
+  margin-left: -18px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle, #ffffff 0%, #38bdf8 35%, rgba(56, 189, 248, 0) 75%) !important;
+  box-shadow: 0 0 20px #ffffff, 0 0 40px #38bdf8 !important;
+  transform: scale(0) !important;
+  opacity: 0 !important;
+  animation: starCoreFlash 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s 1 normal forwards !important;
+}
+
+/* 八方向にピカーッと放たれるダイヤモンド星型閃光レイ */
+.logo-star-flash::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 140px !important;
+  height: 140px !important;
+  margin-top: -70px !important;
+  margin-left: -70px !important;
+  background: 
+    radial-gradient(ellipse at center, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 65%),
+    linear-gradient(0deg, transparent 47%, #ffffff 49.5%, #ffffff 50.5%, transparent 53%),
+    linear-gradient(90deg, transparent 47%, #ffffff 49.5%, #ffffff 50.5%, transparent 53%),
+    linear-gradient(45deg, transparent 48%, rgba(56,189,248,0.95) 49.5%, rgba(56,189,248,0.95) 50.5%, transparent 52%),
+    linear-gradient(135deg, transparent 48%, rgba(56,189,248,0.95) 49.5%, rgba(56,189,248,0.95) 50.5%, transparent 52%) !important;
+  transform: scale(0) rotate(0deg) !important;
+  opacity: 0 !important;
+  filter: drop-shadow(0 0 12px #38bdf8) !important;
+  animation: starRaySparkle 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.3s 1 normal forwards !important;
+}
+
+@keyframes starCoreFlash {
   0% {
-    left: -130%;
+    transform: scale(0);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(1.8);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(2.4);
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+}
+
+@keyframes starRaySparkle {
+  0% {
+    transform: scale(0) rotate(0deg);
     opacity: 0;
   }
   20% {
+    transform: scale(1.3) rotate(45deg);
     opacity: 1;
   }
-  80% {
-    left: 180%;
-    opacity: 1;
+  50% {
+    transform: scale(2.0) rotate(90deg);
+    opacity: 0.9;
   }
   100% {
-    left: 200%;
+    transform: scale(0.2) rotate(180deg);
     opacity: 0;
-  }
-}
-
-@keyframes logoGlowPulse {
-  0% {
-    filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.2)) brightness(1);
-  }
-  30% {
-    filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.95)) brightness(1.35);
-  }
-  70% {
-    filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.7)) brightness(1.15);
-  }
-  100% {
-    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.45)) brightness(1);
   }
 }
