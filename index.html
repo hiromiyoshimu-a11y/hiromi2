@@ -154,10 +154,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10080_fullwidth_pinch_zoom">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10080_fullwidth_pinch_zoom">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10080_fullwidth_pinch_zoom">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10080_fullwidth_pinch_zoom">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10090_fullwidth_modal_fix">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10090_fullwidth_modal_fix">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10090_fullwidth_modal_fix">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10090_fullwidth_modal_fix">
 </head>
 <body>
   <div class="app-container">
@@ -663,42 +663,6 @@
         </section>
 
         <section class="results-panel">
-          <div class="layer-verdict-grid" id="layer-verdict-grid" style="display: none;">
-            <div class="layer-card endo-epi-card" id="endo-epi-card" style="display: none;">
-              <div class="layer-header">
-                <span class="layer-title">心筋層別推定 (Endo vs Epi)</span>
-                <span class="endo-epi-verdict-badge" id="endo-epi-verdict-badge">心内膜側 (Endocardial)</span>
-              </div>
-              <div class="meter-labels">
-                <span>心内膜 <strong id="val-endo-prob">85%</strong></span>
-                <span>心外膜 <strong id="val-epi-prob">15%</strong></span>
-              </div>
-              <div class="meter-bar-bg">
-                <div class="meter-bar-fill fill-endo" id="meter-fill-endo" style="width: 85%;"></div>
-                <div class="meter-bar-fill fill-epi" id="meter-fill-epi" style="width: 15%;"></div>
-              </div>
-              <ul class="layer-criteria-list" id="endo-epi-criteria"></ul>
-              <div class="strategy-box" id="endo-epi-strategy-box"></div>
-            </div>
-
-            <div class="layer-card outflow-side-card" id="outflow-side-card" style="display: none;">
-              <div class="layer-header">
-                <span class="layer-title">流出路 左右鑑別 (RVOT vs LVOT)</span>
-                <span class="outflow-verdict-badge" id="outflow-verdict-badge">右室流出路 (RVOT)</span>
-              </div>
-              <div class="meter-labels">
-                <span>RVOT <strong id="val-right-prob">90%</strong></span>
-                <span>LVOT <strong id="val-left-prob">10%</strong></span>
-              </div>
-              <div class="meter-bar-bg">
-                <div class="meter-bar-fill fill-right" id="meter-fill-right" style="width: 90%;"></div>
-                <div class="meter-bar-fill fill-left" id="meter-fill-left" style="width: 10%;"></div>
-              </div>
-              <div class="outflow-criteria-grid" id="outflow-criteria-grid"></div>
-              <div class="pearls-box" id="outflow-pearls-box"></div>
-            </div>
-          </div>
-
           <div class="results-card" id="card-ranking" style="margin-top: 1rem; display: none;">
             <h3 class="card-title">鑑別候補ランキング (Differential Ranking)</h3>
             <div id="ranking-container" class="ranking-list"></div>
@@ -724,6 +688,43 @@
             </div>
           </div>
         </section>
+
+        <!-- 心筋層別推定 ＆ 流出路左右鑑別 (main-gridの直接の子要素に引き出し、左右両端限界ギリギリまで100%全幅拡張！) -->
+        <div class="layer-verdict-grid" id="layer-verdict-grid" style="display: none; grid-column: 1 / -1; width: 100%; margin-top: 1.5rem;">
+          <div class="layer-card endo-epi-card" id="endo-epi-card" style="display: none;">
+            <div class="layer-header">
+              <span class="layer-title">心筋層別推定 (Endo vs Epi)</span>
+              <span class="endo-epi-verdict-badge" id="endo-epi-verdict-badge">心内膜側 (Endocardial)</span>
+            </div>
+            <div class="meter-labels">
+              <span>心内膜 <strong id="val-endo-prob">85%</strong></span>
+              <span>心外膜 <strong id="val-epi-prob">15%</strong></span>
+            </div>
+            <div class="meter-bar-bg">
+              <div class="meter-bar-fill fill-endo" id="meter-fill-endo" style="width: 85%;"></div>
+              <div class="meter-bar-fill fill-epi" id="meter-fill-epi" style="width: 15%;"></div>
+            </div>
+            <ul class="layer-criteria-list" id="endo-epi-criteria"></ul>
+            <div class="strategy-box" id="endo-epi-strategy-box"></div>
+          </div>
+
+          <div class="layer-card outflow-side-card" id="outflow-side-card" style="display: none;">
+            <div class="layer-header">
+              <span class="layer-title">流出路 左右鑑別 (RVOT vs LVOT)</span>
+              <span class="outflow-verdict-badge" id="outflow-verdict-badge">右室流出路 (RVOT)</span>
+            </div>
+            <div class="meter-labels">
+              <span>RVOT <strong id="val-right-prob">90%</strong></span>
+              <span>LVOT <strong id="val-left-prob">10%</strong></span>
+            </div>
+            <div class="meter-bar-bg">
+              <div class="meter-bar-fill fill-right" id="meter-fill-right" style="width: 90%;"></div>
+              <div class="meter-bar-fill fill-left" id="meter-fill-left" style="width: 10%;"></div>
+            </div>
+            <div class="outflow-criteria-grid" id="outflow-criteria-grid"></div>
+            <div class="pearls-box" id="outflow-pearls-box"></div>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -822,23 +823,23 @@
   </div>
 
   <div class="modal-overlay" id="naito-flowchart-modal">
-    <div class="modal-content flowchart-modal-content" style="max-width: 980px; width: 95vw; max-height: 90vh; display: flex; flex-direction: column; padding: 1.25rem;">
+    <div class="modal-content flowchart-modal-content" style="max-width: 980px; width: 95vw; max-height: 92vh; overflow-y: auto; display: flex; flex-direction: column; padding: 1.25rem; -webkit-overflow-scrolling: touch;">
       <button class="modal-close-btn" id="naito-modal-close-btn" title="閉じる" onclick="if(window.closeNaitoModal){window.closeNaitoModal();return false;}">✕</button>
       
-      <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-        <h3 class="modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8;">内藤 2005 流出路7ステップ局在診断フローチャート</h3>
+      <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
+        <h3 class="modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8; font-weight: 800;">内藤 2005 流出路7ステップ局在診断フローチャート</h3>
         <button type="button" class="btn-zoom-toggle" id="btn-toggle-naito-zoom" style="padding: 6px 14px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); color: #38bdf8; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
           <span id="naito-zoom-btn-label">拡大表示 (Zoom)</span>
         </button>
       </div>
 
-      <div class="flowchart-viewer-container" id="naito-flowchart-container" style="flex: 1; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 8px; max-height: 75vh; -webkit-overflow-scrolling: touch;">
+      <div class="flowchart-viewer-container" id="naito-flowchart-container" style="flex-shrink: 0; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 8px; min-height: 450px; max-height: 60vh; -webkit-overflow-scrolling: touch;">
         <span class="zoom-hint-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.9); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.5); padding: 5px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; pointer-events: none; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
           💡 タップで拡大 / 縮小 (スクロール・移動可能)
         </span>
-        <div class="flowchart-img-wrapper" id="naito-img-wrapper" style="display: inline-block; cursor: zoom-in; text-align: center; width: 100%;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1560" id="naito-flowchart-svg" style="width: 100%; height: auto; max-width: 100%; display: block; margin: 0 auto; border-radius: 4px; transition: all 0.3s ease;">
+        <div class="flowchart-img-wrapper" id="naito-img-wrapper" style="display: block; cursor: zoom-in; text-align: center; width: 100%; margin: 0 auto;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1560" id="naito-flowchart-svg" style="width: 100%; height: auto; min-height: 550px; max-width: 100%; display: block; margin: 0 auto; border-radius: 4px; transition: width 0.2s ease;">
             <rect width="100%" height="100%" fill="#070c18"/>
             <defs>
               <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -1091,6 +1092,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10080_fullwidth_pinch_zoom"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10090_fullwidth_modal_fix"></script>
 </body>
 </html>
