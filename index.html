@@ -1058,21 +1058,37 @@
     </div>
   </div>
 
-  <!-- 📸 出典論文図表・アルゴリズム拡大ダイアログ (Paper Figure Modal) -->
+  <!-- 📸 出典論文図表・アルゴリズム拡大ダイアログ (Paper Figure Modal - ピンチ・スワイプ無段階ズーム機能付) -->
   <div class="modal-overlay" id="paper-figure-modal" style="display: none; z-index: 999999;">
     <div class="modal-content figure-modal-content" style="max-width: 920px; width: 95vw; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; padding: 1.25rem 1.25rem 2.5rem 1.25rem; -webkit-overflow-scrolling: touch;">
       <button class="modal-close-btn" id="figure-modal-close-btn" title="閉じる" onclick="if(window.closePaperFigureModal){window.closePaperFigureModal();return false;}">✕</button>
       
-      <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
+      <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
         <h3 class="modal-title" id="paper-fig-modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8; font-weight: 800;">図表・アルゴリズム表示</h3>
         <span class="citation-badge" id="paper-fig-modal-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 700; padding: 3px 10px; border-radius: 6px; font-size: 0.8rem;">図表参照</span>
       </div>
 
-      <div class="figure-viewer-container" id="figure-viewer-container" style="flex-shrink: 0; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 12px; min-height: 300px; max-height: 65vh; -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y;">
-        <div id="paper-fig-modal-body" style="width: 100%; height: auto; min-width: 100%;"></div>
+      <!-- スワイプ・ピンチズーム無段階コントロールバー -->
+      <div class="fig-zoom-control-bar" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; background: rgba(15, 23, 42, 0.9); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.25); flex-wrap: wrap; gap: 6px;">
+        <span style="font-size: 0.78rem; color: #38bdf8; font-weight: 700; display: flex; align-items: center; gap: 4px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+          ピンチ / 2本指ズーム / スワイプ移動
+        </span>
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <button type="button" class="btn-fig-zoom" id="fig-zoom-out" title="縮小" style="background: #1e293b; color: #38bdf8; border: 1px solid #334155; border-radius: 6px; padding: 2px 8px; font-weight: 800; cursor: pointer;">－</button>
+          <span id="fig-zoom-level-label" style="font-size: 0.8rem; font-weight: 800; color: #ffffff; min-width: 48px; text-align: center;">100%</span>
+          <button type="button" class="btn-fig-zoom" id="fig-zoom-in" title="拡大" style="background: #1e293b; color: #38bdf8; border: 1px solid #334155; border-radius: 6px; padding: 2px 8px; font-weight: 800; cursor: pointer;">＋</button>
+          <button type="button" class="btn-fig-zoom" id="fig-zoom-reset" title="標準サイズに戻す" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid #38bdf8; border-radius: 6px; padding: 2px 8px; font-size: 0.75rem; font-weight: 700; cursor: pointer; margin-left: 4px;">リセット</button>
+        </div>
       </div>
 
-      <div id="paper-fig-modal-caption" style="margin-top: 12px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 12px; font-size: 0.84rem; line-height: 1.5; color: #cbd5e1;"></div>
+      <div class="figure-viewer-container" id="figure-viewer-container" style="flex-shrink: 0; overflow: hidden; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.35); text-align: center; padding: 0; min-height: 320px; max-height: 65vh; touch-action: none; user-select: none; cursor: grab;">
+        <div id="paper-fig-modal-body" style="transform-origin: center center; transition: transform 0.05s ease-out; width: 100%; height: auto; min-width: 100%; padding: 12px; box-sizing: border-box;"></div>
+      </div>
+
+      <div id="paper-fig-modal-caption" style="margin-top: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px 12px; font-size: 0.84rem; line-height: 1.5; color: #cbd5e1;"></div>
       <div style="height: 20px; flex-shrink: 0;"></div>
     </div>
   </div>
@@ -1141,6 +1157,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260925_v10143_perfect_fullwidth_tabs_tight_header_large_buttons"></script>
+  <script type="module" src="./js/app.js?v=20260925_v10144_stepless_pinch_zoom_swipe_pan"></script>
 </body>
 </html>

@@ -4063,9 +4063,18 @@ body[data-text-size="lg"] .intramural-badge {
 }
 
 #paper-fig-modal-body {
-  overflow-x: auto;
-  padding: 10px 0;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.btn-fig-zoom {
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btn-fig-zoom:hover,
+.btn-fig-zoom:active {
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
 }

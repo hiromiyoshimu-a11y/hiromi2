@@ -1957,6 +1957,179 @@ function renderLiteratureForWinner(siteId) {
   });
 }
 
+let figZoomState = {
+  scale: 1.0,
+  translateX: 0,
+  translateY: 0,
+  isDragging: false,
+  startX: 0,
+  startY: 0,
+  initialDistance: 0,
+  initialScale: 1.0
+};
+
+/**
+ * 論文図表モーダルのピンチズーム・無段階スワイプパン移動コントローラーの初期化
+ */
+function initPaperFigureZoomController() {
+  const container = document.getElementById('figure-viewer-container');
+  const target = document.getElementById('paper-fig-modal-body');
+  const btnIn = document.getElementById('fig-zoom-in');
+  const btnOut = document.getElementById('fig-zoom-out');
+  const btnReset = document.getElementById('fig-zoom-reset');
+  const label = document.getElementById('fig-zoom-level-label');
+
+  if (!container || !target) return;
+
+  function updateTransform() {
+    // 限界範囲のクランプ
+    figZoomState.scale = Math.min(Math.max(figZoomState.scale, 1.0), 4.5);
+    
+    if (figZoomState.scale === 1.0) {
+      figZoomState.translateX = 0;
+      figZoomState.translateY = 0;
+      container.style.cursor = 'grab';
+    } else {
+      container.style.cursor = figZoomState.isDragging ? 'grabbing' : 'grab';
+    }
+
+    target.style.transform = `translate(${figZoomState.translateX}px, ${figZoomState.translateY}px) scale(${figZoomState.scale})`;
+    if (label) {
+      label.textContent = `${Math.round(figZoomState.scale * 100)}%`;
+    }
+  }
+
+  function resetZoom() {
+    figZoomState.scale = 1.0;
+    figZoomState.translateX = 0;
+    figZoomState.translateY = 0;
+    figZoomState.isDragging = false;
+    updateTransform();
+  }
+
+  // 外部からリセットを呼べるようにグローバルアタッチ
+  window.resetPaperFigureZoom = resetZoom;
+
+  if (btnIn) {
+    btnIn.onclick = (e) => {
+      e.stopPropagation();
+      figZoomState.scale += 0.35;
+      updateTransform();
+    };
+  }
+
+  if (btnOut) {
+    btnOut.onclick = (e) => {
+      e.stopPropagation();
+      figZoomState.scale -= 0.35;
+      updateTransform();
+    };
+  }
+
+  if (btnReset) {
+    btnReset.onclick = (e) => {
+      e.stopPropagation();
+      resetZoom();
+    };
+  }
+
+  // ダブルタップ・ダブルクリックでトグルズーム
+  let lastTapTime = 0;
+  container.ondblclick = (e) => {
+    e.preventDefault();
+    if (figZoomState.scale > 1.2) {
+      resetZoom();
+    } else {
+      figZoomState.scale = 2.2;
+      updateTransform();
+    }
+  };
+
+  // タッチ操作 (ピンチイン・ピンチアウト & スワイプ移動)
+  container.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      // 2本指ピンチ開始
+      figZoomState.initialDistance = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      figZoomState.initialScale = figZoomState.scale;
+    } else if (e.touches.length === 1) {
+      // 1本指スワイプ開始
+      figZoomState.isDragging = true;
+      figZoomState.startX = e.touches[0].clientX - figZoomState.translateX;
+      figZoomState.startY = e.touches[0].clientY - figZoomState.translateY;
+
+      // ダブルタップ検出
+      const now = Date.now();
+      if (now - lastTapTime < 300) {
+        if (figZoomState.scale > 1.2) {
+          resetZoom();
+        } else {
+          figZoomState.scale = 2.2;
+          updateTransform();
+        }
+      }
+      lastTapTime = now;
+    }
+  }, { passive: false });
+
+  container.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && figZoomState.initialDistance > 0) {
+      e.preventDefault();
+      const currentDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const factor = currentDist / figZoomState.initialDistance;
+      figZoomState.scale = figZoomState.initialScale * factor;
+      updateTransform();
+    } else if (e.touches.length === 1 && (figZoomState.isDragging || figZoomState.scale > 1.0)) {
+      e.preventDefault();
+      figZoomState.translateX = e.touches[0].clientX - figZoomState.startX;
+      figZoomState.translateY = e.touches[0].clientY - figZoomState.startY;
+      updateTransform();
+    }
+  }, { passive: false });
+
+  container.addEventListener('touchend', (e) => {
+    if (e.touches.length < 2) {
+      figZoomState.initialDistance = 0;
+    }
+    if (e.touches.length === 0) {
+      figZoomState.isDragging = false;
+    }
+  });
+
+  // PC マウスドラッグ & ホイール操作
+  container.addEventListener('mousedown', (e) => {
+    figZoomState.isDragging = true;
+    figZoomState.startX = e.clientX - figZoomState.translateX;
+    figZoomState.startY = e.clientY - figZoomState.translateY;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (figZoomState.isDragging && figZoomState.scale > 1.0) {
+      e.preventDefault();
+      figZoomState.translateX = e.clientX - figZoomState.startX;
+      figZoomState.translateY = e.clientY - figZoomState.startY;
+      updateTransform();
+    }
+  });
+
+  window.addEventListener('mouseup', () => {
+    figZoomState.isDragging = false;
+  });
+
+  // ホイールで無段階ズーム
+  container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY < 0 ? 0.15 : -0.15;
+    figZoomState.scale += delta;
+    updateTransform();
+  }, { passive: false });
+}
+
 /**
  * 論文図表ライトボックスモーダル表示・非表示
  */
@@ -1983,6 +2156,10 @@ window.openPaperFigureModal = function(paperId, figureId) {
       }
     }
 
+    if (window.resetPaperFigureZoom) {
+      window.resetPaperFigureZoom();
+    }
+
     if (modal) {
       modal.classList.add('open');
       modal.style.setProperty('display', 'flex', 'important');
@@ -2004,10 +2181,15 @@ window.closePaperFigureModal = function() {
   }
   document.body.style.overflow = '';
   document.body.style.removeProperty('overflow');
+  if (window.resetPaperFigureZoom) {
+    window.resetPaperFigureZoom();
+  }
 };
 
-// モーダル背景クリックで自動クローズ
+// モーダル背景クリックで自動クローズ & ズームコントローラー初期化
 document.addEventListener('DOMContentLoaded', () => {
+  initPaperFigureZoomController();
+
   const pModal = document.getElementById('paper-figure-modal');
   if (pModal) {
     pModal.addEventListener('click', (e) => {
