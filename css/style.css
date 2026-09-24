@@ -137,9 +137,9 @@ body {
 }
 
 .title-logo-img {
-  height: 85px;
+  height: 115px;
   width: auto;
-  max-width: 360px;
+  max-width: 480px;
   object-fit: contain;
   filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 24px rgba(245, 158, 11, 0.45));
   transition: transform 0.25s ease, filter 0.25s ease;
@@ -367,8 +367,8 @@ body {
     flex-shrink: 0 !important;
   }
   .title-logo-img {
-    height: 52px !important;
-    max-width: 180px !important;
+    height: 68px !important;
+    max-width: 240px !important;
   }
   .main-nav-tabs {
     width: 100%;
@@ -3553,8 +3553,8 @@ body {
 }
 
 /* ===================================================================
-   解説テキスト限定 3段階文字サイズ制御 (小: sm, 標準: md, 大: lg)
-   ※UIボタンやヘッダーのレイアウト崩れを防ぎ、解説文章のみに適用
+   解説テキスト ＆ 診断ツール詳細 3段階文字サイズ制御 (小: sm, 標準: md, 大: lg)
+   ※UIボタン構造・フレームレイアウトの枠線を維持しつつ文章内容のフォントサイズを動的調整
    =================================================================== */
 
 /* 小 (sm / ~85%) */
@@ -3563,23 +3563,38 @@ body[data-text-size="sm"] .insight-card li,
 body[data-text-size="sm"] .citation-source-info,
 body[data-text-size="sm"] .reasoning-timeline,
 body[data-text-size="sm"] .reasoning-item,
+body[data-text-size="sm"] .reasoning-text,
 body[data-text-size="sm"] .ablation-tip-text,
+body[data-text-size="sm"] .ablation-tips-content p,
+body[data-text-size="sm"] .ablation-tips-box p,
 body[data-text-size="sm"] .literature-collapse-body,
+body[data-text-size="sm"] .literature-item,
+body[data-text-size="sm"] .lit-abstract,
+body[data-text-size="sm"] .lit-keypoint,
 body[data-text-size="sm"] .endo-epi-strategy-box,
-body[data-text-size="sm"] .endo-epi-criteria,
-body[data-text-size="sm"] .outflow-pearls-box,
-body[data-text-size="sm"] .outflow-criteria-grid,
+body[data-text-size="sm"] .layer-criteria-list li,
+body[data-text-size="sm"] .outflow-crit-detail,
+body[data-text-size="sm"] .outflow-crit-name,
+body[data-text-size="sm"] .pearls-box,
+body[data-text-size="sm"] .pearls-list li,
 body[data-text-size="sm"] .quiz-explanation-body,
 body[data-text-size="sm"] .inline-winner-features,
 body[data-text-size="sm"] .inline-matrix-winner-features,
 body[data-text-size="sm"] #winner-features,
+body[data-text-size="sm"] .ranking-item,
+body[data-text-size="sm"] .modal-body p,
 body[data-text-size="sm"] .explanation-text,
 body[data-text-size="sm"] .clinical-memo {
   font-size: 0.74rem !important;
   line-height: 1.5 !important;
 }
 body[data-text-size="sm"] .insight-card h4,
-body[data-text-size="sm"] .quiz-explanation-body h4 {
+body[data-text-size="sm"] .quiz-explanation-body h4,
+body[data-text-size="sm"] .ablation-tips-content h4,
+body[data-text-size="sm"] .modal-body h4,
+body[data-text-size="sm"] .pearls-title,
+body[data-text-size="sm"] .reasoning-title,
+body[data-text-size="sm"] .lit-title {
   font-size: 0.84rem !important;
 }
 
@@ -3589,23 +3604,38 @@ body[data-text-size="md"] .insight-card li,
 body[data-text-size="md"] .citation-source-info,
 body[data-text-size="md"] .reasoning-timeline,
 body[data-text-size="md"] .reasoning-item,
+body[data-text-size="md"] .reasoning-text,
 body[data-text-size="md"] .ablation-tip-text,
+body[data-text-size="md"] .ablation-tips-content p,
+body[data-text-size="md"] .ablation-tips-box p,
 body[data-text-size="md"] .literature-collapse-body,
+body[data-text-size="md"] .literature-item,
+body[data-text-size="md"] .lit-abstract,
+body[data-text-size="md"] .lit-keypoint,
 body[data-text-size="md"] .endo-epi-strategy-box,
-body[data-text-size="md"] .endo-epi-criteria,
-body[data-text-size="md"] .outflow-pearls-box,
-body[data-text-size="md"] .outflow-criteria-grid,
+body[data-text-size="md"] .layer-criteria-list li,
+body[data-text-size="md"] .outflow-crit-detail,
+body[data-text-size="md"] .outflow-crit-name,
+body[data-text-size="md"] .pearls-box,
+body[data-text-size="md"] .pearls-list li,
 body[data-text-size="md"] .quiz-explanation-body,
 body[data-text-size="md"] .inline-winner-features,
 body[data-text-size="md"] .inline-matrix-winner-features,
 body[data-text-size="md"] #winner-features,
+body[data-text-size="md"] .ranking-item,
+body[data-text-size="md"] .modal-body p,
 body[data-text-size="md"] .explanation-text,
 body[data-text-size="md"] .clinical-memo {
   font-size: 0.88rem !important;
   line-height: 1.6 !important;
 }
 body[data-text-size="md"] .insight-card h4,
-body[data-text-size="md"] .quiz-explanation-body h4 {
+body[data-text-size="md"] .quiz-explanation-body h4,
+body[data-text-size="md"] .ablation-tips-content h4,
+body[data-text-size="md"] .modal-body h4,
+body[data-text-size="md"] .pearls-title,
+body[data-text-size="md"] .reasoning-title,
+body[data-text-size="md"] .lit-title {
   font-size: 0.95rem !important;
 }
 
@@ -3615,23 +3645,38 @@ body[data-text-size="lg"] .insight-card li,
 body[data-text-size="lg"] .citation-source-info,
 body[data-text-size="lg"] .reasoning-timeline,
 body[data-text-size="lg"] .reasoning-item,
+body[data-text-size="lg"] .reasoning-text,
 body[data-text-size="lg"] .ablation-tip-text,
+body[data-text-size="lg"] .ablation-tips-content p,
+body[data-text-size="lg"] .ablation-tips-box p,
 body[data-text-size="lg"] .literature-collapse-body,
+body[data-text-size="lg"] .literature-item,
+body[data-text-size="lg"] .lit-abstract,
+body[data-text-size="lg"] .lit-keypoint,
 body[data-text-size="lg"] .endo-epi-strategy-box,
-body[data-text-size="lg"] .endo-epi-criteria,
-body[data-text-size="lg"] .outflow-pearls-box,
-body[data-text-size="lg"] .outflow-criteria-grid,
+body[data-text-size="lg"] .layer-criteria-list li,
+body[data-text-size="lg"] .outflow-crit-detail,
+body[data-text-size="lg"] .outflow-crit-name,
+body[data-text-size="lg"] .pearls-box,
+body[data-text-size="lg"] .pearls-list li,
 body[data-text-size="lg"] .quiz-explanation-body,
 body[data-text-size="lg"] .inline-winner-features,
 body[data-text-size="lg"] .inline-matrix-winner-features,
 body[data-text-size="lg"] #winner-features,
+body[data-text-size="lg"] .ranking-item,
+body[data-text-size="lg"] .modal-body p,
 body[data-text-size="lg"] .explanation-text,
 body[data-text-size="lg"] .clinical-memo {
   font-size: 1.08rem !important;
   line-height: 1.7 !important;
 }
 body[data-text-size="lg"] .insight-card h4,
-body[data-text-size="lg"] .quiz-explanation-body h4 {
+body[data-text-size="lg"] .quiz-explanation-body h4,
+body[data-text-size="lg"] .ablation-tips-content h4,
+body[data-text-size="lg"] .modal-body h4,
+body[data-text-size="lg"] .pearls-title,
+body[data-text-size="lg"] .reasoning-title,
+body[data-text-size="lg"] .lit-title {
   font-size: 1.15rem !important;
 }
 
