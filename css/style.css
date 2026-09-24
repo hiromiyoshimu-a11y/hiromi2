@@ -1425,17 +1425,34 @@ body {
 
 .modal-close-btn {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.25);
+  border: 2px solid rgba(239, 68, 68, 0.7);
+  color: #ffffff;
+  font-size: 1.3rem;
+  font-weight: 800;
   cursor: pointer;
-  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 120;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+  line-height: 1;
+  padding: 0;
 }
 
-.modal-close-btn:hover {
-  color: var(--text-primary);
+.modal-close-btn:hover,
+.modal-close-btn:active {
+  background: rgba(239, 68, 68, 0.95);
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
 }
 
 .modal-title {

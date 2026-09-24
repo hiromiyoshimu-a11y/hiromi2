@@ -393,6 +393,9 @@ function init() {
     // 3段階解説文字サイズマネージャーの初期化 (標準 ➔ 大 ➔ 小)
     initTextSizeManager();
 
+    // 内藤2005フローチャートの拡大（ズーム・スクロール）マネージャーの初期化
+    initNaitoFlowchartZoom();
+
     // iOSボトムタブバーのセットアップ
     try {
       setupIosTabBar();
@@ -412,6 +415,59 @@ function init() {
     handleInitialHash();
   } catch(globalErr) {
     console.error('Global App init error:', globalErr);
+  }
+}
+
+/**
+ * 内藤2005フローチャートの拡大/縮小（ズーム・スクロール）制御
+ */
+function initNaitoFlowchartZoom() {
+  const container = document.getElementById('naito-flowchart-container');
+  const imgWrapper = document.getElementById('naito-img-wrapper');
+  const img = document.getElementById('naito-flowchart-img');
+  const zoomBtn = document.getElementById('btn-toggle-naito-zoom');
+  const zoomLabel = document.getElementById('naito-zoom-btn-label');
+
+  if (!container || !imgWrapper || !img) return;
+
+  let isZoomed = false;
+
+  function toggleZoom() {
+    isZoomed = !isZoomed;
+    if (isZoomed) {
+      img.style.maxWidth = 'none';
+      img.style.width = '195%';
+      imgWrapper.style.cursor = 'zoom-out';
+      if (zoomLabel) zoomLabel.textContent = '標準サイズに縮小';
+      if (zoomBtn) {
+        zoomBtn.style.background = 'rgba(245, 158, 11, 0.25)';
+        zoomBtn.style.borderColor = '#f59e0b';
+        zoomBtn.style.color = '#fbbf24';
+      }
+    } else {
+      img.style.maxWidth = '100%';
+      img.style.width = '100%';
+      imgWrapper.style.cursor = 'zoom-in';
+      if (zoomLabel) zoomLabel.textContent = '拡大表示 (Zoom)';
+      if (zoomBtn) {
+        zoomBtn.style.background = 'rgba(56, 189, 248, 0.2)';
+        zoomBtn.style.borderColor = 'rgba(56, 189, 248, 0.5)';
+        zoomBtn.style.color = '#38bdf8';
+      }
+      container.scrollTop = 0;
+      container.scrollLeft = 0;
+    }
+  }
+
+  // 画像タップ/クリックで拡大縮小
+  imgWrapper.addEventListener('click', toggleZoom);
+
+  // 拡大ボタンクリックで拡大縮小
+  if (zoomBtn) {
+    zoomBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleZoom();
+    });
   }
 }
 
@@ -1371,11 +1427,13 @@ function setupEventListeners() {
   }
 
   // 内藤 2005 流出路7ステップ局在診断フローチャートモーダル
-  if (dom.btnShowNaitoFlowchart) {
-    dom.btnShowNaitoFlowchart.addEventListener('click', () => {
-      if (METRIC_EXPLANATIONS.naito_2005_flowchart) {
-        showMetricExplanationModal(METRIC_EXPLANATIONS.naito_2005_flowchart);
-      }
+  const btnNaito = document.getElementById('btn-show-naito-flowchart');
+  const modalNaito = document.getElementById('naito-flowchart-modal');
+  if (btnNaito && modalNaito) {
+    btnNaito.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      modalNaito.classList.add('open');
     });
   }
 
@@ -1417,26 +1475,29 @@ function setupEventListeners() {
     dom.btnLayoutHorizontal.addEventListener('click', () => setStdLayout('horizontal'));
   }
 
-  // モーダル
+  // 判定基準・文献モーダル
   if (dom.btnShowAlgorithm) {
     dom.btnShowAlgorithm.addEventListener('click', () => {
       showFullLiteratureModal();
     });
   }
 
-  if (dom.modalCloseBtn) {
-    dom.modalCloseBtn.addEventListener('click', () => {
-      if (dom.algorithmModal) dom.algorithmModal.classList.remove('open');
+  // 全モーダルの「✕」閉じるボタン一括自動リスナー登録
+  document.querySelectorAll('.modal-close-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const modal = btn.closest('.modal-overlay');
+      if (modal) modal.classList.remove('open');
     });
-  }
+  });
 
-  if (dom.algorithmModal) {
-    dom.algorithmModal.addEventListener('click', (e) => {
-      if (e.target === dom.algorithmModal) {
-        dom.algorithmModal.classList.remove('open');
+  // モーダル外側背景領域タップでの閉じ処理
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        overlay.classList.remove('open');
       }
     });
-  }
+  });
 }
 
 /**

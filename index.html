@@ -136,10 +136,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10057_larger_title_logo">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10057_larger_title_logo">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10057_larger_title_logo">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10057_larger_title_logo">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10058_naito_zoom_and_large_close_button">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10058_naito_zoom_and_large_close_button">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10058_naito_zoom_and_large_close_button">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10058_naito_zoom_and_large_close_button">
 </head>
 <body>
   <div class="app-container">
@@ -804,11 +804,24 @@
   </div>
 
   <div class="modal-overlay" id="naito-flowchart-modal">
-    <div class="modal-content" style="max-width: 900px; width: 95%;">
-      <button class="modal-close-btn" id="naito-modal-close-btn">✕</button>
-      <h3 class="modal-title">内藤 2005 流出路7ステップ局在診断フローチャート</h3>
-      <div class="modal-body" style="text-align: center;">
-        <img src="assets/flowchart_naito2005.jpg" alt="内藤 2005 流出路7ステップ局在診断フローチャート" style="max-width: 100%; height: auto; border-radius: 8px;">
+    <div class="modal-content flowchart-modal-content" style="max-width: 980px; width: 95vw; max-height: 90vh; display: flex; flex-direction: column; padding: 1.25rem;">
+      <button class="modal-close-btn" id="naito-modal-close-btn" title="閉じる">✕</button>
+      
+      <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <h3 class="modal-title" style="margin: 0; font-size: 1.1rem; color: #38bdf8;">内藤 2005 流出路7ステップ局在診断フローチャート</h3>
+        <button type="button" class="btn-zoom-toggle" id="btn-toggle-naito-zoom" style="padding: 6px 14px; background: rgba(56, 189, 248, 0.2); border: 1px solid rgba(56, 189, 248, 0.5); color: #38bdf8; border-radius: 8px; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          <span id="naito-zoom-btn-label">拡大表示 (Zoom)</span>
+        </button>
+      </div>
+
+      <div class="flowchart-viewer-container" id="naito-flowchart-container" style="flex: 1; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 8px; max-height: 75vh; -webkit-overflow-scrolling: touch;">
+        <span class="zoom-hint-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.9); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.5); padding: 5px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; pointer-events: none; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
+          💡 タップで拡大 / 縮小 (スクロール・移動可能)
+        </span>
+        <div class="flowchart-img-wrapper" id="naito-img-wrapper" style="display: inline-block; cursor: zoom-in; text-align: center; width: 100%;">
+          <img src="assets/flowchart_naito2005.jpg" id="naito-flowchart-img" alt="内藤 2005 流出路7ステップ局在診断フローチャート" style="max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 4px; transition: all 0.3s ease;">
+        </div>
       </div>
     </div>
   </div>
@@ -874,6 +887,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10056_full_ablation_tips_text_size"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10058_naito_zoom_and_large_close_button"></script>
 </body>
 </html>
