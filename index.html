@@ -1059,9 +1059,9 @@
     </div>
   </div>
 
-  <!-- 📸 出典論文図表・アルゴリズム拡大ダイアログ (Paper Figure Modal - ピンチ・スワイプ無段階ズーム機能付) -->
-  <div class="modal-overlay" id="paper-figure-modal" style="display: none; z-index: 999999;">
-    <div class="modal-content figure-modal-content" style="max-width: 920px; width: 95vw; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; padding: 1.25rem 1.25rem 2.5rem 1.25rem; -webkit-overflow-scrolling: touch;">
+  <!-- 📸 出典論文図表・アルゴリズム拡大ダイアログ (Paper Figure Modal - 画面左右最大全幅化) -->
+  <div class="modal-overlay" id="paper-figure-modal" style="display: none; z-index: 999999; padding: 6px 2px;">
+    <div class="modal-content figure-modal-content" style="max-width: 98vw; width: 98vw; max-height: 94vh; overflow-y: auto; display: flex; flex-direction: column; padding: 0.75rem 0.5rem 1.5rem 0.5rem; -webkit-overflow-scrolling: touch;">
       <button class="modal-close-btn" id="figure-modal-close-btn" title="閉じる" onclick="if(window.closePaperFigureModal){window.closePaperFigureModal();return false;}">✕</button>
       
       <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
@@ -1085,8 +1085,8 @@
         </div>
       </div>
 
-      <div class="figure-viewer-container" id="figure-viewer-container" style="flex-shrink: 0; overflow: hidden; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.35); text-align: center; padding: 0; min-height: 320px; max-height: 65vh; touch-action: none; user-select: none; cursor: grab;">
-        <div id="paper-fig-modal-body" style="transform-origin: center center; transition: transform 0.05s ease-out; width: 100%; height: auto; min-width: 100%; padding: 12px; box-sizing: border-box;"></div>
+      <div class="figure-viewer-container" id="figure-viewer-container" style="flex-shrink: 0; overflow: hidden; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.35); text-align: center; padding: 0; min-height: 360px; max-height: 72vh; width: 100%; touch-action: none; user-select: none; cursor: grab;">
+        <div id="paper-fig-modal-body" style="transform-origin: center center; transition: transform 0.05s ease-out; width: 100%; height: auto; min-width: 100%; padding: 4px; box-sizing: border-box;"></div>
       </div>
 
       <div id="paper-fig-modal-caption" style="margin-top: 10px; background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 10px 12px; font-size: 0.84rem; line-height: 1.5; color: #cbd5e1;"></div>
@@ -1158,6 +1158,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260925_v10160_auto_zoom_on_tap_swipe_zoom_pan"></script>
+  <script type="module" src="./js/app.js?v=20260925_v10165_max_edge_to_edge_paper_figure_display"></script>
 </body>
 </html>
