@@ -2186,16 +2186,22 @@ window.closePaperFigureModal = function() {
   }
 };
 
-// モーダル背景クリックで自動クローズ & ズームコントローラー初期化
+// モーダル背景＆図の枠外クリックで自動クローズ & ズームコントローラー初期化
 document.addEventListener('DOMContentLoaded', () => {
   initPaperFigureZoomController();
 
   const pModal = document.getElementById('paper-figure-modal');
   if (pModal) {
     pModal.addEventListener('click', (e) => {
-      if (e.target === pModal) {
-        window.closePaperFigureModal();
-      }
+      const container = document.getElementById('figure-viewer-container');
+      const zoomBar = pModal.querySelector('.fig-zoom-control-bar');
+      
+      // クリック/タップされた要素が 図表示エリア (container) または ズーム操作バー (zoomBar) の内部である場合は閉じない
+      if (container && container.contains(e.target)) return;
+      if (zoomBar && zoomBar.contains(e.target)) return;
+      
+      // それ以外の「図の外側（モーダル背景・ヘッダー・キャプション・余白等）」をタップした場合は拡大解除（モーダルを閉じる）
+      window.closePaperFigureModal();
     });
   }
 });
