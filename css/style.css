@@ -264,16 +264,18 @@ body {
    3部門 共通ナビゲーションタブ (単一ページ完全SPA切り替え)
    ========================================================================== */
 .main-nav-tabs {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 100%;
   background: rgba(15, 23, 42, 0.85);
-  padding: 6px;
+  padding: 4px;
   border-radius: var(--radius-lg);
   border: 1px solid rgba(56, 189, 248, 0.3);
   box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.5);
   position: relative;
-  z-index: 100; /* 最前面でタッチを100%キャッチ */
+  z-index: 100;
+  box-sizing: border-box;
 }
 
 .nav-tab-btn {

@@ -1868,7 +1868,7 @@ function renderLiteratureForWinner(siteId) {
           <span class="lit-figures-label">掲載図表 (タップで高解像度拡大):</span>
           <div class="lit-figures-btns">
             ${paper.figures.map(fig => `
-              <button type="button" class="lit-figure-btn" onclick="openPaperFigureModal('${pId}', '${fig.id}')">
+              <button type="button" class="lit-figure-btn" data-paper-id="${pId}" data-fig-id="${fig.id}">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                   <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -1924,6 +1924,16 @@ function renderLiteratureForWinner(siteId) {
       </div>
     `;
 
+    // 図表表示ボタンへの直接イベントバインド
+    card.querySelectorAll('.lit-figure-btn').forEach(fBtn => {
+      fBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const pIdVal = fBtn.getAttribute('data-paper-id');
+        const figIdVal = fBtn.getAttribute('data-fig-id');
+        window.openPaperFigureModal(pIdVal, figIdVal);
+      });
+    });
+
     // アコーディオン開閉
     const btn = card.querySelector('.lit-accordion-btn');
     const body = card.querySelector(`#body-${pId}`);
@@ -1951,40 +1961,62 @@ function renderLiteratureForWinner(siteId) {
  * 論文図表ライトボックスモーダル表示・非表示
  */
 window.openPaperFigureModal = function(paperId, figureId) {
-  const paper = LITERATURE_DATABASE[paperId];
-  if (!paper || !paper.figures) return;
+  try {
+    const paper = LITERATURE_DATABASE[paperId];
+    if (!paper || !paper.figures) return;
 
-  const fig = paper.figures.find(f => f.id === figureId);
-  if (!fig) return;
+    const fig = paper.figures.find(f => f.id === figureId);
+    if (!fig) return;
 
-  const modal = document.getElementById('paper-figure-modal');
-  const titleEl = document.getElementById('paper-fig-modal-title');
-  const captionEl = document.getElementById('paper-fig-modal-caption');
-  const bodyEl = document.getElementById('paper-fig-modal-body');
+    const modal = document.getElementById('paper-figure-modal');
+    const titleEl = document.getElementById('paper-fig-modal-title');
+    const captionEl = document.getElementById('paper-fig-modal-caption');
+    const bodyEl = document.getElementById('paper-fig-modal-body');
 
-  if (titleEl) titleEl.textContent = fig.title || '論文掲載図表';
-  if (captionEl) captionEl.textContent = fig.caption || '';
-  if (bodyEl) {
-    if (fig.svgContent) {
-      bodyEl.innerHTML = fig.svgContent;
-    } else if (fig.imgUrl) {
-      bodyEl.innerHTML = `<img src="${fig.imgUrl}" alt="${fig.title}" style="max-width:100%; height:auto; border-radius:8px;" />`;
+    if (titleEl) titleEl.textContent = fig.title || '論文掲載図表';
+    if (captionEl) captionEl.textContent = fig.caption || '';
+    if (bodyEl) {
+      if (fig.svgContent) {
+        bodyEl.innerHTML = fig.svgContent;
+      } else if (fig.imgUrl) {
+        bodyEl.innerHTML = `<img src="${fig.imgUrl}" alt="${fig.title}" style="max-width:100%; height:auto; border-radius:8px;" />`;
+      }
     }
-  }
 
-  if (modal) {
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    if (modal) {
+      modal.classList.add('open');
+      modal.style.setProperty('display', 'flex', 'important');
+      modal.style.setProperty('pointer-events', 'auto', 'important');
+      modal.style.setProperty('z-index', '999999', 'important');
+      document.body.style.overflow = 'hidden';
+    }
+  } catch(e) {
+    console.error('Paper figure modal open error:', e);
   }
 };
 
 window.closePaperFigureModal = function() {
   const modal = document.getElementById('paper-figure-modal');
   if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
+    modal.classList.remove('open');
+    modal.style.setProperty('display', 'none', 'important');
+    modal.style.setProperty('pointer-events', 'none', 'important');
   }
+  document.body.style.overflow = '';
+  document.body.style.removeProperty('overflow');
 };
+
+// モーダル背景クリックで自動クローズ
+document.addEventListener('DOMContentLoaded', () => {
+  const pModal = document.getElementById('paper-figure-modal');
+  if (pModal) {
+    pModal.addEventListener('click', (e) => {
+      if (e.target === pModal) {
+        window.closePaperFigureModal();
+      }
+    });
+  }
+});
 
 /**
  * 全医学文献ライブラリ（総合モーダル）の表示
