@@ -4118,3 +4118,29 @@ body[data-text-size="lg"] .intramural-badge {
     border-radius: 8px !important;
   }
 }
+
+/* 医学文献エビデンスライブラリ モーダル (画面左右最大全幅化) */
+#algorithm-modal {
+  z-index: 999999;
+  padding: 6px 2px !important;
+}
+
+#algorithm-modal .algorithm-modal-content {
+  max-width: 98vw !important;
+  width: 98vw !important;
+  max-height: 94vh !important;
+  padding: 1rem 0.75rem 1.75rem 0.75rem !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  #algorithm-modal {
+    padding: 2px 0 !important;
+  }
+  #algorithm-modal .algorithm-modal-content {
+    max-width: 99vw !important;
+    width: 99vw !important;
+    padding: 0.75rem 0.4rem 1.25rem 0.4rem !important;
+    border-radius: 8px !important;
+  }
+}

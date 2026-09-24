@@ -822,11 +822,11 @@
     </div>
   </div>
 
-  <!-- モーダル各種 -->
-  <div class="modal-overlay" id="algorithm-modal">
-    <div class="modal-content">
+  <!-- モーダル各種 (医学文献エビデンスライブラリ / アルゴリズム - 画面左右最大全幅化) -->
+  <div class="modal-overlay" id="algorithm-modal" style="padding: 6px 2px;">
+    <div class="modal-content algorithm-modal-content" style="max-width: 98vw; width: 98vw; max-height: 94vh; overflow-y: auto; display: flex; flex-direction: column; padding: 1rem 0.75rem 1.75rem 0.75rem; -webkit-overflow-scrolling: touch;">
       <button class="modal-close-btn" id="modal-close-btn">✕</button>
-      <h3 class="modal-title">12誘導ECG PVC起源推定アルゴリズム</h3>
+      <h3 class="modal-title" style="color: #38bdf8; font-weight: 800; font-size: 1.15rem; margin-bottom: 0.75rem;">12誘導ECG PVC起源推定アルゴリズム</h3>
       <div class="modal-body">
         <h4>1. 流出路起源 (Outflow Tract) 鑑別の主要基準</h4>
         <ul>
@@ -1158,6 +1158,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260925_v10175_naito_flowchart_max_full_width"></script>
+  <script type="module" src="./js/app.js?v=20260925_v10180_literature_library_max_full_width"></script>
 </body>
 </html>
