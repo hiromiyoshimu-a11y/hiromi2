@@ -848,8 +848,8 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="naito-flowchart-modal">
-    <div class="modal-content flowchart-modal-content" style="max-width: 980px; width: 95vw; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; padding: 1.25rem 1.25rem 2.5rem 1.25rem; -webkit-overflow-scrolling: touch;">
+  <div class="modal-overlay" id="naito-flowchart-modal" style="padding: 6px 2px;">
+    <div class="modal-content flowchart-modal-content" style="max-width: 98vw; width: 98vw; max-height: 94vh; overflow-y: auto; display: flex; flex-direction: column; padding: 0.75rem 0.5rem 1.5rem 0.5rem; -webkit-overflow-scrolling: touch;">
       <button class="modal-close-btn" id="naito-modal-close-btn" title="閉じる" onclick="if(window.closeNaitoModal){window.closeNaitoModal();return false;}">✕</button>
       
       <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
@@ -860,7 +860,7 @@
         </button>
       </div>
 
-      <div class="flowchart-viewer-container" id="naito-flowchart-container" style="flex-shrink: 0; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 12px; min-height: 480px; max-height: 65vh; -webkit-overflow-scrolling: touch;">
+      <div class="flowchart-viewer-container" id="naito-flowchart-container" style="flex-shrink: 0; overflow: auto; position: relative; background: #070c18; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); text-align: center; padding: 4px; min-height: 480px; max-height: 72vh; width: 100%; -webkit-overflow-scrolling: touch;">
         <span class="zoom-hint-badge" style="position: absolute; top: 12px; left: 12px; background: rgba(15, 23, 42, 0.9); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.5); padding: 5px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800; pointer-events: none; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
           💡 タップで拡大 / 縮小 (スクロール・移動可能)
         </span>
@@ -1158,6 +1158,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260925_v10170_balanced_header_tab_icon_gap"></script>
+  <script type="module" src="./js/app.js?v=20260925_v10175_naito_flowchart_max_full_width"></script>
 </body>
 </html>

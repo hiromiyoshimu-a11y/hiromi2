@@ -4092,3 +4092,29 @@ body[data-text-size="lg"] .intramural-badge {
   transform: scale(1.08);
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
 }
+
+/* 内藤フローチャートモーダル (画面左右最大全幅化) */
+#naito-flowchart-modal {
+  z-index: 999999;
+  padding: 6px 2px !important;
+}
+
+#naito-flowchart-modal .flowchart-modal-content {
+  max-width: 98vw !important;
+  width: 98vw !important;
+  max-height: 94vh !important;
+  padding: 0.75rem 0.5rem 1.5rem 0.5rem !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  #naito-flowchart-modal {
+    padding: 2px 0 !important;
+  }
+  #naito-flowchart-modal .flowchart-modal-content {
+    max-width: 99vw !important;
+    width: 99vw !important;
+    padding: 0.5rem 0.25rem 1.25rem 0.25rem !important;
+    border-radius: 8px !important;
+  }
+}
