@@ -425,18 +425,26 @@ function initNaitoFlowchartZoom() {
   const container = document.getElementById('naito-flowchart-container');
   const imgWrapper = document.getElementById('naito-img-wrapper');
   const img = document.getElementById('naito-flowchart-img');
+  const svg = document.getElementById('naito-flowchart-svg');
   const zoomBtn = document.getElementById('btn-toggle-naito-zoom');
   const zoomLabel = document.getElementById('naito-zoom-btn-label');
 
-  if (!container || !imgWrapper || !img) return;
+  if (!container || !imgWrapper) return;
 
   let isZoomed = false;
 
   function toggleZoom() {
     isZoomed = !isZoomed;
     if (isZoomed) {
-      img.style.maxWidth = 'none';
-      img.style.width = '195%';
+      imgWrapper.style.width = '195%';
+      if (img) {
+        img.style.maxWidth = 'none';
+        img.style.width = '100%';
+      }
+      if (svg) {
+        svg.style.maxWidth = 'none';
+        svg.style.width = '100%';
+      }
       imgWrapper.style.cursor = 'zoom-out';
       if (zoomLabel) zoomLabel.textContent = '標準サイズに縮小';
       if (zoomBtn) {
@@ -445,8 +453,15 @@ function initNaitoFlowchartZoom() {
         zoomBtn.style.color = '#fbbf24';
       }
     } else {
-      img.style.maxWidth = '100%';
-      img.style.width = '100%';
+      imgWrapper.style.width = '100%';
+      if (img) {
+        img.style.maxWidth = '100%';
+        img.style.width = '100%';
+      }
+      if (svg) {
+        svg.style.maxWidth = '100%';
+        svg.style.width = '100%';
+      }
       imgWrapper.style.cursor = 'zoom-in';
       if (zoomLabel) zoomLabel.textContent = '拡大表示 (Zoom)';
       if (zoomBtn) {
@@ -459,10 +474,9 @@ function initNaitoFlowchartZoom() {
     }
   }
 
-  // 画像タップ/クリックで拡大縮小
+  imgWrapper.removeEventListener('click', toggleZoom);
   imgWrapper.addEventListener('click', toggleZoom);
 
-  // 拡大ボタンクリックで拡大縮小
   if (zoomBtn) {
     zoomBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -509,10 +523,38 @@ function initTextSizeManager() {
 
   // ボタンクリックで 順環切替 (標準 ➔ 大 ➔ 小 ➔ 標準)
   if (btnToggle) {
-    btnToggle.addEventListener('click', () => {
+    btnToggle.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      // 切り替え前のボタンのビューポート内Y位置とスクロール位置を記憶
+      const rectBefore = btnToggle.getBoundingClientRect();
+      const initialScrollY = window.scrollY;
+
       const currentIndex = SIZE_CYCLE.indexOf(currentSize);
       const nextIndex = (currentIndex + 1) % SIZE_CYCLE.length;
       applySize(SIZE_CYCLE[nextIndex]);
+
+      // DOMサイズ変化による視覚位置のずれを即座に完全無効化
+      const rectAfter = btnToggle.getBoundingClientRect();
+      const deltaY = rectAfter.top - rectBefore.top;
+      if (Math.abs(deltaY) > 0) {
+        window.scrollTo({
+          top: initialScrollY + deltaY,
+          behavior: 'instant'
+        });
+      }
+
+      // レンダリング後の微小ズレも二重補正して視覚位置を固定
+      requestAnimationFrame(() => {
+        const rectFinal = btnToggle.getBoundingClientRect();
+        const finalDelta = rectFinal.top - rectBefore.top;
+        if (Math.abs(finalDelta) > 0.5) {
+          window.scrollBy({
+            top: finalDelta,
+            behavior: 'instant'
+          });
+        }
+      });
     });
   }
 }

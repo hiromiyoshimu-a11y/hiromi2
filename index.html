@@ -154,10 +154,10 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10060_vector_flowchart_image">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10060_vector_flowchart_image">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10060_vector_flowchart_image">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10060_vector_flowchart_image">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10075_inline_svg_scroll_lock">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10075_inline_svg_scroll_lock">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10075_inline_svg_scroll_lock">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10075_inline_svg_scroll_lock">
 </head>
 <body>
   <div class="app-container">
@@ -838,7 +838,170 @@
           💡 タップで拡大 / 縮小 (スクロール・移動可能)
         </span>
         <div class="flowchart-img-wrapper" id="naito-img-wrapper" style="display: inline-block; cursor: zoom-in; text-align: center; width: 100%;">
-          <img src="assets/flowchart_naito2005.svg" id="naito-flowchart-img" alt="内藤 2005 流出路7ステップ局在診断フローチャート" style="max-width: 100%; height: auto; display: block; margin: 0 auto; border-radius: 4px; transition: all 0.3s ease;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1560" id="naito-flowchart-svg" style="width: 100%; height: auto; max-width: 100%; display: block; margin: 0 auto; border-radius: 4px; transition: all 0.3s ease;">
+            <rect width="100%" height="100%" fill="#070c18"/>
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(56, 189, 248, 0.08)" stroke-width="1"/>
+              </pattern>
+              <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#0284c7"/>
+                <stop offset="100%" stop-color="#0369a1"/>
+              </linearGradient>
+              <linearGradient id="rvotGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="rgba(56, 189, 248, 0.25)"/>
+                <stop offset="100%" stop-color="rgba(14, 165, 233, 0.35)"/>
+              </linearGradient>
+              <linearGradient id="lvotGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="rgba(245, 158, 11, 0.25)"/>
+                <stop offset="100%" stop-color="rgba(217, 119, 6, 0.35)"/>
+              </linearGradient>
+            </defs>
+
+            <rect width="100%" height="100%" fill="url(#grid)"/>
+
+            <!-- タイトルヘッダー -->
+            <rect x="50" y="40" width="1100" height="105" rx="16" fill="url(#headerGrad)" stroke="#38bdf8" stroke-width="2"/>
+            <text x="600" y="84" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="900" fill="#ffffff" text-anchor="middle">内藤 2005 流出路起源PVC/VT 7ステップ局在診断フローチャート</text>
+            <text x="600" y="120" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="700" fill="#bae6fd" text-anchor="middle">Naito S, et al. Therapeutic Research. 2005;26(8):1690-1697 | 12誘導心電図ステップ同定アルゴリズム</text>
+
+            <!-- Step 1 -->
+            <g transform="translate(600, 180)">
+              <rect x="-280" y="0" width="560" height="75" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2.5"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="18" font-weight="800" fill="#38bdf8" text-anchor="middle">STEP 1: II, III, aVF 誘導の極性 (電気軸)</text>
+              <text x="0" y="56" font-family="sans-serif" font-size="14" fill="#cbd5e1" text-anchor="middle">下方軸 (R優位) ➔ 流出路 (OT) 起源 | 上方軸 (QS優位) ➔ 流入路/尖部/環状部</text>
+            </g>
+
+            <!-- Line Step1 -> Step2 -->
+            <path d="M 600 255 L 600 295" stroke="#38bdf8" stroke-width="3" fill="none"/>
+
+            <!-- Step 2 -->
+            <g transform="translate(600, 295)">
+              <rect x="-320" y="0" width="640" height="80" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2.5"/>
+              <text x="0" y="34" font-family="sans-serif" font-size="18" font-weight="800" fill="#f59e0b" text-anchor="middle">STEP 2: V1 誘導の形態 (脚ブロック型)</text>
+              <text x="0" y="60" font-family="sans-serif" font-size="14" fill="#cbd5e1" text-anchor="middle">LBBB型 (rS/QS型) ➔ 右室流出路 (RVOT) 主示唆 | RBBB型 (R/Rs型) ➔ 左室流出路 (LVOT) 主示唆</text>
+            </g>
+
+            <!-- 分岐 Lines Step2 -> Step3 (Left & Right) -->
+            <path d="M 400 375 L 300 425" stroke="#38bdf8" stroke-width="3" fill="none"/>
+            <path d="M 800 375 L 900 425" stroke="#f59e0b" stroke-width="3" fill="none"/>
+
+            <!-- Step 3 Left (RVOT branch) -->
+            <g transform="translate(300, 425)">
+              <rect x="-230" y="0" width="460" height="115" rx="12" fill="url(#rvotGrad)" stroke="#38bdf8" stroke-width="2"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="16" font-weight="800" fill="#38bdf8" text-anchor="middle">STEP 3: LBBB型 胸部移行帯 (Transition)</text>
+              <text x="0" y="58" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• V4以降 移行 (V4-V6) ➔ 右室自由壁 (Free Wall)</text>
+              <text x="0" y="82" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• V3 移行 ➔ 右室中隔 (Septum) / 肺動脈弁上</text>
+              <text x="0" y="103" font-family="sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">• V1-V2 早期移行 ➔ LVOT / 冠尖 (LCC/RCC)</text>
+            </g>
+
+            <!-- Step 3 Right (LVOT branch) -->
+            <g transform="translate(900, 425)">
+              <rect x="-230" y="0" width="460" height="115" rx="12" fill="url(#lvotGrad)" stroke="#f59e0b" stroke-width="2"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="16" font-weight="800" fill="#f59e0b" text-anchor="middle">STEP 3: RBBB型 LVOT起源の分岐</text>
+              <text x="0" y="58" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• V1 R波全陽性 (No S波) ➔ 左室後下壁/大動脈二尖</text>
+              <text x="0" y="82" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• V1 Rs/rSR'型 ➔ 大動脈弁二尖部 (LCC-RCC交差)</text>
+              <text x="0" y="103" font-family="sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">• V1-V3 振幅大 ➔ 二尖弁環 (MA) / 僧帽弁前尖</text>
+            </g>
+
+            <!-- Lines -> Step 4 -->
+            <path d="M 300 540 L 300 580" stroke="#38bdf8" stroke-width="3" fill="none"/>
+            <path d="M 900 540 L 900 580" stroke="#f59e0b" stroke-width="3" fill="none"/>
+
+            <!-- Step 4 Left (RVOT Detail) -->
+            <g transform="translate(300, 580)">
+              <rect x="-230" y="0" width="460" height="105" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="16" font-weight="800" fill="#38bdf8" text-anchor="middle">STEP 4: I 誘導の極性 (前壁 vs 後壁)</text>
+              <text x="0" y="60" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• I 誘導 陽性 (R波大) ➔ RVOT 前壁 (Anterior)</text>
+              <text x="0" y="84" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• I 誘導 陰性/二相性 ➔ RVOT 後壁 (Posterior)</text>
+            </g>
+
+            <!-- Step 4 Right (LVOT Cusp Detail) -->
+            <g transform="translate(900, 580)">
+              <rect x="-230" y="0" width="460" height="105" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="16" font-weight="800" fill="#f59e0b" text-anchor="middle">STEP 4: 大動脈冠尖 (Aortic Cusp) 鑑別</text>
+              <text x="0" y="60" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• LCC (左冠尖): I 誘導深いS波, aVL/aVR S/R比大</text>
+              <text x="0" y="84" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• RCC (右冠尖): I 誘導R波陽性, III/II比小</text>
+            </g>
+
+            <!-- Lines -> Step 5 -->
+            <path d="M 300 685 L 300 725" stroke="#38bdf8" stroke-width="3" fill="none"/>
+            <path d="M 900 685 L 900 725" stroke="#f59e0b" stroke-width="3" fill="none"/>
+
+            <!-- Step 5 Left (V2S / V3R Ratio) -->
+            <g transform="translate(300, 725)">
+              <rect x="-230" y="0" width="460" height="105" rx="12" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="16" font-weight="800" fill="#38bdf8" text-anchor="middle">STEP 5: V2S / V3R 振幅比指標</text>
+              <text x="0" y="60" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• V2S / V3R > 1.5 ➔ RVOT 起源確定</text>
+              <text x="0" y="84" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• V2S / V3R ≤ 1.5 ➔ LVOT / 大動脈冠尖起源示唆</text>
+            </g>
+
+            <!-- Step 5 Right (MDI & QRS Duration) -->
+            <g transform="translate(900, 725)">
+              <rect x="-230" y="0" width="460" height="105" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="16" font-weight="800" fill="#f59e0b" text-anchor="middle">STEP 5: MDI (Deflection Index) &amp; QRS幅</text>
+              <text x="0" y="60" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• MDI ≥ 0.55 ➔ 心外膜側 (Epicardial) 起源</text>
+              <text x="0" y="84" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• QRS幅 > 160ms ➔ 心外膜側 / 拡張領域</text>
+            </g>
+
+            <!-- Lines -> Step 6 -->
+            <path d="M 300 830 L 300 870" stroke="#38bdf8" stroke-width="3" fill="none"/>
+            <path d="M 900 830 L 900 870" stroke="#f59e0b" stroke-width="3" fill="none"/>
+
+            <!-- Step 6 Left (Ito 2003 Index) -->
+            <g transform="translate(300, 870)">
+              <rect x="-230" y="0" width="460" height="115" rx="12" fill="#1e293b" stroke="#10b981" stroke-width="2"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="16" font-weight="800" fill="#10b981" text-anchor="middle">STEP 6: Ito 2003 精密鑑別指標 (b/a, c/d)</text>
+              <text x="0" y="58" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• R-wave duration index (b/a) ≥ 50% ➔ LVOT</text>
+              <text x="0" y="82" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• R/S amplitude index (c/d) ≥ 30% ➔ LVOT (LCC/RCC)</text>
+              <text x="0" y="103" font-family="sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">• I誘導 S波なし (中隔特異度 96%)</text>
+            </g>
+
+            <!-- Step 6 Right (Special Sites: AMC / GCV / PA) -->
+            <g transform="translate(900, 870)">
+              <rect x="-230" y="0" width="460" height="115" rx="12" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+              <text x="0" y="32" font-family="sans-serif" font-size="16" font-weight="800" fill="#a855f7" text-anchor="middle">STEP 6: 特殊起源部位 (AMC / GCV / PA)</text>
+              <text x="0" y="58" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• AMC (大動脈弁僧帽弁連続部): qR型, I陽性</text>
+              <text x="0" y="82" font-family="sans-serif" font-size="14" fill="#f8fafc" text-anchor="middle">• GCV (大心静脈部): V1 R/S大, aVR deep Q波</text>
+              <text x="0" y="103" font-family="sans-serif" font-size="13" fill="#cbd5e1" text-anchor="middle">• PA (肺動脈弁上): II/III/aVF高R波, aVR/aVL S波深</text>
+            </g>
+
+            <!-- Lines -> Step 7 Result Summary -->
+            <path d="M 300 985 L 450 1030" stroke="#10b981" stroke-width="3" fill="none"/>
+            <path d="M 900 985 L 750 1030" stroke="#a855f7" stroke-width="3" fill="none"/>
+
+            <!-- Step 7 Summary Card -->
+            <g transform="translate(600, 1030)">
+              <rect x="-510" y="0" width="1020" height="480" rx="20" fill="#0f172a" stroke="#38bdf8" stroke-width="3"/>
+              <text x="0" y="44" font-family="sans-serif" font-size="22" font-weight="900" fill="#38bdf8" text-anchor="middle">STEP 7: 7ステップ局在同定の総合臨床チャート判定マップ</text>
+              
+              <!-- RVOT 7 sites -->
+              <rect x="-475" y="70" width="455" height="380" rx="12" fill="rgba(56, 189, 248, 0.12)" stroke="rgba(56, 189, 248, 0.45)" stroke-width="1.5"/>
+              <text x="-247" y="104" font-family="sans-serif" font-size="17" font-weight="800" fill="#38bdf8" text-anchor="middle">🫀 右室流出路 (RVOT) 主要起源 7部位</text>
+              
+              <text x="-455" y="145" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">1. RVOT 前壁 (Anterior): I 誘導陽性 / V4-V6 移行</text>
+              <text x="-455" y="182" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">2. RVOT 後壁 (Posterior): I 誘導陰性・二相性 / aVL 陽性</text>
+              <text x="-455" y="219" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">3. RVOT 前中隔 (Ant-Septum): V3-V4 移行 / I 陽性</text>
+              <text x="-455" y="256" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">4. RVOT 後中隔 (Post-Septum): V2-V3 移行 / III/II比 大</text>
+              <text x="-455" y="293" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">5. RVOT 自由壁 (Free Wall): 下壁誘導ノッチ / QRS幅広</text>
+              <text x="-455" y="330" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">6. 肺動脈弁上 (Pulmonary Artery): II,III,aVF 超高R波</text>
+              <text x="-455" y="367" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">7. His束近傍 (Para-Hisian): V1 rS型 / QRS幅比較的小</text>
+              
+              <!-- LVOT 8 sites -->
+              <rect x="20" y="70" width="455" height="380" rx="12" fill="rgba(245, 158, 11, 0.12)" stroke="rgba(245, 158, 11, 0.45)" stroke-width="1.5"/>
+              <text x="247" y="104" font-family="sans-serif" font-size="17" font-weight="800" fill="#fbbf24" text-anchor="middle">🫀 左室流出路 (LVOT) 主要起源 8部位</text>
+
+              <text x="40" y="145" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">8. LCC (左冠尖): V1 R波 / I 誘導 S波優位</text>
+              <text x="40" y="182" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">9. RCC (右冠尖): V1 R/S大 / I 誘導 R波優位</text>
+              <text x="40" y="219" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">10. NCC (無冠尖): V1 rsR'型 / 下方軸極めて高</text>
+              <text x="40" y="256" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">11. LCC-RCC Junction: V1-V2 早期移行 / Rs型</text>
+              <text x="40" y="293" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">12. AMC (大動脈弁僧帽弁連続部): V1 RBBB型 / I 陽性</text>
+              <text x="40" y="330" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">13. LVOT 心外膜 (Epicardial): MDI > 0.55 / pseudo-delta</text>
+              <text x="40" y="404" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">14. 大心静脈 (GCV/AIV): V1 R波高 / aVR Q先行</text>
+              <text x="40" y="441" font-family="sans-serif" font-size="14" font-weight="700" fill="#f8fafc">15. LVOT サミット (LV Summit): 切除難易度高 / 外膜側</text>
+            </g>
+          </svg>
+          <img src="assets/flowchart_naito2005.jpg?v=20260924_v10070" id="naito-flowchart-img" alt="内藤 2005 流出路7ステップ局在診断フローチャート" style="max-width: 100%; height: auto; display: block; margin: 15px auto 0; border-radius: 4px; transition: all 0.3s ease;">
         </div>
       </div>
     </div>
@@ -905,6 +1068,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10060_vector_flowchart_image"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10075_inline_svg_scroll_lock"></script>
 </body>
 </html>
