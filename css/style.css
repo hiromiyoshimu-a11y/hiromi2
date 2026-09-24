@@ -282,8 +282,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  padding: 6px 2px;
+  gap: 5px;
+  padding: 6px 3px;
   min-height: 42px;
   height: auto;
   width: 100%;
@@ -333,6 +333,7 @@ body {
 
 .nav-tab-btn .nav-icon {
   flex-shrink: 0;
+  margin-right: 3px;
   transition: transform 0.2s ease;
 }
 
