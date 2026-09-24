@@ -1861,6 +1861,31 @@ function renderLiteratureForWinner(siteId) {
     const pId = paper.id;
     const s = paper.summaryJa;
 
+    let figuresHtml = '';
+    if (paper.figures && paper.figures.length > 0) {
+      figuresHtml = `
+        <div class="lit-figures-bar">
+          <span class="lit-figures-label">掲載図表 (タップで高解像度拡大):</span>
+          <div class="lit-figures-btns">
+            ${paper.figures.map(fig => `
+              <button type="button" class="lit-figure-btn" onclick="openPaperFigureModal('${pId}', '${fig.id}')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <span class="fig-badge">${fig.badge || '図'}</span>
+                <span class="fig-name">${fig.title ? fig.title.replace(/^図\d+:\s*/, '') : '図を表示'}</span>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:auto; opacity:0.8;">
+                  <path d="M15 3h6v6M14 10L21 3M9 21H3v-6M10 14L3 21"/>
+                </svg>
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
     card.innerHTML = `
       <div class="lit-header">
         <h4 class="lit-title-text">${paper.title}</h4>
@@ -1876,6 +1901,8 @@ function renderLiteratureForWinner(siteId) {
       <div class="lit-citation">${paper.authors} — <em>${paper.journal}</em> (${paper.year})</div>
       <div class="lit-headline-badge">${s.headline}</div>
       
+      ${figuresHtml}
+
       <button class="lit-accordion-btn" data-target="body-${pId}">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="6 9 12 15 18 9"/>
@@ -1919,6 +1946,45 @@ function renderLiteratureForWinner(siteId) {
     dom.literatureContainer.appendChild(card);
   });
 }
+
+/**
+ * 論文図表ライトボックスモーダル表示・非表示
+ */
+window.openPaperFigureModal = function(paperId, figureId) {
+  const paper = LITERATURE_DATABASE[paperId];
+  if (!paper || !paper.figures) return;
+
+  const fig = paper.figures.find(f => f.id === figureId);
+  if (!fig) return;
+
+  const modal = document.getElementById('paper-figure-modal');
+  const titleEl = document.getElementById('paper-fig-modal-title');
+  const captionEl = document.getElementById('paper-fig-modal-caption');
+  const bodyEl = document.getElementById('paper-fig-modal-body');
+
+  if (titleEl) titleEl.textContent = fig.title || '論文掲載図表';
+  if (captionEl) captionEl.textContent = fig.caption || '';
+  if (bodyEl) {
+    if (fig.svgContent) {
+      bodyEl.innerHTML = fig.svgContent;
+    } else if (fig.imgUrl) {
+      bodyEl.innerHTML = `<img src="${fig.imgUrl}" alt="${fig.title}" style="max-width:100%; height:auto; border-radius:8px;" />`;
+    }
+  }
+
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+};
+
+window.closePaperFigureModal = function() {
+  const modal = document.getElementById('paper-figure-modal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+};
 
 /**
  * 全医学文献ライブラリ（総合モーダル）の表示

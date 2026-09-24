@@ -22,7 +22,75 @@ export const LITERATURE_DATABASE = {
       performance: 'R-wave duration index ≥0.50: 感度・特異度ともに極めて高く、R/S amplitude index ≥0.30 と併用することで鑑別精度 90%以上',
       mechanism: '左冠尖（LCC）は大動脈洞の左後方に位置するため、興奮初期から前胸部電極（V1, V2）方向へ向かうベクトルを生じ、太く高い初期R波（duration index ≥50%, amplitude index ≥30%）を形成する。一方、RVOTでは興奮が電極から遠ざかるため、R波は細く低く（幅<50%, 波高<30%）、深いS波を呈する。',
       clinicalSignificance: '術前に右室アプローチ（RVOTマッピング）か左心アプローチ（逆行性大動脈弁洞マッピング・CAG準備）かを決定づける最高峰の基準として世界中で広く臨床応用されている。'
-    }
+    },
+    figures: [
+      {
+        id: 'ito_2003_fig1',
+        badge: '図1',
+        title: '図1: 伊藤基準 (R-duration index & R/S-amplitude index) 計測モデル',
+        caption: '前胸部誘導 (V1/V2) における R波幅割合 (b/a ≥ 50%) および R/S振幅比 (c/d ≥ 30%) による RVOT vs LCC (LVOT) 鑑別法。',
+        svgContent: `<svg viewBox="0 0 760 380" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; background:#0f172a; border-radius:12px; padding:12px; border:1px solid rgba(56,189,248,0.3); font-family:sans-serif;">
+          <rect width="100%" height="100%" fill="#0f172a" rx="12"/>
+          <pattern id="grid1" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(56,189,248,0.08)" stroke-width="1"/>
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#grid1)" />
+          <text x="380" y="32" fill="#38bdf8" font-size="17" font-weight="bold" text-anchor="middle">V1 / V2 誘導における波形計測パラメータ（伊藤基準）</text>
+          
+          <g transform="translate(40, 50)">
+            <rect x="0" y="0" width="310" height="280" fill="rgba(30,41,59,0.85)" rx="10" stroke="rgba(244,63,94,0.4)"/>
+            <text x="155" y="30" fill="#f43f5e" font-size="15" font-weight="bold" text-anchor="middle">【RVOT 中隔起源】 (R-Duration < 50%)</text>
+            <path d="M 30 180 L 70 180 L 90 140 L 105 180 L 150 250 L 180 180 L 280 180" fill="none" stroke="#f43f5e" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="70" y1="200" x2="180" y2="200" stroke="#fb7185" stroke-width="2" stroke-dasharray="2,2"/>
+            <text x="125" y="220" fill="#fb7185" font-size="12" text-anchor="middle">QRS幅 (a)</text>
+            <line x1="70" y1="130" x2="105" y2="130" stroke="#38bdf8" stroke-width="2"/>
+            <text x="87" y="120" fill="#38bdf8" font-size="12" text-anchor="middle">R幅 (b)</text>
+            <text x="155" y="260" fill="#cbd5e1" font-size="13" text-anchor="middle">R duration ratio (b/a) < 0.50</text>
+          </g>
+          
+          <g transform="translate(410, 50)">
+            <rect x="0" y="0" width="310" height="280" fill="rgba(30,41,59,0.85)" rx="10" stroke="rgba(34,197,94,0.4)"/>
+            <text x="155" y="30" fill="#4ade80" font-size="15" font-weight="bold" text-anchor="middle">【LCC / LVOT 起源】 (R-Duration ≥ 50%)</text>
+            <path d="M 30 180 L 60 180 L 120 70 L 165 180 L 195 240 L 225 180 L 280 180" fill="none" stroke="#4ade80" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="60" y1="200" x2="225" y2="200" stroke="#86efac" stroke-width="2" stroke-dasharray="2,2"/>
+            <text x="142" y="220" fill="#86efac" font-size="12" text-anchor="middle">QRS幅 (a)</text>
+            <line x1="60" y1="60" x2="165" y2="60" stroke="#38bdf8" stroke-width="2"/>
+            <text x="112" y="50" fill="#38bdf8" font-size="12" text-anchor="middle">R幅 (b) ≥ 50%</text>
+            <text x="155" y="260" fill="#4ade80" font-size="13" font-weight="bold" text-anchor="middle">R duration ratio (b/a) ≥ 0.50 (左側判定)</text>
+          </g>
+        </svg>`
+      },
+      {
+        id: 'ito_2003_fig2',
+        badge: '図2',
+        title: '図2: 12誘導心電図の実測対比（RVOT vs LCC）',
+        caption: 'LCC起源ではV1/V2において初期R波が著明に肥大化し（R/S比 ≥ 0.30）、I誘導でS波が欠如する特徴を示す。',
+        svgContent: `<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; background:#0f172a; border-radius:12px; padding:12px; border:1px solid rgba(56,189,248,0.3); font-family:sans-serif;">
+          <rect width="100%" height="100%" fill="#0f172a" rx="12"/>
+          <text x="380" y="30" fill="#e2e8f0" font-size="16" font-weight="bold" text-anchor="middle">RVOT中隔 vs LCC起源 12誘導波形対比図</text>
+          <g transform="translate(30, 50)">
+            <rect x="0" y="0" width="330" height="220" fill="rgba(15,23,42,0.9)" rx="8" stroke="rgba(239,68,68,0.4)"/>
+            <text x="165" y="28" fill="#f87171" font-size="14" font-weight="bold" text-anchor="middle">RVOT中隔起源</text>
+            <text x="20" y="60" fill="#cbd5e1" font-size="13">・V1/V2: rSパターン (R幅 < 50%)</text>
+            <text x="20" y="90" fill="#cbd5e1" font-size="13">・R/S 振幅比: < 0.30</text>
+            <text x="20" y="120" fill="#cbd5e1" font-size="13">・I誘導: s波を認めることが多い (64%)</text>
+            <text x="20" y="150" fill="#cbd5e1" font-size="13">・胸部移行帯: V3 〜 V4</text>
+            <rect x="20" y="168" width="290" height="34" fill="rgba(239,68,68,0.2)" rx="6"/>
+            <text x="165" y="190" fill="#fca5a5" font-size="12" font-weight="bold" text-anchor="middle">右心系アブレーション第一選択</text>
+          </g>
+          <g transform="translate(400, 50)">
+            <rect x="0" y="0" width="330" height="220" fill="rgba(15,23,42,0.9)" rx="8" stroke="rgba(34,197,94,0.4)"/>
+            <text x="165" y="28" fill="#4ade80" font-size="14" font-weight="bold" text-anchor="middle">LCC (左バルサルバ洞) 起源</text>
+            <text x="20" y="60" fill="#cbd5e1" font-size="13">・V1/V2: 太いR波 (R幅 ≥ 50%)</text>
+            <text x="20" y="90" fill="#cbd5e1" font-size="13">・R/S 振幅比: ≥ 0.30 (高R波)</text>
+            <text x="20" y="120" fill="#cbd5e1" font-size="13">・I誘導: s波なし (96%でS波欠如)</text>
+            <text x="20" y="150" fill="#cbd5e1" font-size="13">・胸部移行帯: V1 〜 V2 (早期移行)</text>
+            <rect x="20" y="168" width="290" height="34" fill="rgba(34,197,94,0.2)" rx="6"/>
+            <text x="165" y="190" fill="#86efac" font-size="12" font-weight="bold" text-anchor="middle">大動脈弁洞・左心アプローチ準備</text>
+          </g>
+        </svg>`
+      }
+    ]
   },
 
   ito_lvepi_2003: {
@@ -64,7 +132,35 @@ export const LITERATURE_DATABASE = {
       performance: '感度 86%、特異度 92%',
       mechanism: '右室自由壁の厚さはわずか2〜3mmと薄く、そこから中隔および左室全体へ心室筋伝播するまでに時間差が生じるため、下壁誘導でR波が二峰性（R-R\' > 20ms）に解離する。また前胸部電極直下から遠ざかるためV1-3で非常に深いS波を呈する。',
       clinicalSignificance: 'RVOT自由壁での過剰なコンタクトフォース通電は急性心タンポナーデに直結するため、術前の本所見確認により出力制限・接触圧モニターを徹底する。'
-    }
+    },
+    figures: [
+      {
+        id: 'yamashina_2004_fig1',
+        badge: '図1',
+        title: '図1: RVOT自由壁における下壁R波ノッチ (R-R\' > 20ms)',
+        caption: '右室自由壁の薄い心筋伝播による興奮遅延。下壁誘導 (II, III, aVF) のR波に2峰性ノッチ（頂点間 > 20ms）が生じる。',
+        svgContent: `<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; background:#0f172a; border-radius:12px; padding:12px; border:1px solid rgba(245,158,11,0.4); font-family:sans-serif;">
+          <rect width="100%" height="100%" fill="#0f172a" rx="12"/>
+          <text x="380" y="30" fill="#fbbf24" font-size="16" font-weight="bold" text-anchor="middle">RVOT自由壁 vs RVOT中隔起源の下壁誘導R波形態 (山科基準)</text>
+          <g transform="translate(40, 50)">
+            <rect x="0" y="0" width="310" height="220" fill="rgba(30,41,59,0.85)" rx="8" stroke="rgba(245,158,11,0.5)"/>
+            <text x="155" y="28" fill="#fbbf24" font-size="14" font-weight="bold" text-anchor="middle">【RVOT 自由壁起源】 (R-R' ノッチあり)</text>
+            <path d="M 40 160 L 80 160 L 110 50 L 125 90 L 145 40 L 175 160 L 260 160" fill="none" stroke="#fbbf24" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="110" y1="40" x2="110" y2="105" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2,2"/>
+            <line x1="145" y1="30" x2="145" y2="105" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="2,2"/>
+            <line x1="110" y1="100" x2="145" y2="100" stroke="#38bdf8" stroke-width="2"/>
+            <text x="127" y="122" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">R-R' > 20ms</text>
+            <text x="155" y="200" fill="#cbd5e1" font-size="12" text-anchor="middle">※自由壁の薄い心筋伝播による伝導遅延</text>
+          </g>
+          <g transform="translate(410, 50)">
+            <rect x="0" y="0" width="310" height="220" fill="rgba(30,41,59,0.85)" rx="8" stroke="rgba(56,189,248,0.3)"/>
+            <text x="155" y="28" fill="#38bdf8" font-size="14" font-weight="bold" text-anchor="middle">【RVOT 中隔起源】 (単峰性 Smooth R)</text>
+            <path d="M 40 160 L 90 160 L 130 35 L 170 160 L 260 160" fill="none" stroke="#38bdf8" stroke-width="4.5" stroke-linecap="round"/>
+            <text x="155" y="200" fill="#cbd5e1" font-size="12" text-anchor="middle">※刺激伝導系に近接しシャープかつスムーズ</text>
+          </g>
+        </svg>`
+      }
+    ]
   },
 
   lin_2008: {
@@ -127,7 +223,37 @@ export const LITERATURE_DATABASE = {
       performance: '感度 95%、特異度 100%（胸部移行帯がV3の症例群において）',
       mechanism: '解剖学的に左室流出路は大動脈弁直下にあり、右室流出路の後方に位置する。左室側からの興奮は胸部前面電極（V2）に向かって早期に前向きの電気ベクトルを生じるため、洞調律と比較してV2のR波比率が相対的に著増する。',
       clinicalSignificance: 'カテーテルアブレーション術前に左心系（大動脈弁逆行性または心房中隔穿刺）アプローチが必要となる確率を極めて正確に予測でき、手技時間短縮と合併症低減に直結する。'
-    }
+    },
+    figures: [
+      {
+        id: 'betensky_2011_fig1',
+        badge: '図1',
+        title: '図1: V2 Transition Ratio (V2 S/R比) 計算モデル',
+        caption: '胸部誘導移行帯がV3である境界例において、(PVCのV2 R/[R+S]) ÷ (SRのV2 R/[R+S]) を算出。比率 ≥ 0.6 で LVOT 起源と確定。',
+        svgContent: `<svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; background:#0f172a; border-radius:12px; padding:12px; border:1px solid rgba(168,85,247,0.4); font-family:sans-serif;">
+          <rect width="100%" height="100%" fill="#0f172a" rx="12"/>
+          <text x="380" y="30" fill="#c084fc" font-size="16" font-weight="bold" text-anchor="middle">V2 Transition Ratio 計算アルゴリズム (Betensky et al. 2011)</text>
+          <g transform="translate(40, 55)">
+            <rect x="0" y="0" width="680" height="215" fill="rgba(30,41,59,0.85)" rx="10" stroke="rgba(168,85,247,0.3)"/>
+            <text x="340" y="35" fill="#e9d5ff" font-size="14" font-weight="bold" text-anchor="middle">【適応要件】 胸部移行帯が V3 に位置する流出路不整脈 (移行帯V3症例)</text>
+            
+            <rect x="40" y="60" width="600" height="55" fill="rgba(15,23,42,0.9)" rx="6" stroke="rgba(192,132,252,0.4)"/>
+            <text x="340" y="93" fill="#c084fc" font-size="15" font-weight="bold" text-anchor="middle">V2 Transition Ratio = (PVC時の V2 R / [R+S]) ÷ (洞調律時の V2 R / [R+S])</text>
+            
+            <g transform="translate(40, 130)">
+              <rect x="0" y="0" width="285" height="65" fill="rgba(34,197,94,0.15)" rx="6" stroke="rgba(34,197,94,0.4)"/>
+              <text x="142" y="28" fill="#4ade80" font-size="14" font-weight="bold" text-anchor="middle">比率 ≥ 0.60 ➔ LVOT 起源</text>
+              <text x="142" y="50" fill="#86efac" font-size="12" text-anchor="middle">感度 95% / 特異度 100%</text>
+            </g>
+            <g transform="translate(355, 130)">
+              <rect x="0" y="0" width="285" height="65" fill="rgba(239,68,68,0.15)" rx="6" stroke="rgba(239,68,68,0.4)"/>
+              <text x="142" y="28" fill="#f87171" font-size="14" font-weight="bold" text-anchor="middle">比率 < 0.60 ➔ RVOT 起源</text>
+              <text x="142" y="50" fill="#fca5a5" font-size="12" text-anchor="middle">右室アプローチ（中隔/自由壁）へ</text>
+            </g>
+          </g>
+        </svg>`
+      }
+    ]
   },
 
   yoshida_2011: {
@@ -362,7 +488,52 @@ export const LITERATURE_DATABASE = {
       performance: '流出路不整脈の術前診断における世界最高峰の精度',
       mechanism: '左冠尖の前方がRVOT中隔に相対する解剖学的表裏関係、心外膜側高位からの興奮離脱（aVL深QS）、自由壁の菲薄性(1-3mm)と興奮遅延（RR\'ノッチ）を電気生理学的に統合。',
       clinicalSignificance: '左冠尖通電時の左主幹部（LMT）造影離れ確認、His束近傍通電での房室ブロック回避、自由壁での心穿孔予防など、至適通電部位の診断と合併症予防の鉄則を提示。'
-    }
+    },
+    figures: [
+      {
+        id: 'naito_2005_otvt_fig1',
+        badge: '図1',
+        title: '図1: OT-VT 7ステップ心電図局在診断フローチャート (内藤アルゴリズム)',
+        caption: '群馬県立心臓血管センター・内藤滋人先生らによる流出路心室頻拍（OT-VT）完全鑑別アルゴリズム。',
+        svgContent: `<svg viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto; background:#0f172a; border-radius:12px; padding:12px; border:1px solid rgba(56,189,248,0.4); font-family:sans-serif;">
+          <rect width="100%" height="100%" fill="#0f172a" rx="12"/>
+          <text x="380" y="28" fill="#38bdf8" font-size="16" font-weight="bold" text-anchor="middle">OT-VT 7ステップ局在鑑別フロー (内藤滋人 2005)</text>
+          
+          <g transform="translate(20, 45)" font-size="12">
+            <rect x="0" y="0" width="220" height="45" fill="rgba(30,41,59,0.9)" rx="6" stroke="#38bdf8"/>
+            <text x="110" y="20" fill="#38bdf8" font-weight="bold" text-anchor="middle">Step 1: V6 S波 ≥ 0.1mV?</text>
+            <text x="110" y="37" fill="#cbd5e1" text-anchor="middle">Yes ➔ 左室心内膜 (LV End)</text>
+
+            <rect x="250" y="0" width="230" height="45" fill="rgba(30,41,59,0.9)" rx="6" stroke="#38bdf8"/>
+            <text x="365" y="20" fill="#38bdf8" font-weight="bold" text-anchor="middle">Step 2: 移行帯 ≥ V4 or I S波なし?</text>
+            <text x="365" y="37" fill="#cbd5e1" text-anchor="middle">Yes ➔ 右室中隔 (RV Septum)</text>
+
+            <rect x="500" y="0" width="240" height="45" fill="rgba(30,41,59,0.9)" rx="6" stroke="#4ade80"/>
+            <text x="620" y="20" fill="#4ade80" font-weight="bold" text-anchor="middle">Step 3: 伊藤基準 (R-dur/amp)</text>
+            <text x="620" y="37" fill="#cbd5e1" text-anchor="middle">Yes ➔ 左冠尖 (LCC)</text>
+
+            <rect x="0" y="65" width="220" height="45" fill="rgba(30,41,59,0.9)" rx="6" stroke="#f43f5e"/>
+            <text x="110" y="85" fill="#f43f5e" font-weight="bold" text-anchor="middle">Step 4: QaVL/aVR > 1.4 or V1 S≥1.2</text>
+            <text x="110" y="102" fill="#cbd5e1" text-anchor="middle">Yes ➔ 左室心外膜 (LV Epi)</text>
+
+            <rect x="250" y="65" width="230" height="45" fill="rgba(30,41,59,0.9)" rx="6" stroke="#fbbf24"/>
+            <text x="365" y="85" fill="#fbbf24" font-weight="bold" text-anchor="middle">Step 5-6: I & aVL RSR' 波形</text>
+            <text x="365" y="102" fill="#cbd5e1" text-anchor="middle">Yes ➔ His束近傍 (Near-His)</text>
+
+            <rect x="500" y="65" width="240" height="45" fill="rgba(30,41,59,0.9)" rx="6" stroke="#e879f9"/>
+            <text x="620" y="85" fill="#e879f9" font-weight="bold" text-anchor="middle">Step 7: 下壁 R-R' ノッチ</text>
+            <text x="620" y="102" fill="#cbd5e1" text-anchor="middle">Yes ➔ 右室自由壁 (RV Free Wall)</text>
+
+            <rect x="0" y="125" width="740" height="160" fill="rgba(15,23,42,0.95)" rx="8" stroke="rgba(56,189,248,0.3)"/>
+            <text x="370" y="152" fill="#38bdf8" font-size="14" font-weight="bold" text-anchor="middle">【内藤アルゴリズムの診断精度と特徴】</text>
+            <text x="40" y="180" fill="#e2e8f0" font-size="13">・総合正診率: 感度 88%、特異度 95%</text>
+            <text x="40" y="205" fill="#e2e8f0" font-size="13">・RVOT自由壁での心穿孔リスク回避、His近傍での房室ブロック回避に直結</text>
+            <text x="40" y="230" fill="#e2e8f0" font-size="13">・LCC/LVOT起源に対する冠動脈造影（CAG）事前準備の判断基準</text>
+            <text x="40" y="255" fill="#e2e8f0" font-size="13">・群馬県立心臓血管センターの豊富な臨床アブレーションエビデンスに基づく</text>
+          </g>
+        </svg>`
+      }
+    ]
   },
 
   sakurada_2017_bbrvt: {
