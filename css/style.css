@@ -572,7 +572,7 @@ body {
 }
 
 .preset-filter-label {
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-muted);
   white-space: nowrap;
@@ -581,22 +581,22 @@ body {
 .preset-filter-pills {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .preset-filter-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  min-height: 36px;
+  gap: 8px;
+  padding: 8px 18px;
+  min-height: 40px;
   background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  border: 1px solid rgba(56, 189, 248, 0.35);
   border-radius: var(--radius-full);
   color: var(--text-secondary);
   font-family: var(--font-sans);
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -623,12 +623,13 @@ body {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 4px;
+    gap: 6px;
   }
   .preset-filter-btn {
     justify-content: center;
-    padding: 6px 4px;
-    font-size: 0.73rem;
+    padding: 7px 6px;
+    font-size: 0.86rem;
+    min-height: 38px;
   }
 }
 
@@ -636,16 +637,18 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .preset-label {
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-size: 1.05rem;
+  font-weight: 800;
   color: var(--accent-sky);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -3589,6 +3592,11 @@ body[data-text-size="sm"] .literature-item,
 body[data-text-size="sm"] .lit-abstract,
 body[data-text-size="sm"] .lit-keypoint,
 body[data-text-size="sm"] .endo-epi-strategy-box,
+body[data-text-size="sm"] .strategy-approach,
+body[data-text-size="sm"] .strategy-list li,
+body[data-text-size="sm"] .intramural-guidance-card,
+body[data-text-size="sm"] .intramural-step-item,
+body[data-text-size="sm"] .intramural-step-item .step-desc,
 body[data-text-size="sm"] .layer-criteria-list li,
 body[data-text-size="sm"] .outflow-crit-detail,
 body[data-text-size="sm"] .outflow-crit-name,
@@ -3611,8 +3619,13 @@ body[data-text-size="sm"] .ablation-tips-content h4,
 body[data-text-size="sm"] .modal-body h4,
 body[data-text-size="sm"] .pearls-title,
 body[data-text-size="sm"] .reasoning-title,
-body[data-text-size="sm"] .lit-title {
+body[data-text-size="sm"] .lit-title,
+body[data-text-size="sm"] .intramural-title,
+body[data-text-size="sm"] .intramural-step-item .step-tag {
   font-size: 0.84rem !important;
+}
+body[data-text-size="sm"] .intramural-badge {
+  font-size: 0.65rem !important;
 }
 
 /* 標準 (md / デフォルト 100%) */
@@ -3630,6 +3643,11 @@ body[data-text-size="md"] .literature-item,
 body[data-text-size="md"] .lit-abstract,
 body[data-text-size="md"] .lit-keypoint,
 body[data-text-size="md"] .endo-epi-strategy-box,
+body[data-text-size="md"] .strategy-approach,
+body[data-text-size="md"] .strategy-list li,
+body[data-text-size="md"] .intramural-guidance-card,
+body[data-text-size="md"] .intramural-step-item,
+body[data-text-size="md"] .intramural-step-item .step-desc,
 body[data-text-size="md"] .layer-criteria-list li,
 body[data-text-size="md"] .outflow-crit-detail,
 body[data-text-size="md"] .outflow-crit-name,
@@ -3652,8 +3670,13 @@ body[data-text-size="md"] .ablation-tips-content h4,
 body[data-text-size="md"] .modal-body h4,
 body[data-text-size="md"] .pearls-title,
 body[data-text-size="md"] .reasoning-title,
-body[data-text-size="md"] .lit-title {
+body[data-text-size="md"] .lit-title,
+body[data-text-size="md"] .intramural-title,
+body[data-text-size="md"] .intramural-step-item .step-tag {
   font-size: 0.95rem !important;
+}
+body[data-text-size="md"] .intramural-badge {
+  font-size: 0.72rem !important;
 }
 
 /* 大 (lg / ~120%) */
@@ -3671,6 +3694,11 @@ body[data-text-size="lg"] .literature-item,
 body[data-text-size="lg"] .lit-abstract,
 body[data-text-size="lg"] .lit-keypoint,
 body[data-text-size="lg"] .endo-epi-strategy-box,
+body[data-text-size="lg"] .strategy-approach,
+body[data-text-size="lg"] .strategy-list li,
+body[data-text-size="lg"] .intramural-guidance-card,
+body[data-text-size="lg"] .intramural-step-item,
+body[data-text-size="lg"] .intramural-step-item .step-desc,
 body[data-text-size="lg"] .layer-criteria-list li,
 body[data-text-size="lg"] .outflow-crit-detail,
 body[data-text-size="lg"] .outflow-crit-name,
@@ -3693,8 +3721,13 @@ body[data-text-size="lg"] .ablation-tips-content h4,
 body[data-text-size="lg"] .modal-body h4,
 body[data-text-size="lg"] .pearls-title,
 body[data-text-size="lg"] .reasoning-title,
-body[data-text-size="lg"] .lit-title {
+body[data-text-size="lg"] .lit-title,
+body[data-text-size="lg"] .intramural-title,
+body[data-text-size="lg"] .intramural-step-item .step-tag {
   font-size: 1.15rem !important;
+}
+body[data-text-size="lg"] .intramural-badge {
+  font-size: 0.85rem !important;
 }
 
 @media (max-width: 640px) {
@@ -3733,5 +3766,83 @@ body[data-text-size="lg"] .lit-title {
   }
   #section-diagnosis .layer-card {
     padding: 1rem !important;
+  }
+}
+
+/* ==========================================================================
+   PVC The Origin タイトルロゴ 起動時キラリ輝くアニメーション (Shine Sweep & Pulse)
+   ========================================================================== */
+.logo-title-group {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  overflow: hidden !important;
+  border-radius: var(--radius-md) !important;
+  padding: 4px 6px !important;
+}
+
+/* 光の輝きスイープライン */
+.logo-title-group::after {
+  content: '' !important;
+  position: absolute !important;
+  top: -50% !important;
+  left: -130% !important;
+  width: 75% !important;
+  height: 200% !important;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 25%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(56, 189, 248, 0.95) 65%,
+    transparent 100%
+  ) !important;
+  transform: rotate(25deg) !important;
+  pointer-events: none !important;
+  z-index: 10 !important;
+  animation: logoShineSweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) 0.4s 1 normal forwards !important;
+}
+
+/* ロゴ画像本体の輝きパルス */
+.title-logo-img {
+  animation: logoGlowPulse 2.2s ease-out 0.2s 1 normal forwards !important;
+  transition: transform 0.3s ease, filter 0.3s ease !important;
+}
+
+.title-logo-img:hover {
+  transform: scale(1.03) !important;
+  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.85)) brightness(1.1) !important;
+}
+
+@keyframes logoShineSweep {
+  0% {
+    left: -130%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    left: 180%;
+    opacity: 1;
+  }
+  100% {
+    left: 200%;
+    opacity: 0;
+  }
+}
+
+@keyframes logoGlowPulse {
+  0% {
+    filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.2)) brightness(1);
+  }
+  30% {
+    filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.95)) drop-shadow(0 0 12px rgba(255, 255, 255, 0.95)) brightness(1.35);
+  }
+  70% {
+    filter: drop-shadow(0 0 18px rgba(56, 189, 248, 0.7)) brightness(1.15);
+  }
+  100% {
+    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.45)) brightness(1);
   }
 }
