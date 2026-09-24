@@ -136,16 +136,16 @@
   </script>
 
   <!-- スタイルシート (強力キャッシュリフレッシュ適用) -->
-  <link rel="stylesheet" href="./css/style.css?v=20260924_v10053_text_size_toggle">
-  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10053_text_size_toggle">
-  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10053_text_size_toggle">
-  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10053_text_size_toggle">
+  <link rel="stylesheet" href="./css/style.css?v=20260924_v10054_footer_text_size_button">
+  <link rel="stylesheet" href="./css/heart-map.css?v=20260924_v10054_footer_text_size_button">
+  <link rel="stylesheet" href="./css/ios-mobile.css?v=20260924_v10054_footer_text_size_button">
+  <link rel="stylesheet" href="./css/quiz.css?v=20260924_v10054_footer_text_size_button">
 </head>
 <body>
   <div class="app-container">
     <!-- ヘッダー (機動戦士ガンダム THE ORIGIN オマージュ) -->
     <header class="app-header origin-header-theme">
-      <div class="brand-section origin-brand-wrap" style="justify-content: space-between; width: 100%;">
+      <div class="brand-section origin-brand-wrap">
         <div class="origin-logo-row">
           <div class="origin-badge-row" style="margin-bottom: 4px;">
             <span class="yoshimura-tag">吉村流！</span>
@@ -157,16 +157,6 @@
               <span class="origin-subtitle" id="header-subtitle-text">臨床症例シミュレーター</span>
             </div>
           </div>
-        </div>
-
-        <!-- 3段階解説文字サイズ変更ボタン (標準 ➔ 大 ➔ 小) -->
-        <div class="header-action-controls" style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
-          <button type="button" class="btn-text-size-toggle" id="btn-toggle-text-size" title="解説文の文字サイズを変更 (標準 ➔ 大 ➔ 小)" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 8px; color: #38bdf8; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2); white-space: nowrap;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M4 19L10 5M20 19L14 5M7 13h8"/>
-            </svg>
-            <span>解説文字: <strong id="text-size-label" style="color: #f59e0b; font-weight: 800;">標準</strong></span>
-          </button>
         </div>
       </div>
 
@@ -841,12 +831,22 @@
         </button>
       </div>
 
-      <button id="btn-show-disclaimer" class="btn-footer-disclaimer" title="医療免責事項と利用規約">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-        <span>医療免責事項 &amp; 利用規約</span>
-      </button>
+      <!-- 医療免責 ＆ 文字サイズ変更ボタン (横並び配置) -->
+      <div class="footer-disclaimer-row">
+        <button id="btn-show-disclaimer" class="btn-footer-disclaimer" title="医療免責事項と利用規約">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span>医療免責事項 &amp; 利用規約</span>
+        </button>
+
+        <button type="button" class="btn-footer-disclaimer btn-text-size-toggle" id="btn-toggle-text-size" title="解説文の文字サイズを変更 (標準 ➔ 大 ➔ 小)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M4 19L10 5M20 19L14 5M7 13h8"/>
+          </svg>
+          <span>文字サイズ: <strong id="text-size-label">標準</strong></span>
+        </button>
+      </div>
       <p class="footer-copy">© 2026 吉村流！PVC The Origin — 12誘導ECG不整脈局在診断学習システム</p>
     </div>
   </footer>
@@ -874,6 +874,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260924_v10053_text_size_toggle"></script>
+  <script type="module" src="./js/app.js?v=20260924_v10054_footer_text_size_button"></script>
 </body>
 </html>
