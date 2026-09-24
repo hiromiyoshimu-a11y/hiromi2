@@ -2934,57 +2934,73 @@ body {
   background: rgba(15, 23, 42, 0.85);
   border: 1px solid rgba(245, 158, 11, 0.35);
   border-radius: 8px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .intramural-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   flex-wrap: wrap;
 }
 
 .intramural-badge {
   font-size: 0.65rem;
   font-weight: 800;
-  padding: 1px 6px;
+  padding: 2px 7px;
   border-radius: 4px;
   background: rgba(245, 158, 11, 0.2);
   color: #fbbf24;
   border: 1px solid rgba(245, 158, 11, 0.4);
+  white-space: nowrap;
 }
 
 .intramural-title {
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 700;
   color: #f1f5f9;
+  line-height: 1.35;
 }
 
 .intramural-steps {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .intramural-step-item {
   display: flex;
-  align-items: baseline;
-  gap: 6px;
-  font-size: 0.72rem;
-  line-height: 1.4;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  font-size: 0.74rem;
+  line-height: 1.45;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 8px;
+  border-radius: 5px;
+  border-left: 2px solid rgba(245, 158, 11, 0.5);
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .intramural-step-item .step-tag {
   color: #fbbf24;
   font-weight: 700;
-  white-space: nowrap;
-  font-size: 0.7rem;
+  font-size: 0.72rem;
+  display: inline-block;
 }
 
 .intramural-step-item .step-desc {
   color: #cbd5e1;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ==========================================================================
@@ -3613,9 +3629,6 @@ body[data-text-size="sm"] .lit-keypoint,
 body[data-text-size="sm"] .endo-epi-strategy-box,
 body[data-text-size="sm"] .strategy-approach,
 body[data-text-size="sm"] .strategy-list li,
-body[data-text-size="sm"] .intramural-guidance-card,
-body[data-text-size="sm"] .intramural-step-item,
-body[data-text-size="sm"] .intramural-step-item .step-desc,
 body[data-text-size="sm"] .layer-criteria-list li,
 body[data-text-size="sm"] .outflow-crit-detail,
 body[data-text-size="sm"] .outflow-crit-name,
@@ -3638,13 +3651,20 @@ body[data-text-size="sm"] .ablation-tips-content h4,
 body[data-text-size="sm"] .modal-body h4,
 body[data-text-size="sm"] .pearls-title,
 body[data-text-size="sm"] .reasoning-title,
-body[data-text-size="sm"] .lit-title,
-body[data-text-size="sm"] .intramural-title,
-body[data-text-size="sm"] .intramural-step-item .step-tag {
+body[data-text-size="sm"] .lit-title {
   font-size: 0.84rem !important;
 }
+body[data-text-size="sm"] .intramural-guidance-card,
+body[data-text-size="sm"] .intramural-step-item,
+body[data-text-size="sm"] .intramural-step-item .step-desc {
+  font-size: 0.70rem !important;
+}
+body[data-text-size="sm"] .intramural-title,
+body[data-text-size="sm"] .intramural-step-item .step-tag {
+  font-size: 0.74rem !important;
+}
 body[data-text-size="sm"] .intramural-badge {
-  font-size: 0.65rem !important;
+  font-size: 0.60rem !important;
 }
 
 /* 標準 (md / デフォルト 100%) */
@@ -3664,9 +3684,6 @@ body[data-text-size="md"] .lit-keypoint,
 body[data-text-size="md"] .endo-epi-strategy-box,
 body[data-text-size="md"] .strategy-approach,
 body[data-text-size="md"] .strategy-list li,
-body[data-text-size="md"] .intramural-guidance-card,
-body[data-text-size="md"] .intramural-step-item,
-body[data-text-size="md"] .intramural-step-item .step-desc,
 body[data-text-size="md"] .layer-criteria-list li,
 body[data-text-size="md"] .outflow-crit-detail,
 body[data-text-size="md"] .outflow-crit-name,
@@ -3689,13 +3706,20 @@ body[data-text-size="md"] .ablation-tips-content h4,
 body[data-text-size="md"] .modal-body h4,
 body[data-text-size="md"] .pearls-title,
 body[data-text-size="md"] .reasoning-title,
-body[data-text-size="md"] .lit-title,
-body[data-text-size="md"] .intramural-title,
-body[data-text-size="md"] .intramural-step-item .step-tag {
+body[data-text-size="md"] .lit-title {
   font-size: 0.95rem !important;
 }
+body[data-text-size="md"] .intramural-guidance-card,
+body[data-text-size="md"] .intramural-step-item,
+body[data-text-size="md"] .intramural-step-item .step-desc {
+  font-size: 0.78rem !important;
+}
+body[data-text-size="md"] .intramural-title,
+body[data-text-size="md"] .intramural-step-item .step-tag {
+  font-size: 0.82rem !important;
+}
 body[data-text-size="md"] .intramural-badge {
-  font-size: 0.72rem !important;
+  font-size: 0.65rem !important;
 }
 
 /* 大 (lg / ~120%) */
@@ -3715,9 +3739,6 @@ body[data-text-size="lg"] .lit-keypoint,
 body[data-text-size="lg"] .endo-epi-strategy-box,
 body[data-text-size="lg"] .strategy-approach,
 body[data-text-size="lg"] .strategy-list li,
-body[data-text-size="lg"] .intramural-guidance-card,
-body[data-text-size="lg"] .intramural-step-item,
-body[data-text-size="lg"] .intramural-step-item .step-desc,
 body[data-text-size="lg"] .layer-criteria-list li,
 body[data-text-size="lg"] .outflow-crit-detail,
 body[data-text-size="lg"] .outflow-crit-name,
@@ -3740,13 +3761,20 @@ body[data-text-size="lg"] .ablation-tips-content h4,
 body[data-text-size="lg"] .modal-body h4,
 body[data-text-size="lg"] .pearls-title,
 body[data-text-size="lg"] .reasoning-title,
-body[data-text-size="lg"] .lit-title,
-body[data-text-size="lg"] .intramural-title,
-body[data-text-size="lg"] .intramural-step-item .step-tag {
+body[data-text-size="lg"] .lit-title {
   font-size: 1.15rem !important;
 }
+body[data-text-size="lg"] .intramural-guidance-card,
+body[data-text-size="lg"] .intramural-step-item,
+body[data-text-size="lg"] .intramural-step-item .step-desc {
+  font-size: 0.90rem !important;
+}
+body[data-text-size="lg"] .intramural-title,
+body[data-text-size="lg"] .intramural-step-item .step-tag {
+  font-size: 0.95rem !important;
+}
 body[data-text-size="lg"] .intramural-badge {
-  font-size: 0.85rem !important;
+  font-size: 0.75rem !important;
 }
 
 @media (max-width: 640px) {

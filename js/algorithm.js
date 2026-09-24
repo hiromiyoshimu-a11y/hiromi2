@@ -918,7 +918,7 @@ export function evaluateEndoVsEpi(params = {}) {
     stepwiseStrategies: [
       { step: 'Step 1: 最早期部位通電', desc: '中隔穿通静脈内、または冠動脈<5mmの場合は対向心内膜側からの通電' },
       { step: 'Step 2: 病変拡大戦略', desc: '対向部位からの連続単極通電 (Sequential unipolar)、低イオン性灌流液 (Half-normal saline: 0.45%食塩水 / 5%ブドウ糖)、長時間通電 (Extended RF: 最大5分)、対極板追加/再配置' },
-      { step: 'Step 3: 難治性救済手段 (Bailout)', desc: '二極通電 (Bipolar RF)、同時単極通電 (Simultaneous unipolar)、経冠静脈エタノール注入 (Transvascular ethanol)、針電極カテーテル (Needle ablation)、定位放射線治療 (Stereotactic radioablation)' }
+      { step: 'Step 3: Bailout手段', desc: '二極通電 (Bipolar RF)、同時単極通電 (Simultaneous unipolar)、経冠静脈エタノール注入 (Transvascular ethanol)、針電極カテーテル (Needle ablation)、定位放射線治療 (Stereotactic radioablation)' }
     ]
   };
 
