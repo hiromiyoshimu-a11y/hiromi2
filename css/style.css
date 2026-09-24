@@ -265,7 +265,7 @@ body {
    ========================================================================== */
 .main-nav-tabs {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1.1fr 1.35fr 1fr;
   gap: 6px;
   width: 100%;
   background: rgba(15, 23, 42, 0.85);
