@@ -3513,4 +3513,92 @@ body {
   }
 }
 
+/* ===================================================================
+   解説テキスト限定 3段階文字サイズ制御 (小: sm, 標準: md, 大: lg)
+   ※UIボタンやヘッダーのレイアウト崩れを防ぎ、解説文章のみに適用
+   =================================================================== */
 
+/* 小 (sm / ~85%) */
+body[data-text-size="sm"] .insight-card p,
+body[data-text-size="sm"] .insight-card li,
+body[data-text-size="sm"] .citation-source-info,
+body[data-text-size="sm"] .reasoning-timeline,
+body[data-text-size="sm"] .reasoning-item,
+body[data-text-size="sm"] .ablation-tip-text,
+body[data-text-size="sm"] .literature-collapse-body,
+body[data-text-size="sm"] .endo-epi-strategy-box,
+body[data-text-size="sm"] .endo-epi-criteria,
+body[data-text-size="sm"] .outflow-pearls-box,
+body[data-text-size="sm"] .outflow-criteria-grid,
+body[data-text-size="sm"] .quiz-explanation-body,
+body[data-text-size="sm"] .inline-winner-features,
+body[data-text-size="sm"] .inline-matrix-winner-features,
+body[data-text-size="sm"] #winner-features,
+body[data-text-size="sm"] .explanation-text,
+body[data-text-size="sm"] .clinical-memo {
+  font-size: 0.74rem !important;
+  line-height: 1.5 !important;
+}
+body[data-text-size="sm"] .insight-card h4,
+body[data-text-size="sm"] .quiz-explanation-body h4 {
+  font-size: 0.84rem !important;
+}
+
+/* 標準 (md / デフォルト 100%) */
+body[data-text-size="md"] .insight-card p,
+body[data-text-size="md"] .insight-card li,
+body[data-text-size="md"] .citation-source-info,
+body[data-text-size="md"] .reasoning-timeline,
+body[data-text-size="md"] .reasoning-item,
+body[data-text-size="md"] .ablation-tip-text,
+body[data-text-size="md"] .literature-collapse-body,
+body[data-text-size="md"] .endo-epi-strategy-box,
+body[data-text-size="md"] .endo-epi-criteria,
+body[data-text-size="md"] .outflow-pearls-box,
+body[data-text-size="md"] .outflow-criteria-grid,
+body[data-text-size="md"] .quiz-explanation-body,
+body[data-text-size="md"] .inline-winner-features,
+body[data-text-size="md"] .inline-matrix-winner-features,
+body[data-text-size="md"] #winner-features,
+body[data-text-size="md"] .explanation-text,
+body[data-text-size="md"] .clinical-memo {
+  font-size: 0.88rem !important;
+  line-height: 1.6 !important;
+}
+body[data-text-size="md"] .insight-card h4,
+body[data-text-size="md"] .quiz-explanation-body h4 {
+  font-size: 0.95rem !important;
+}
+
+/* 大 (lg / ~120%) */
+body[data-text-size="lg"] .insight-card p,
+body[data-text-size="lg"] .insight-card li,
+body[data-text-size="lg"] .citation-source-info,
+body[data-text-size="lg"] .reasoning-timeline,
+body[data-text-size="lg"] .reasoning-item,
+body[data-text-size="lg"] .ablation-tip-text,
+body[data-text-size="lg"] .literature-collapse-body,
+body[data-text-size="lg"] .endo-epi-strategy-box,
+body[data-text-size="lg"] .endo-epi-criteria,
+body[data-text-size="lg"] .outflow-pearls-box,
+body[data-text-size="lg"] .outflow-criteria-grid,
+body[data-text-size="lg"] .quiz-explanation-body,
+body[data-text-size="lg"] .inline-winner-features,
+body[data-text-size="lg"] .inline-matrix-winner-features,
+body[data-text-size="lg"] #winner-features,
+body[data-text-size="lg"] .explanation-text,
+body[data-text-size="lg"] .clinical-memo {
+  font-size: 1.08rem !important;
+  line-height: 1.7 !important;
+}
+body[data-text-size="lg"] .insight-card h4,
+body[data-text-size="lg"] .quiz-explanation-body h4 {
+  font-size: 1.15rem !important;
+}
+
+@media (max-width: 640px) {
+  .btn-text-size-toggle {
+    padding: 4px 8px !important;
+    font-size: 0.72rem !important;
+  }
+}

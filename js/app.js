@@ -390,6 +390,9 @@ function init() {
     // イベントリスナーのセットアップ
     setupEventListeners();
 
+    // 3段階解説文字サイズマネージャーの初期化 (標準 ➔ 大 ➔ 小)
+    initTextSizeManager();
+
     // iOSボトムタブバーのセットアップ
     try {
       setupIosTabBar();
@@ -409,6 +412,52 @@ function init() {
     handleInitialHash();
   } catch(globalErr) {
     console.error('Global App init error:', globalErr);
+  }
+}
+
+/**
+ * 解説文の3段階文字サイズ切り替えマネージャー (標準 ➔ 大 ➔ 小)
+ */
+function initTextSizeManager() {
+  const btnToggle = document.getElementById('btn-toggle-text-size');
+  const labelEl = document.getElementById('text-size-label');
+
+  const SIZE_CYCLE = ['md', 'lg', 'sm'];
+  const SIZE_LABELS = {
+    md: '標準',
+    lg: '大',
+    sm: '小'
+  };
+
+  let currentSize = 'md';
+  try {
+    const saved = localStorage.getItem('pvc_app_text_size');
+    if (saved && SIZE_CYCLE.includes(saved)) {
+      currentSize = saved;
+    }
+  } catch(e) {}
+
+  function applySize(size) {
+    currentSize = size;
+    document.body.setAttribute('data-text-size', size);
+    if (labelEl) {
+      labelEl.textContent = SIZE_LABELS[size] || '標準';
+    }
+    try {
+      localStorage.setItem('pvc_app_text_size', size);
+    } catch(e) {}
+  }
+
+  // 初回適用
+  applySize(currentSize);
+
+  // ボタンクリックで 順環切替 (標準 ➔ 大 ➔ 小 ➔ 標準)
+  if (btnToggle) {
+    btnToggle.addEventListener('click', () => {
+      const currentIndex = SIZE_CYCLE.indexOf(currentSize);
+      const nextIndex = (currentIndex + 1) % SIZE_CYCLE.length;
+      applySize(SIZE_CYCLE[nextIndex]);
+    });
   }
 }
 
