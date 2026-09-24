@@ -84,7 +84,17 @@ export class HeartMap {
     siteElements.forEach(el => {
       el.addEventListener('click', () => {
         const siteId = el.getAttribute('data-site');
-    getAnteriorSvg() {
+        if (this.onSiteClick && SITE_DEFINITIONS[siteId]) {
+          this.onSiteClick(SITE_DEFINITIONS[siteId]);
+        }
+      });
+    });
+  }
+
+  /**
+   * 正面・3D斜位視点 SVG (リアル3D立体心臓イラスト & 精密解剖位置同期版)
+   */
+  getAnteriorSvg() {
     return `
       <svg class="heart-svg" viewBox="0 0 760 520" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -260,20 +270,6 @@ export class HeartMap {
           <line class="site-leader-line" x1="-155" y1="35" x2="-8" y2="-2" stroke="#ef4444" stroke-width="2.2" marker-end="url(#arrow-red-large)" />
           <rect class="site-label-bg" x="-240" y="20" width="170" height="30" rx="6" fill="rgba(11,19,38,0.92)" stroke="#ef4444" stroke-width="1.8" />
           <text class="site-label-text" x="-155" y="40" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="800">右室調節帯 (MB)</text>
-        </g>
-      </svg>
-    `;
-  }ght="20" rx="4" fill="rgba(15,23,42,0.9)" stroke="#ef4444" stroke-width="1.2" />
-          <text class="site-label-text" x="-138" y="6" text-anchor="middle" fill="#f8fafc" font-size="11" font-weight="700">右室乳頭筋</text>
-        </g>
-
-        <!-- 15. 右室調節帯 (MB) : ターゲット(260, 358) <-- ラベル(80, 385) -->
-        <g class="origin-site" data-site="moderator_band" transform="translate(260, 358)">
-          <circle class="site-ring" cx="0" cy="0" r="9" />
-          <circle class="site-dot" cx="0" cy="0" r="5" />
-          <line class="site-leader-line" x1="-170" y1="37" x2="-6" y2="1" stroke="#ef4444" stroke-width="1.8" marker-end="url(#arrow-red)" />
-          <rect class="site-label-bg" x="-240" y="19" width="140" height="20" rx="4" fill="rgba(15,23,42,0.9)" stroke="#ef4444" stroke-width="1.2" />
-          <text class="site-label-text" x="-170" y="33" text-anchor="middle" fill="#f8fafc" font-size="10.5" font-weight="700">右室調節帯 (MB)</text>
         </g>
       </svg>
     `;
