@@ -125,7 +125,7 @@ export class HeartMap {
 
         <!-- 【高精細・解剖断面3D立体心臓イラスト (参考画像PPTと100%同一解剖構造)】 -->
         <g mask="url(#heart-vignette)">
-          <image href="assets/heart_3d_cross_section.jpg?v=10" x="0" y="0" width="1200" height="896" preserveAspectRatio="none" opacity="0.98"/>
+          <image href="assets/heart_3d_cross_section.jpg?v=12" x="0" y="0" width="1200" height="896" preserveAspectRatio="none" opacity="0.98"/>
         </g>
 
         <!-- ================= 起源部位マーカー & 視認性極大化赤枠ラベル ================= -->
