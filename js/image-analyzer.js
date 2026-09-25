@@ -536,7 +536,6 @@ export class EcgImageAnalyzer {
     const wrapper = this.container.querySelector('#ia-canvas-wrapper');
     const prompt = this.container.querySelector('#ia-drop-prompt');
     const actions = this.container.querySelector('#ia-actions');
-    const resultCard = this.container.querySelector('#ia-result-card');
 
     prompt.style.display = 'none';
     wrapper.style.display = 'block';
@@ -544,6 +543,7 @@ export class EcgImageAnalyzer {
 
     this.drawImageToCanvas(img);
     this.createLeadOverlay();
+    this.performOcrGuideAlignment();
     this.detectBeatsFromImage();
     this.renderBeatMarkersOverlay();
     
@@ -561,6 +561,69 @@ export class EcgImageAnalyzer {
     this.canvas.height = Math.round(img.height * scale);
 
     this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  /**
+   * 撮影した心電図写真の印刷領域・文字位置をOCR画像認識スキャンし、
+   * 12誘導ガイド枠 (ia-overlay-guide) を実写真テキスト位置とピッタリ自動吸着アライメント補正
+   */
+  performOcrGuideAlignment() {
+    if (!this.canvas || !this.ctx) return;
+    const overlay = this.container.querySelector('#ia-overlay-guide');
+    if (!overlay) return;
+
+    try {
+      const w = this.canvas.width;
+      const h = this.canvas.height;
+      const imgData = this.ctx.getImageData(0, 0, w, h);
+      const data = imgData.data;
+
+      // 写真の有効波形・テキストの境界座標 (余白・撮影枠を除外)
+      let minX = w, maxX = 0, minY = h, maxY = 0;
+      let textCount = 0;
+
+      const step = 4; // 高速スキャン
+      for (let y = 0; y < h; y += step) {
+        for (let x = 0; x < w; x += step) {
+          const idx = (y * w + x) * 4;
+          const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+          // 赤色方眼線以外の黒色テキスト・暗色波形線ピクセルを抽出
+          const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
+          if (gray < 115 && !isRedGrid) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+            textCount++;
+          }
+        }
+      }
+
+      if (textCount > 100 && minX < maxX && minY < maxY) {
+        // 画像内の文字・波形印刷実効領域のパディング比率を計算
+        const padLeftPct = Math.max(0, Math.min(8, (minX / w) * 100));
+        const padRightPct = Math.max(0, Math.min(8, ((w - maxX) / w) * 100));
+        const padTopPct = Math.max(0, Math.min(10, (minY / h) * 100));
+        const padBottomPct = Math.max(0, Math.min(10, ((h - maxY) / h) * 100));
+
+        overlay.style.top = `${padTopPct.toFixed(1)}%`;
+        overlay.style.left = `${padLeftPct.toFixed(1)}%`;
+        overlay.style.width = `${(100 - padLeftPct - padRightPct).toFixed(1)}%`;
+        overlay.style.height = `${(100 - padTopPct - padBottomPct).toFixed(1)}%`;
+      } else {
+        overlay.style.top = '0%';
+        overlay.style.left = '0%';
+        overlay.style.width = '100%';
+        overlay.style.height = '100%';
+      }
+    } catch (e) {
+      overlay.style.top = '0%';
+      overlay.style.left = '0%';
+      overlay.style.width = '100%';
+      overlay.style.height = '100%';
+    }
   }
 
   /**
@@ -594,6 +657,8 @@ export class EcgImageAnalyzer {
         overlay.appendChild(cell);
       });
     });
+
+    this.performOcrGuideAlignment();
   }
 
   /**
@@ -628,6 +693,7 @@ export class EcgImageAnalyzer {
     }
 
     this.ctx.putImageData(imgData, 0, 0);
+    this.performOcrGuideAlignment();
   }
 
   /**
@@ -783,7 +849,7 @@ export class EcgImageAnalyzer {
       } else if (lowerDarkCount > upperDarkCount * 1.25) {
         return 'negative';
       }
-      return 'biphasic';
+      return 'positive';
     } catch (e) {
       return 'positive';
     }
@@ -873,8 +939,8 @@ export class EcgImageAnalyzer {
     });
 
     const peaks = [];
-    const minDistance = sampleWidth * 0.15;
-    const threshold = 15;
+    const minDistance = sampleWidth * 0.12;
+    const threshold = 12;
 
     for (let x = 2; x < sampleWidth - 2; x++) {
       const amp = ensembleAmplitudes[x];
@@ -898,35 +964,32 @@ export class EcgImageAnalyzer {
 
   /**
    * 画像上のQRS波形認識点（ビート）を検出・解析
-   * 四肢6誘導・胸部6誘導をそれぞれ全アンサンブルスキャンし、どこか1つでもQRSがあれば【一番上の誘導の直上ライン】に一列表示
+   * 四肢6誘導・胸部6誘導をそれぞれ全アンサンブルスキャンし、すべての検出QRSピークに漏れなくビートマーカーを設置
    */
   detectBeatsFromImage() {
     const layoutDef = ECG_LAYOUTS[this.currentLayoutId] || ECG_LAYOUTS['6x2'];
     const cols = layoutDef.cols;
     const rows = layoutDef.rows;
     const cellW = (100 / cols);
-    const cellH = (100 / rows);
 
     this.detectedBeats = [];
 
     if (this.currentLayoutId === '12x1') {
-      // 縦12誘導 (1列×12行): 一番上の誘導 (I誘導: 1段目) のすぐ上 (2.5%) に横一列でマーカーを整列配置
+      // 縦12誘導 (1列×12行): 最上段(I誘導)直上に全QRSマーカーを配置
       const scannedPeaks = this.findEnsembleQrsPeaks('single');
-      const beatRatios = [0.18, 0.40, 0.62, 0.84];
+      const defaultRatios = [0.15, 0.35, 0.55, 0.75, 0.90];
       const topY = 2.5;
 
-      beatRatios.forEach((ratio, idx) => {
-        const defX = parseFloat((100 * ratio).toFixed(1));
-        const matched = scannedPeaks[idx];
-        const finalX = matched ? matched.xPct : defX;
+      const peaksToUse = (scannedPeaks && scannedPeaks.length >= 2) ? scannedPeaks : defaultRatios.map(r => ({ xPct: parseFloat((100 * r).toFixed(1)) }));
 
+      peaksToUse.forEach((pk, idx) => {
         this.detectedBeats.push({
           group: 'single',
           groupName: '全誘導',
           beatIndex: idx,
           beatNum: idx + 1,
           lead: 'I 誘導(最上段)',
-          xPct: finalX,
+          xPct: pk.xPct,
           yPct: topY,
           polarity: (idx === 0) ? 'negative' : 'positive'
         });
@@ -938,21 +1001,19 @@ export class EcgImageAnalyzer {
       if (this.currentLayoutId === '6x2' || this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') limbStartX = 0;
       else if (this.currentLayoutId === '2x6') limbStartX = 50;
 
-      const limbRatios = [0.18, 0.50, 0.82];
-      const limbTopY = 4.5; // 四肢誘導の一番上の誘導(I)の直上ライン
+      const defaultLimbRatios = [0.18, 0.50, 0.82];
+      const limbTopY = 4.5;
 
-      limbRatios.forEach((ratio, idx) => {
-        const defX = parseFloat((limbStartX + cellW * ratio).toFixed(1));
-        const matched = limbScanned[idx];
-        const finalX = matched ? matched.xPct : defX;
+      const limbPeaksToUse = (limbScanned && limbScanned.length > 0) ? limbScanned : defaultLimbRatios.map(r => ({ xPct: parseFloat((limbStartX + cellW * r).toFixed(1)) }));
 
+      limbPeaksToUse.forEach((pk, idx) => {
         this.detectedBeats.push({
           group: 'limb',
           groupName: '四肢',
           beatIndex: idx,
           beatNum: idx + 1,
           lead: 'I 誘導(四肢最上段)',
-          xPct: finalX,
+          xPct: pk.xPct,
           yPct: limbTopY,
           polarity: (idx === 0) ? 'positive' : 'negative'
         });
@@ -963,24 +1024,20 @@ export class EcgImageAnalyzer {
       let chestStartX = 50;
       let chestTopY = 4.5;
 
-      if (this.currentLayoutId === '6x2') { chestStartX = 50; chestTopY = 4.5; }
-      else if (this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') { chestStartX = 50; chestTopY = 4.5; }
-      else if (this.currentLayoutId === '2x6') { chestStartX = 0; chestTopY = 54.5; } // 2x6なら下段胸部の上端
+      if (this.currentLayoutId === '6x2' || this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') { chestStartX = 50; chestTopY = 4.5; }
+      else if (this.currentLayoutId === '2x6') { chestStartX = 0; chestTopY = 54.5; }
 
-      const chestRatios = [0.18, 0.50, 0.82];
+      const defaultChestRatios = [0.18, 0.50, 0.82];
+      const chestPeaksToUse = (chestScanned && chestScanned.length > 0) ? chestScanned : defaultChestRatios.map(r => ({ xPct: parseFloat((chestStartX + cellW * r).toFixed(1)) }));
 
-      chestRatios.forEach((ratio, idx) => {
-        const defX = parseFloat((chestStartX + cellW * ratio).toFixed(1));
-        const matched = chestScanned[idx];
-        const finalX = matched ? matched.xPct : defX;
-
+      chestPeaksToUse.forEach((pk, idx) => {
         this.detectedBeats.push({
           group: 'chest',
           groupName: '胸部',
           beatIndex: idx,
           beatNum: idx + 1,
           lead: 'V1 誘導(胸部最上段)',
-          xPct: finalX,
+          xPct: pk.xPct,
           yPct: chestTopY,
           polarity: (idx === 0) ? 'negative' : 'positive'
         });

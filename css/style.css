@@ -4468,19 +4468,21 @@ body[data-text-size="lg"] .intramural-badge {
 
 .ia-beat-guideline {
   position: absolute;
-  top: 12px;
+  top: 6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 1px;
-  height: 280px;
-  border-left: 1px dashed rgba(56, 189, 248, 0.45);
+  width: 2px;
+  height: 1200px;
+  border-left: 2px dashed rgba(56, 189, 248, 0.7);
   pointer-events: none;
   z-index: 15;
+  filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.8));
 }
 
 .ia-beat-marker.is-target .ia-beat-guideline {
   border-left: 2px dashed #f59e0b;
-  box-shadow: 0 0 6px rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.85);
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.9));
 }
 
 .ia-beat-marker {
