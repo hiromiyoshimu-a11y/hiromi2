@@ -1036,7 +1036,6 @@ export class EcgImageAnalyzer {
       try {
         const imgData = this.ctx.getImageData(cx, cy, cw, ch);
         const data = imgData.data;
-        const midY = ch / 2;
 
         const topYArr = new Int32Array(cw).fill(-1);
         const bottomYArr = new Int32Array(cw).fill(-1);
@@ -1055,17 +1054,28 @@ export class EcgImageAnalyzer {
           }
         }
 
+        // セル内のローカルメディアン基線 (baseY) を自動判定
+        const validYList = [];
+        for (let x = 0; x < cw; x++) {
+          if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
+            validYList.push((topYArr[x] + bottomYArr[x]) / 2);
+          }
+        }
+        if (validYList.length === 0) return;
+        validYList.sort((a, b) => a - b);
+        const baseY = validYList[Math.floor(validYList.length / 2)];
+
         for (let x = 2; x < cw - 2; x++) {
           const globalX = Math.floor((gridX + cell.cIdx * cellW + cellW * 0.10 + x) - sampleStartX);
           if (globalX < 2 || globalX >= sampleWidth - 2) continue;
 
           if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
-            // 基線 midY からの最大上下乖離偏差 (QRSスパイク突起)
-            const devTop = Math.abs(topYArr[x] - midY);
-            const devBottom = Math.abs(bottomYArr[x] - midY);
-            const maxDev = Math.max(devTop, devBottom);
+            const centerY = (topYArr[x] + bottomYArr[x]) / 2;
 
-            // 1次微分 (傾き)
+            // 1. ローカルメディアン基線からの純粋な振幅偏差 (R波/S波の突起度)
+            const devFromBase = Math.abs(centerY - baseY);
+
+            // 2. 1次微分 (急傾斜・立ち上がり速度)
             let slope = 0;
             if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) {
               slope += Math.abs(topYArr[x + 1] - topYArr[x - 1]);
@@ -1074,8 +1084,17 @@ export class EcgImageAnalyzer {
               slope += Math.abs(bottomYArr[x + 1] - bottomYArr[x - 1]);
             }
 
-            qrsSlopePower[globalX] += (slope * slope * 3.0);
-            maxDeviationPower[globalX] += (maxDev * maxDev);
+            // 3. 2次微分 (最尖端曲率・R波山頂/S波谷底の尖り具合)
+            let curvature = 0;
+            if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) {
+              curvature += Math.abs(topYArr[x - 1] - 2 * topYArr[x] + topYArr[x + 1]);
+            }
+            if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) {
+              curvature += Math.abs(bottomYArr[x - 1] - 2 * bottomYArr[x] + bottomYArr[x + 1]);
+            }
+
+            qrsSlopePower[globalX] += (slope * slope);
+            maxDeviationPower[globalX] += (devFromBase * devFromBase * 2.0 + curvature * 12.0);
           }
         }
       } catch (e) {}
@@ -1105,7 +1124,7 @@ export class EcgImageAnalyzer {
     }
     nonZeroEnergies.sort((a, b) => b - a);
     
-    // 上位 20% 付近のエネルギー値をしきい値基準に採用
+    // 上位 25% 付近のエネルギー値をしきい値基準に採用
     let adaptiveThreshold = 10.0;
     if (nonZeroEnergies.length > 5) {
       const topIdx = Math.floor(nonZeroEnergies.length * 0.25);
@@ -1128,17 +1147,17 @@ export class EcgImageAnalyzer {
       }
     }
 
-    // 第2段階: 幅広PVC対応！候補近傍 (±22px) における真の最尖端スパイク (最高点/最深部) への高精度吸着
+    // 第2段階: 洞調律 & 幅広PVCの両方に対応！候補近傍 (±18px) における真の最尖端スパイク (最高点/最深部) への高精度直撃吸着
     const peaks = candidatePeaks.map(pk => {
-      const searchStart = Math.max(2, Math.floor(pk.x - 22));
-      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 22));
+      const searchStart = Math.max(2, Math.floor(pk.x - 18));
+      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 18));
 
       let bestX = pk.x;
       let maxSpikeDev = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // 波形が垂直方向に最も突出している頂点/谷底スパイク位置を直撃
-        const devPower = maxDeviationPower[x] * 2.0 + qrsSlopePower[x] * 1.0;
+        // 傾き ✕ 基線相対振幅 ✕ 最尖端曲率 の総合スコア
+        const devPower = maxDeviationPower[x] * 2.0 + qrsSlopePower[x] * 1.5;
         if (devPower > maxSpikeDev) {
           maxSpikeDev = devPower;
           bestX = x;
@@ -1147,13 +1166,13 @@ export class EcgImageAnalyzer {
 
       // サブピクセル補間
       let subX = bestX;
-      const eL = maxDeviationPower[Math.max(0, bestX - 1)];
-      const eM = maxDeviationPower[bestX];
-      const eR = maxDeviationPower[Math.min(sampleWidth - 1, bestX + 1)];
+      const eL = maxDeviationPower[Math.max(0, bestX - 1)] * 2.0 + qrsSlopePower[Math.max(0, bestX - 1)] * 1.5;
+      const eM = maxDeviationPower[bestX] * 2.0 + qrsSlopePower[bestX] * 1.5;
+      const eR = maxDeviationPower[Math.min(sampleWidth - 1, bestX + 1)] * 2.0 + qrsSlopePower[Math.min(sampleWidth - 1, bestX + 1)] * 1.5;
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
-        if (Math.abs(delta) < 1.0) subX += delta;
+        if (Math.abs(delta) < 0.8) subX += delta;
       }
 
       const absX = sampleStartX + subX;
