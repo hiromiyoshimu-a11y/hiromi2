@@ -94,9 +94,11 @@ export class EcgImageAnalyzer {
     this.analyzedData = null;
     this.isProcessing = false;
 
-    // QRS検出ビートマーカー & 標的PVC手動選択プロパティ
+    // QRS検出ビートマーカー & 標的PVC手動選択プロパティ (四肢誘導・胸部誘導個別選択対応)
     this.detectedBeats = [];
     this.selectedBeatIndex = 0;
+    this.selectedLimbBeatIndex = 0;
+    this.selectedChestBeatIndex = 0;
     this.showBeatMarkers = true;
 
     this.render();
@@ -505,10 +507,13 @@ export class EcgImageAnalyzer {
   }
 
   drawImageToCanvas(img) {
-    const maxWidth = 760;
-    const scale = Math.min(1, maxWidth / img.width);
-    this.canvas.width = img.width * scale;
-    this.canvas.height = img.height * scale;
+    // 画面左右いっぱいに最大拡大 (PC大画面・スマホ画面最大化対応)
+    const containerW = this.container ? (this.container.clientWidth - 20) : 1080;
+    const targetWidth = Math.max(containerW, 1000);
+    const scale = targetWidth / img.width;
+    
+    this.canvas.width = Math.round(img.width * scale);
+    this.canvas.height = Math.round(img.height * scale);
 
     this.ctx.drawImage(img, 0, 0, this.canvas.width, this.canvas.height);
   }
@@ -741,7 +746,8 @@ export class EcgImageAnalyzer {
 
   /**
    * 画像上のQRS波形認識点（ビート）を検出・解析
-   * 評価誘導（V1/II/リズム行）の同一基線高さ（同一Y座標）上で、左から右へ横一列に「拍1, 拍2, 拍3...」を整列描画
+   * 四肢誘導と胸部誘導が並ぶ場合は両方に横一列のマーカーを生成し、それぞれ独立にPVCを選択可能
+   * 縦12誘導の場合は1セット（胸部/主要誘導）のみ表示
    */
   detectBeatsFromImage() {
     const layoutDef = ECG_LAYOUTS[this.currentLayoutId] || ECG_LAYOUTS['6x2'];
@@ -749,66 +755,86 @@ export class EcgImageAnalyzer {
     const rows = layoutDef.rows;
 
     this.detectedBeats = [];
-
-    // 評価リード（V1誘導行、またはリズムストリップ行）の位置と高さ(Y%)を確定
-    let targetRow = 0;
-    let targetCol = 1;
-    let targetLeadName = 'V1';
-
-    if (this.currentLayoutId === '6x2') {
-      targetRow = 0; targetCol = 1; targetLeadName = 'V1'; // V1誘導 (右列最上段)
-    } else if (this.currentLayoutId === '3x4') {
-      targetRow = 0; targetCol = 2; targetLeadName = 'V1'; // V1誘導 (3列目最上段)
-    } else if (this.currentLayoutId === '3x4_rhythm') {
-      targetRow = 3; targetCol = 0; targetLeadName = 'II (Rhythm)'; // リズムストリップ (最下段長尺)
-    } else if (this.currentLayoutId === '12x1') {
-      targetRow = 6; targetCol = 0; targetLeadName = 'V1'; // 縦12誘導のV1行 (7段目)
-    } else if (this.currentLayoutId === '2x6') {
-      targetRow = 1; targetCol = 0; targetLeadName = 'V1'; // 下段胸部6誘導のV1 (左下)
-    }
-
-    // 選択された誘導行の基線高さ（同一Y座標%）
     const cellH = 100 / rows;
-    const basePosY = cellH * (targetRow + 0.52);
-
-    // セルの横幅と開始X位置
     const cellW = 100 / cols;
-    const startX = cellW * targetCol;
 
-    // 時間軸（横方向）にそって一直線上に拍1, 拍2, 拍3, 拍4, 拍5を順に配置
-    let beatRatios = [0.18, 0.38, 0.58, 0.78, 0.92];
-    if (this.currentLayoutId === '3x4_rhythm') {
-      // 最下段の長尺リズムストリップの場合、幅全体にわたって7拍横並び
-      beatRatios = [0.08, 0.22, 0.36, 0.50, 0.64, 0.78, 0.90];
-    } else if (this.currentLayoutId === '12x1') {
-      // 縦12誘導セル内の横幅いっぱいに4拍並び
-      beatRatios = [0.20, 0.42, 0.64, 0.85];
-    }
+    if (this.currentLayoutId === '12x1') {
+      // 縦12誘導 (1列×12行 垂直並び): V1行(7段目)の1ラインのみに4拍のマーカーを表示
+      const targetRow = 6; // V1
+      const yPct = cellH * (targetRow + 0.52);
 
-    beatRatios.forEach((ratio, idx) => {
-      const posX = (this.currentLayoutId === '3x4_rhythm') ? (100 * ratio) : (startX + cellW * ratio);
-      
-      // 画像ピクセル走査による微小Y offset補正 (もし実画像が存在すれば)
-      let finalY = basePosY;
-      if (this.canvas && this.ctx) {
-        // 心拍波形のピーク補正
-        finalY = basePosY;
-      }
-
-      this.detectedBeats.push({
-        beatIndex: idx,
-        beatNum: idx + 1,
-        lead: targetLeadName,
-        xPct: parseFloat(posX.toFixed(1)),
-        yPct: parseFloat(finalY.toFixed(1)),
-        polarity: (idx === 0) ? 'negative' : (idx === 1 ? 'positive' : 'negative')
+      const beatRatios = [0.18, 0.40, 0.62, 0.84];
+      beatRatios.forEach((ratio, idx) => {
+        this.detectedBeats.push({
+          group: 'single',
+          groupName: '標的',
+          beatIndex: idx,
+          beatNum: idx + 1,
+          lead: 'V1',
+          xPct: parseFloat((100 * ratio).toFixed(1)),
+          yPct: parseFloat(yPct.toFixed(1)),
+          polarity: (idx === 0) ? 'negative' : (idx === 1 ? 'positive' : 'negative')
+        });
       });
-    });
+    } else {
+      // 四肢誘導 ＆ 胸部誘導が左右（または上下）に並ぶ標準フォーマット (6x2, 3x4, 2x6, 3x4_rhythm)
+      // 1. 四肢誘導グループ (例: II 誘導行)
+      let limbRow = 1; let limbCol = 0; let limbLeadName = 'II';
+      if (this.currentLayoutId === '6x2') { limbRow = 1; limbCol = 0; limbLeadName = 'II'; }
+      else if (this.currentLayoutId === '3x4') { limbRow = 1; limbCol = 0; limbLeadName = 'II'; }
+      else if (this.currentLayoutId === '3x4_rhythm') { limbRow = 1; limbCol = 0; limbLeadName = 'II'; }
+      else if (this.currentLayoutId === '2x6') { limbRow = 0; limbCol = 1; limbLeadName = 'II'; }
+
+      const limbY = cellH * (limbRow + 0.52);
+      const limbStartX = cellW * limbCol;
+      const limbRatios = [0.20, 0.50, 0.80];
+
+      limbRatios.forEach((ratio, idx) => {
+        const posX = limbStartX + cellW * ratio;
+        this.detectedBeats.push({
+          group: 'limb',
+          groupName: '四肢',
+          beatIndex: idx,
+          beatNum: idx + 1,
+          lead: limbLeadName,
+          xPct: parseFloat(posX.toFixed(1)),
+          yPct: parseFloat(limbY.toFixed(1)),
+          polarity: (idx === 0) ? 'positive' : (idx === 1 ? 'negative' : 'positive')
+        });
+      });
+
+      // 2. 胸部誘導グループ (例: V1 誘導行)
+      let chestRow = 0; let chestCol = 1; let chestLeadName = 'V1';
+      if (this.currentLayoutId === '6x2') { chestRow = 0; chestCol = 1; chestLeadName = 'V1'; }
+      else if (this.currentLayoutId === '3x4') { chestRow = 0; chestCol = 2; chestLeadName = 'V1'; }
+      else if (this.currentLayoutId === '3x4_rhythm') { chestRow = 0; chestCol = 2; chestLeadName = 'V1'; }
+      else if (this.currentLayoutId === '2x6') { chestRow = 1; chestCol = 0; chestLeadName = 'V1'; }
+
+      const chestY = cellH * (chestRow + 0.52);
+      const chestStartX = cellW * chestCol;
+      const chestRatios = [0.20, 0.50, 0.80];
+
+      chestRatios.forEach((ratio, idx) => {
+        const posX = chestStartX + cellW * ratio;
+        this.detectedBeats.push({
+          group: 'chest',
+          groupName: '胸部',
+          beatIndex: idx,
+          beatNum: idx + 1,
+          lead: chestLeadName,
+          xPct: parseFloat(posX.toFixed(1)),
+          yPct: parseFloat(chestY.toFixed(1)),
+          polarity: (idx === 0) ? 'negative' : (idx === 1 ? 'positive' : 'negative')
+        });
+      });
+    }
 
     // デフォルト選択インデックスの範囲調整
-    if (this.selectedBeatIndex >= this.detectedBeats.length) {
-      this.selectedBeatIndex = 0;
-    }
+    const limbBeatsCount = this.detectedBeats.filter(b => b.group === 'limb').length || 1;
+    const chestBeatsCount = this.detectedBeats.filter(b => b.group === 'chest' || b.group === 'single').length || 1;
+
+    if (this.selectedLimbBeatIndex >= limbBeatsCount) this.selectedLimbBeatIndex = 0;
+    if (this.selectedChestBeatIndex >= chestBeatsCount) this.selectedChestBeatIndex = 0;
   }
 
   /**
@@ -831,27 +857,38 @@ export class EcgImageAnalyzer {
 
     if (!this.detectedBeats || this.detectedBeats.length === 0) return;
 
-    this.detectedBeats.forEach((b, idx) => {
-      const isTarget = (idx === this.selectedBeatIndex);
+    this.detectedBeats.forEach((b) => {
+      let isTarget = false;
+      let labelText = '';
+
+      if (b.group === 'single') {
+        isTarget = (b.beatIndex === this.selectedChestBeatIndex);
+        labelText = isTarget ? '★ 標的PVC' : `拍 ${b.beatNum}`;
+      } else if (b.group === 'limb') {
+        isTarget = (b.beatIndex === this.selectedLimbBeatIndex);
+        labelText = isTarget ? `★ 四肢:拍${b.beatNum}` : `四肢:拍${b.beatNum}`;
+      } else if (b.group === 'chest') {
+        isTarget = (b.beatIndex === this.selectedChestBeatIndex);
+        labelText = isTarget ? `★ 胸部:拍${b.beatNum}` : `胸部:拍${b.beatNum}`;
+      }
 
       const marker = document.createElement('div');
-      marker.className = `ia-beat-marker ${isTarget ? 'is-target' : ''}`;
+      marker.className = `ia-beat-marker ${isTarget ? 'is-target' : ''} group-${b.group}`;
       marker.style.left = `${b.xPct}%`;
       marker.style.top = `${b.yPct}%`;
-      marker.setAttribute('data-beat-index', idx);
-      marker.title = `拍 ${b.beatNum} (${b.lead}): クリックして標的PVCとして手動指定`;
+      marker.title = `${b.groupName}誘導 拍 ${b.beatNum} (${b.lead}): クリックして標的PVCとして指定`;
 
       marker.innerHTML = `
         <div class="ia-beat-pulse"></div>
         <div class="ia-beat-dot"></div>
         <div class="ia-beat-label">
-          ${isTarget ? '★ 標的PVC' : `拍 ${b.beatNum}`}
+          ${labelText}
         </div>
       `;
 
       marker.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.selectTargetBeat(idx);
+        this.selectTargetBeat(b);
       });
 
       overlay.appendChild(marker);
@@ -859,13 +896,16 @@ export class EcgImageAnalyzer {
   }
 
   /**
-   * 手動で正しいPVCの拍を選択・認識変更
+   * 手動で正しいPVCの拍を選択・認識変更（四肢・胸部それぞれ独立指定対応）
    */
-  selectTargetBeat(beatIndex) {
-    if (beatIndex < 0 || beatIndex >= this.detectedBeats.length) return;
+  selectTargetBeat(targetBeat) {
+    if (!targetBeat) return;
 
-    this.selectedBeatIndex = beatIndex;
-    const targetBeat = this.detectedBeats[beatIndex];
+    if (targetBeat.group === 'limb') {
+      this.selectedLimbBeatIndex = targetBeat.beatIndex;
+    } else {
+      this.selectedChestBeatIndex = targetBeat.beatIndex;
+    }
 
     // マーカーオーバーレイの更新
     this.renderBeatMarkersOverlay();
@@ -873,18 +913,12 @@ export class EcgImageAnalyzer {
     // 解析結果の再計算 & サマリー表示の更新
     if (this.analyzedData) {
       // 選択拍の極性に基づいてパラメータを微調整
-      if (targetBeat.polarity === 'positive') {
-        this.analyzedData.v1Pattern = 'rbbb_r';
-      } else if (targetBeat.polarity === 'negative') {
-        this.analyzedData.v1Pattern = 'lbbb_qs';
+      if (targetBeat.group === 'limb') {
+        this.analyzedData.axis = (targetBeat.polarity === 'positive') ? 'inferior' : 'superior';
+      } else {
+        this.analyzedData.v1Pattern = (targetBeat.polarity === 'positive') ? 'rbbb_r' : 'lbbb_qs';
       }
       this.displayAnalysisResults(this.analyzedData);
-    }
-
-    // タップ選択のフィードバックトースト通知
-    const bannerLabel = this.container.querySelector('#ia-target-beat-label');
-    if (bannerLabel) {
-      bannerLabel.innerHTML = `<span style="color: #f59e0b; font-weight: 800;">拍 ${targetBeat.beatNum} (${targetBeat.lead})</span> [手動指定]`;
     }
   }
 
@@ -898,12 +932,18 @@ export class EcgImageAnalyzer {
     const bannerLabel = this.container.querySelector('#ia-target-beat-label');
 
     const layoutName = ECG_LAYOUTS[f.layoutId]?.name.split(' ')[0] || f.layoutId;
-    const curBeat = this.detectedBeats[this.selectedBeatIndex];
-    const beatInfoText = curBeat ? `拍 ${curBeat.beatNum} (${curBeat.lead})` : `拍 ${this.selectedBeatIndex + 1}`;
+    const isSingleGroup = (f.layoutId === '12x1');
 
-    conf.textContent = `認識レイアウト: ${layoutName} / 標的PVC: ${beatInfoText}`;
+    let beatSummaryText = '';
+    if (isSingleGroup) {
+      beatSummaryText = `拍 ${this.selectedChestBeatIndex + 1}`;
+    } else {
+      beatSummaryText = `[四肢] 拍 ${this.selectedLimbBeatIndex + 1} / [胸部] 拍 ${this.selectedChestBeatIndex + 1}`;
+    }
+
+    conf.textContent = `認識レイアウト: ${layoutName} / 標的PVC: ${beatSummaryText}`;
     if (bannerLabel) {
-      bannerLabel.innerHTML = `<strong>${beatInfoText}</strong> (マーカータップで変更可)`;
+      bannerLabel.innerHTML = `<strong style="color: #f59e0b;">${beatSummaryText}</strong> (画像上の各マーカータップで個別手動選択可)`;
     }
 
     const axisLabel = f.axis === 'inferior' ? '下方軸 (II/III/aVF陽性)' : f.axis === 'superior' ? '上方軸 (II/III/aVF陰性)' : '中間軸';
@@ -913,7 +953,7 @@ export class EcgImageAnalyzer {
     grid.innerHTML = `
       <div class="ia-result-badge-item">
         <span class="ia-badge-lbl">標的PVC選択</span>
-        <span class="ia-badge-val" style="color: #f59e0b; font-weight: bold;">★ ${beatInfoText}</span>
+        <span class="ia-badge-val" style="color: #f59e0b; font-weight: bold;">★ ${beatSummaryText}</span>
       </div>
       <div class="ia-result-badge-item">
         <span class="ia-badge-lbl">電気軸</span>
