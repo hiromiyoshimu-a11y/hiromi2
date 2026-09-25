@@ -233,9 +233,9 @@ export class EcgImageAnalyzer {
             </label>
           </div>
 
-          <!-- 誘導ガイド枠のOCR自動吸着 ＆ 位置ズレ微調整アライメントバー -->
+          <!-- 誘導ガイド枠のOCR自動吸着 ＆ マーカー微調整アライメントバー -->
           <div class="ia-guide-align-bar">
-            <span class="ia-guide-align-title">🎯 ガイド枠吸着・ズレ微調整:</span>
+            <span class="ia-guide-align-title">🎯 ガイド枠吸着・微調整:</span>
             <button type="button" class="ia-align-btn" id="ia-btn-ocr-realign" title="写真の印字・格子領域にOCR自動吸着">✨ OCR自動吸着</button>
             <button type="button" class="ia-align-btn" id="ia-btn-align-up" title="上へ移動">↑ 上</button>
             <button type="button" class="ia-align-btn" id="ia-btn-align-down" title="下へ移動">↓ 下</button>
@@ -244,6 +244,10 @@ export class EcgImageAnalyzer {
             <button type="button" class="ia-align-btn" id="ia-btn-align-expand" title="拡大">＋ 拡大</button>
             <button type="button" class="ia-align-btn" id="ia-btn-align-shrink" title="縮小">－ 縮小</button>
             <button type="button" class="ia-align-btn" id="ia-btn-align-reset" title="アライメントリセット">リセット</button>
+            <span style="color: rgba(255,255,255,0.2);">｜</span>
+            <span class="ia-guide-align-title" style="color: #f59e0b;">📍 マーカー位置調整:</span>
+            <button type="button" class="ia-align-btn" id="ia-btn-marker-left" style="border-color: #f59e0b; color: #f59e0b;" title="選択中マーカーを微小左移動">◀ マーカー左へ</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-marker-right" style="border-color: #f59e0b; color: #f59e0b;" title="選択中マーカーを微小右移動">マーカー右へ ▶</button>
           </div>
 
           <div class="ia-action-buttons-group">
@@ -493,14 +497,30 @@ export class EcgImageAnalyzer {
     const btnShrink = this.container.querySelector('#ia-btn-align-shrink');
     const btnResetAlign = this.container.querySelector('#ia-btn-align-reset');
 
-    if (btnRealign) btnRealign.addEventListener('click', () => this.performOcrGuideAlignment());
-    if (btnUp) btnUp.addEventListener('click', () => this.adjustGuideOffset(0, -1.5));
-    if (btnDown) btnDown.addEventListener('click', () => this.adjustGuideOffset(0, 1.5));
-    if (btnLeft) btnLeft.addEventListener('click', () => this.adjustGuideOffset(-1.5, 0));
-    if (btnRight) btnRight.addEventListener('click', () => this.adjustGuideOffset(1.5, 0));
-    if (btnExpand) btnExpand.addEventListener('click', () => this.adjustGuideScale(0.04));
-    if (btnShrink) btnShrink.addEventListener('click', () => this.adjustGuideScale(-0.04));
-    if (btnResetAlign) btnResetAlign.addEventListener('click', () => this.resetGuideOffset());
+    // マーカー左右微調整ボタン
+    const btnMarkerLeft = this.container.querySelector('#ia-btn-marker-left');
+    const btnMarkerRight = this.container.querySelector('#ia-btn-marker-right');
+    if (btnMarkerLeft) btnMarkerLeft.addEventListener('click', () => this.nudgeSelectedBeat(-0.5));
+    if (btnMarkerRight) btnMarkerRight.addEventListener('click', () => this.nudgeSelectedBeat(0.5));
+  }
+
+  nudgeSelectedBeat(dxPct) {
+    if (!this.detectedBeats || this.detectedBeats.length === 0) return;
+    
+    // 現在選択中の胸部または四肢マーカーのX座標を微調整
+    this.detectedBeats.forEach(b => {
+      let isTarget = false;
+      if (b.group === 'single' || b.group === 'chest') {
+        isTarget = (b.beatIndex === this.selectedChestBeatIndex);
+      } else if (b.group === 'limb') {
+        isTarget = (b.beatIndex === this.selectedLimbBeatIndex);
+      }
+      if (isTarget) {
+        b.xPct = parseFloat((b.xPct + dxPct).toFixed(2));
+      }
+    });
+
+    this.renderBeatMarkersOverlay();
   }
 
   adjustGuideOffset(dx, dy) {
@@ -1061,13 +1081,12 @@ export class EcgImageAnalyzer {
       } catch (e) {}
     });
 
-    // QRS検出用トータルエネルギー (急傾き ✕ 上下突き出し偏差 の【乗算積】: T波は傾きが0に近いためスコアが0になり完全消滅)
+    // QRS検出用トータルエネルギー (動的レンジ圧縮 ✕ 乗算積: 巨大PVCが全体の平均閾値を引き上げすぎる現象を完全防護)
     const combinedEnergy = new Float32Array(sampleWidth);
     for (let x = 2; x < sampleWidth - 2; x++) {
       const slopeFactor = Math.sqrt(qrsSlopePower[x]);
-      const devFactor = Math.sqrt(maxDeviationPower[x]);
-      // 乗算積: 傾きと偏差の両方が同時に極めて高いQRS波形のみが巨大スコアを獲得
-      const rawE = (slopeFactor * devFactor * devFactor);
+      const devFactor = Math.log(1.0 + Math.sqrt(maxDeviationPower[x])); // ログ圧縮で極大PVCと洞調律を均一評価
+      const rawE = (slopeFactor * devFactor * 10.0);
       combinedEnergy[x] = rawE;
     }
 
@@ -1077,22 +1096,28 @@ export class EcgImageAnalyzer {
       smoothedEnergy[x] = (combinedEnergy[x - 2] + combinedEnergy[x - 1] * 2 + combinedEnergy[x] * 3 + combinedEnergy[x + 1] * 2 + combinedEnergy[x + 2]) / 9.0;
     }
 
-    let totalE = 0, countE = 0;
+    // アダプティブパーセンタイル閾値の算定 (上位エネルギーから適応的しきい値を自動算出)
+    const nonZeroEnergies = [];
     for (let x = 0; x < sampleWidth; x++) {
-      if (smoothedEnergy[x] > 0) {
-        totalE += smoothedEnergy[x];
-        countE++;
+      if (smoothedEnergy[x] > 2.0) {
+        nonZeroEnergies.push(smoothedEnergy[x]);
       }
     }
-    const avgE = countE > 0 ? (totalE / countE) : 10;
-    const threshold = Math.max(12, avgE * 1.05);
+    nonZeroEnergies.sort((a, b) => b - a);
+    
+    // 上位 20% 付近のエネルギー値をしきい値基準に採用
+    let adaptiveThreshold = 10.0;
+    if (nonZeroEnergies.length > 5) {
+      const topIdx = Math.floor(nonZeroEnergies.length * 0.25);
+      adaptiveThreshold = Math.max(8.0, nonZeroEnergies[topIdx] * 0.45);
+    }
 
     const candidatePeaks = [];
-    const minRRPeriod = sampleWidth * 0.085; // 最小RR間隔 (約320ms)
+    const minRRPeriod = sampleWidth * 0.065; // PVC早期出現に対応 (約 250ms)
 
     for (let x = 3; x < sampleWidth - 3; x++) {
       const e = smoothedEnergy[x];
-      if (e > threshold) {
+      if (e > adaptiveThreshold) {
         if (e >= smoothedEnergy[x - 1] && e >= smoothedEnergy[x - 2] &&
             e >= smoothedEnergy[x + 1] && e >= smoothedEnergy[x + 2]) {
           
@@ -1103,17 +1128,17 @@ export class EcgImageAnalyzer {
       }
     }
 
-    // 第2段階: 真のQRS最尖端スパイク (基線からの突出度 ✕ 傾き が共に最大の QRS 頂点/谷底) へのピンポイント吸着
+    // 第2段階: 幅広PVC対応！候補近傍 (±22px) における真の最尖端スパイク (最高点/最深部) への高精度吸着
     const peaks = candidatePeaks.map(pk => {
-      const searchStart = Math.max(2, Math.floor(pk.x - 18));
-      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 18));
+      const searchStart = Math.max(2, Math.floor(pk.x - 22));
+      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 22));
 
       let bestX = pk.x;
       let maxSpikeDev = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // T波(丸い山)を100%排除し、QRS真の頂点スパイク(急傾斜かつ垂直突起)のみを直撃！
-        const devPower = maxDeviationPower[x] * (qrsSlopePower[x] + 1.0);
+        // 波形が垂直方向に最も突出している頂点/谷底スパイク位置を直撃
+        const devPower = maxDeviationPower[x] * 2.0 + qrsSlopePower[x] * 1.0;
         if (devPower > maxSpikeDev) {
           maxSpikeDev = devPower;
           bestX = x;
