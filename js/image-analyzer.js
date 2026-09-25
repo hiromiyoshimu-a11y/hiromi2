@@ -1178,9 +1178,6 @@ export class EcgImageAnalyzer {
         <div class="ia-beat-guideline"></div>
         <div class="ia-beat-pulse"></div>
         <div class="ia-beat-dot"></div>
-        <div class="ia-beat-label">
-          ${labelText}
-        </div>
       `;
 
       marker.addEventListener('click', (e) => {
