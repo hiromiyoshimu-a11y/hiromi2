@@ -939,7 +939,7 @@ export class EcgImageAnalyzer {
 
   /**
    * 指定誘導グループ（四肢6誘導 or 胸部6誘導）をアンサンブル一括走査
-   * 6つの誘導のどこかでQRSが認識できれば、その時間軸X位置にピークを確実検出
+   * Pan-Tompkins型 1次微分＆波形エンベロープエネルギー積分による超高精度QRSピーク吸着検出
    */
   findEnsembleQrsPeaks(groupType) {
     if (!this.canvas || !this.ctx) return [];
@@ -950,7 +950,25 @@ export class EcgImageAnalyzer {
     const canvasW = this.canvas.width;
     const canvasH = this.canvas.height;
 
-    // 対象セル（6誘導）の範囲を収集
+    // 誘導ガイド枠の最新の画面上位置・オフセット (%指定) を取得して座標に反映
+    const overlay = this.container.querySelector('#ia-overlay-guide');
+    let guideTopPct = 0, guideLeftPct = 0, guideWidthPct = 100, guideHeightPct = 100;
+    if (overlay) {
+      guideTopPct = parseFloat(overlay.style.top || '0') || 0;
+      guideLeftPct = parseFloat(overlay.style.left || '0') || 0;
+      guideWidthPct = parseFloat(overlay.style.width || '100') || 100;
+      guideHeightPct = parseFloat(overlay.style.height || '100') || 100;
+    }
+
+    const gridX = (guideLeftPct / 100) * canvasW;
+    const gridY = (guideTopPct / 100) * canvasH;
+    const gridW = (guideWidthPct / 100) * canvasW;
+    const gridH = (guideHeightPct / 100) * canvasH;
+
+    const cellW = gridW / cols;
+    const cellH = gridH / rows;
+
+    // 対象セル（6誘導）を収集
     const targetCells = [];
     layoutDef.mapping.forEach((row, rIdx) => {
       row.forEach((leadName, cIdx) => {
@@ -971,69 +989,115 @@ export class EcgImageAnalyzer {
 
     if (targetCells.length === 0) return [];
 
-    const cellW = canvasW / cols;
-    const cellH = canvasH / rows;
-
     let minX = canvasW, maxX = 0;
     targetCells.forEach(cell => {
-      const x0 = cell.cIdx * cellW;
-      const x1 = (cell.cIdx + 1) * cellW;
+      const x0 = gridX + cell.cIdx * cellW;
+      const x1 = gridX + (cell.cIdx + 1) * cellW;
       if (x0 < minX) minX = x0;
       if (x1 > maxX) maxX = x1;
     });
 
-    const sampleStartX = Math.floor(minX + cellW * 0.05);
-    const sampleWidth = Math.floor((maxX - minX) * 0.90);
-    if (sampleWidth <= 0) return [];
+    // 誘導ラベル「I」「V1」等の表示領域 (左側 12%) を安全に回避
+    const sampleStartX = Math.floor(minX + cellW * 0.12);
+    const sampleWidth = Math.floor((maxX - minX) - cellW * 0.14);
+    if (sampleWidth <= 10) return [];
 
-    const ensembleAmplitudes = new Float32Array(sampleWidth);
+    const qrsEnergy = new Float32Array(sampleWidth);
 
     targetCells.forEach(cell => {
-      const cx = Math.floor(cell.cIdx * cellW + cellW * 0.05);
-      const cy = Math.floor(cell.rIdx * cellH + cellH * 0.08);
-      const cw = Math.floor(cellW * 0.90);
-      const ch = Math.floor(cellH * 0.84);
+      const cx = Math.floor(gridX + cell.cIdx * cellW + cellW * 0.12);
+      const cy = Math.floor(gridY + cell.rIdx * cellH + cellH * 0.10);
+      const cw = Math.floor(cellW * 0.86);
+      const ch = Math.floor(cellH * 0.80);
+
+      if (cw <= 5 || ch <= 5) return;
 
       try {
         const imgData = this.ctx.getImageData(cx, cy, cw, ch);
         const data = imgData.data;
-        const midY = ch / 2;
+
+        // 各Xラインにおける波形（黒ピクセル）のTop Y と Bottom Y をスキャン
+        const topYArr = new Int32Array(cw).fill(-1);
+        const bottomYArr = new Int32Array(cw).fill(-1);
 
         for (let x = 0; x < cw; x++) {
-          const globalX = Math.floor((cell.cIdx * cellW + x) - sampleStartX);
-          if (globalX < 0 || globalX >= sampleWidth) continue;
-
-          let maxDev = 0;
           for (let y = 0; y < ch; y++) {
             const idx = (y * cw + x) * 4;
             const r = data[idx], g = data[idx + 1], b = data[idx + 2];
             const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
             const gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-            if (gray < 140 && !isRedGrid) {
-              const dev = Math.abs(y - midY);
-              if (dev > maxDev) maxDev = dev;
+            if (gray < 125 && !isRedGrid) {
+              if (topYArr[x] === -1) topYArr[x] = y;
+              bottomYArr[x] = y;
             }
           }
-          ensembleAmplitudes[globalX] += maxDev;
+        }
+
+        // 微分 ＆ エンベロープ振幅エネルギーの加算 (Pan-Tompkins Algorithm)
+        for (let x = 2; x < cw - 2; x++) {
+          const globalX = Math.floor((gridX + cell.cIdx * cellW + cellW * 0.12 + x) - sampleStartX);
+          if (globalX < 2 || globalX >= sampleWidth - 2) continue;
+
+          if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
+            const height = (bottomYArr[x] - topYArr[x]); // 振幅
+            // 隣接ピクセルとの1次微分 (Yの傾き)
+            let diffTop = 0, diffBottom = 0;
+            if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) {
+              diffTop = Math.abs(topYArr[x + 1] - topYArr[x - 1]);
+            }
+            if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) {
+              diffBottom = Math.abs(bottomYArr[x + 1] - bottomYArr[x - 1]);
+            }
+
+            const slope = diffTop + diffBottom;
+            const energy = (slope * slope * 2.5) + (height * 1.8);
+            qrsEnergy[globalX] += energy;
+          }
         }
       } catch (e) {}
     });
 
-    const peaks = [];
-    const minDistance = sampleWidth * 0.12;
-    const threshold = 12;
-
+    // 5ピクセルの移動平均スモーシング (Moving Window Integration)
+    const smoothedEnergy = new Float32Array(sampleWidth);
     for (let x = 2; x < sampleWidth - 2; x++) {
-      const amp = ensembleAmplitudes[x];
-      if (amp > threshold) {
-        if (amp >= ensembleAmplitudes[x - 1] && amp >= ensembleAmplitudes[x - 2] &&
-            amp >= ensembleAmplitudes[x + 1] && amp >= ensembleAmplitudes[x + 2]) {
+      smoothedEnergy[x] = (qrsEnergy[x - 2] + qrsEnergy[x - 1] * 2 + qrsEnergy[x] * 3 + qrsEnergy[x + 1] * 2 + qrsEnergy[x + 2]) / 9.0;
+    }
+
+    // 平均エネルギー閾値の動的算出
+    let totalE = 0, countE = 0;
+    for (let x = 0; x < sampleWidth; x++) {
+      if (smoothedEnergy[x] > 0) {
+        totalE += smoothedEnergy[x];
+        countE++;
+      }
+    }
+    const avgE = countE > 0 ? (totalE / countE) : 10;
+    const threshold = Math.max(12, avgE * 1.1);
+
+    const peaks = [];
+    const minDistance = sampleWidth * 0.08; // 心拍の最小RR間隔 (約300ms)
+
+    for (let x = 3; x < sampleWidth - 3; x++) {
+      const e = smoothedEnergy[x];
+      if (e > threshold) {
+        if (e >= smoothedEnergy[x - 1] && e >= smoothedEnergy[x - 2] &&
+            e >= smoothedEnergy[x + 1] && e >= smoothedEnergy[x + 2]) {
           
           if (peaks.length === 0 || (x - peaks[peaks.length - 1].x) > minDistance) {
-            const absX = sampleStartX + x;
+            // ピーク近傍のサブピクセル補正
+            let subX = x;
+            const eL = smoothedEnergy[x - 1];
+            const eR = smoothedEnergy[x + 1];
+            const denom = (eL - 2 * e + eR);
+            if (denom !== 0) {
+              const delta = (eL - eR) / (2 * denom);
+              if (Math.abs(delta) < 1.0) subX += delta;
+            }
+
+            const absX = sampleStartX + subX;
             peaks.push({
-              x: x,
+              x: subX,
               xPct: parseFloat(((absX / canvasW) * 100).toFixed(1))
             });
           }
