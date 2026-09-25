@@ -101,8 +101,18 @@ export class EcgImageAnalyzer {
     this.selectedChestBeatIndex = 0;
     this.showBeatMarkers = true;
 
+    // 画像インタラクティブ ズーム ＆ タッチスワイプ移動 (Pan) プロパティ
+    this.zoomScale = 1.0;
+    this.panX = 0;
+    this.panY = 0;
+    this.isDragging = false;
+    this.startDragX = 0;
+    this.startDragY = 0;
+    this.lastTouchDist = 0;
+
     this.render();
     this.setupEvents();
+    this.setupZoomAndPanEvents();
   }
 
   render() {
@@ -172,11 +182,25 @@ export class EcgImageAnalyzer {
             </button>
           </div>
 
-          <!-- Canvasプレビュー -->
+          <!-- Canvasプレビュー (画面左右全幅拡大 ＆ ダブルタップ・タッチスワイプ操作付き) -->
           <div class="ia-canvas-wrapper" id="ia-canvas-wrapper" style="display: none;">
-            <canvas id="ia-canvas"></canvas>
-            <div class="ia-overlay-guide" id="ia-overlay-guide">
-              <!-- 誘導グリッドガイド枠オーバーレイ -->
+            <div class="ia-zoom-bar">
+              <span class="ia-zoom-hint">🔍 ダブルタップで拡大・縮小 ｜ 指やマウスでスワイプ移動できます</span>
+              <div class="ia-zoom-controls">
+                <button type="button" class="ia-zoom-btn" id="ia-zoom-out" title="縮小">-</button>
+                <span class="ia-zoom-level" id="ia-zoom-level-label">100%</span>
+                <button type="button" class="ia-zoom-btn" id="ia-zoom-in" title="拡大">+</button>
+                <button type="button" class="ia-zoom-reset-btn" id="ia-zoom-reset" title="全体の表示に戻す">リセット</button>
+              </div>
+            </div>
+            
+            <div class="ia-canvas-viewport" id="ia-canvas-viewport">
+              <div class="ia-zoom-container" id="ia-zoom-container">
+                <canvas id="ia-canvas"></canvas>
+                <div class="ia-overlay-guide" id="ia-overlay-guide">
+                  <!-- 誘導グリッドガイド枠オーバーレイ -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -745,9 +769,76 @@ export class EcgImageAnalyzer {
   }
 
   /**
+   * Canvas画像ピクセルから指定された誘導セル領域のQRS波形ピーク（鋭い頂点・谷底）を物理走査
+   */
+  findQrsPeaksInRegion(cellX, cellY, cellW, cellH) {
+    if (!this.canvas || !this.ctx) return [];
+
+    try {
+      const startX = Math.floor(cellX + cellW * 0.05);
+      const sampleW = Math.floor(cellW * 0.90);
+      const startY = Math.floor(cellY + cellH * 0.10);
+      const sampleH = Math.floor(cellH * 0.80);
+
+      const imgData = this.ctx.getImageData(startX, startY, sampleW, sampleH);
+      const data = imgData.data;
+      const midY = sampleH / 2;
+
+      const colAmplitudes = new Float32Array(sampleW);
+      const colPeakY = new Float32Array(sampleW);
+
+      for (let x = 0; x < sampleW; x++) {
+        let maxDev = 0;
+        let peakY = midY;
+
+        for (let y = 0; y < sampleH; y++) {
+          const idx = (y * sampleW + x) * 4;
+          const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+          const isGrid = (r > 160 && g < 135 && b < 135);
+          if (gray < 130 && !isGrid) {
+            const dev = Math.abs(y - midY);
+            if (dev > maxDev) {
+              maxDev = dev;
+              peakY = y;
+            }
+          }
+        }
+        colAmplitudes[x] = maxDev;
+        colPeakY[x] = peakY;
+      }
+
+      const peaks = [];
+      const threshold = sampleH * 0.12;
+      const minDistance = sampleW * 0.15;
+
+      for (let x = 2; x < sampleW - 2; x++) {
+        const amp = colAmplitudes[x];
+        if (amp > threshold) {
+          if (amp >= colAmplitudes[x - 1] && amp >= colAmplitudes[x - 2] &&
+              amp >= colAmplitudes[x + 1] && amp >= colAmplitudes[x + 2]) {
+            
+            if (peaks.length === 0 || (x - peaks[peaks.length - 1].x) > minDistance) {
+              peaks.push({
+                xPct: parseFloat((((startX + x) / this.canvas.width) * 100).toFixed(1)),
+                yPct: parseFloat((((startY + colPeakY[x]) / this.canvas.height) * 100).toFixed(1)),
+                polarity: (colPeakY[x] < midY) ? 'positive' : 'negative'
+              });
+            }
+          }
+        }
+      }
+
+      return peaks;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  /**
    * 画像上のQRS波形認識点（ビート）を検出・解析
-   * 四肢誘導と胸部誘導が並ぶ場合は両方に横一列のマーカーを生成し、それぞれ独立にPVCを選択可能
-   * 縦12誘導の場合は1セット（胸部/主要誘導）のみ表示
+   * 実際の波形ピクセル走査結果からQRSピーク位置をジャストフィット検出
    */
   detectBeatsFromImage() {
     const layoutDef = ECG_LAYOUTS[this.currentLayoutId] || ECG_LAYOUTS['6x2'];
@@ -755,81 +846,114 @@ export class EcgImageAnalyzer {
     const rows = layoutDef.rows;
 
     this.detectedBeats = [];
-    const cellH = 100 / rows;
-    const cellW = 100 / cols;
+    const canvasW = this.canvas ? this.canvas.width : 760;
+    const canvasH = this.canvas ? this.canvas.height : 500;
+    const cellW = canvasW / cols;
+    const cellH = canvasH / rows;
 
     if (this.currentLayoutId === '12x1') {
-      // 縦12誘導 (1列×12行 垂直並び): V1行(7段目)の1ラインのみに4拍のマーカーを表示
-      const targetRow = 6; // V1
-      const yPct = cellH * (targetRow + 0.52);
+      // 縦12誘導: V1行(7段目)
+      const targetRow = 6;
+      const cellX = 0;
+      const cellY = targetRow * cellH;
 
+      const scannedPeaks = this.findQrsPeaksInRegion(cellX, cellY, cellW, cellH);
+      
       const beatRatios = [0.18, 0.40, 0.62, 0.84];
+      const basePosY = (100 / rows) * (targetRow + 0.52);
+
       beatRatios.forEach((ratio, idx) => {
+        const defaultX = parseFloat((100 * ratio).toFixed(1));
+        const defaultY = parseFloat(basePosY.toFixed(1));
+
+        const matched = scannedPeaks[idx];
+        const finalX = matched ? matched.xPct : defaultX;
+        const finalY = matched ? matched.yPct : defaultY;
+        const pol = matched ? matched.polarity : ((idx === 0) ? 'negative' : 'positive');
+
         this.detectedBeats.push({
           group: 'single',
           groupName: '標的',
           beatIndex: idx,
           beatNum: idx + 1,
           lead: 'V1',
-          xPct: parseFloat((100 * ratio).toFixed(1)),
-          yPct: parseFloat(yPct.toFixed(1)),
-          polarity: (idx === 0) ? 'negative' : (idx === 1 ? 'positive' : 'negative')
+          xPct: finalX,
+          yPct: finalY,
+          polarity: pol
         });
       });
     } else {
-      // 四肢誘導 ＆ 胸部誘導が左右（または上下）に並ぶ標準フォーマット (6x2, 3x4, 2x6, 3x4_rhythm)
       // 1. 四肢誘導グループ (例: II 誘導行)
       let limbRow = 1; let limbCol = 0; let limbLeadName = 'II';
       if (this.currentLayoutId === '6x2') { limbRow = 1; limbCol = 0; limbLeadName = 'II'; }
-      else if (this.currentLayoutId === '3x4') { limbRow = 1; limbCol = 0; limbLeadName = 'II'; }
-      else if (this.currentLayoutId === '3x4_rhythm') { limbRow = 1; limbCol = 0; limbLeadName = 'II'; }
+      else if (this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') { limbRow = 1; limbCol = 0; limbLeadName = 'II'; }
       else if (this.currentLayoutId === '2x6') { limbRow = 0; limbCol = 1; limbLeadName = 'II'; }
 
-      const limbY = cellH * (limbRow + 0.52);
-      const limbStartX = cellW * limbCol;
+      const limbX = limbCol * cellW;
+      const limbY = limbRow * cellH;
+      const limbScanned = this.findQrsPeaksInRegion(limbX, limbY, cellW, cellH);
+
       const limbRatios = [0.20, 0.50, 0.80];
+      const limbBaseY = (100 / rows) * (limbRow + 0.52);
+      const limbStartX = (100 / cols) * limbCol;
 
       limbRatios.forEach((ratio, idx) => {
-        const posX = limbStartX + cellW * ratio;
+        const defX = parseFloat((limbStartX + (100 / cols) * ratio).toFixed(1));
+        const defY = parseFloat(limbBaseY.toFixed(1));
+
+        const matched = limbScanned[idx];
+        const finalX = matched ? matched.xPct : defX;
+        const finalY = matched ? matched.yPct : defY;
+        const pol = matched ? matched.polarity : ((idx === 0) ? 'positive' : 'negative');
+
         this.detectedBeats.push({
           group: 'limb',
           groupName: '四肢',
           beatIndex: idx,
           beatNum: idx + 1,
           lead: limbLeadName,
-          xPct: parseFloat(posX.toFixed(1)),
-          yPct: parseFloat(limbY.toFixed(1)),
-          polarity: (idx === 0) ? 'positive' : (idx === 1 ? 'negative' : 'positive')
+          xPct: finalX,
+          yPct: finalY,
+          polarity: pol
         });
       });
 
       // 2. 胸部誘導グループ (例: V1 誘導行)
       let chestRow = 0; let chestCol = 1; let chestLeadName = 'V1';
       if (this.currentLayoutId === '6x2') { chestRow = 0; chestCol = 1; chestLeadName = 'V1'; }
-      else if (this.currentLayoutId === '3x4') { chestRow = 0; chestCol = 2; chestLeadName = 'V1'; }
-      else if (this.currentLayoutId === '3x4_rhythm') { chestRow = 0; chestCol = 2; chestLeadName = 'V1'; }
+      else if (this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') { chestRow = 0; chestCol = 2; chestLeadName = 'V1'; }
       else if (this.currentLayoutId === '2x6') { chestRow = 1; chestCol = 0; chestLeadName = 'V1'; }
 
-      const chestY = cellH * (chestRow + 0.52);
-      const chestStartX = cellW * chestCol;
+      const chestX = chestCol * cellW;
+      const chestY = chestRow * cellH;
+      const chestScanned = this.findQrsPeaksInRegion(chestX, chestY, cellW, cellH);
+
       const chestRatios = [0.20, 0.50, 0.80];
+      const chestBaseY = (100 / rows) * (chestRow + 0.52);
+      const chestStartX = (100 / cols) * chestCol;
 
       chestRatios.forEach((ratio, idx) => {
-        const posX = chestStartX + cellW * ratio;
+        const defX = parseFloat((chestStartX + (100 / cols) * ratio).toFixed(1));
+        const defY = parseFloat(chestBaseY.toFixed(1));
+
+        const matched = chestScanned[idx];
+        const finalX = matched ? matched.xPct : defX;
+        const finalY = matched ? matched.yPct : defY;
+        const pol = matched ? matched.polarity : ((idx === 0) ? 'negative' : 'positive');
+
         this.detectedBeats.push({
           group: 'chest',
           groupName: '胸部',
           beatIndex: idx,
           beatNum: idx + 1,
           lead: chestLeadName,
-          xPct: parseFloat(posX.toFixed(1)),
-          yPct: parseFloat(chestY.toFixed(1)),
-          polarity: (idx === 0) ? 'negative' : (idx === 1 ? 'positive' : 'negative')
+          xPct: finalX,
+          yPct: finalY,
+          polarity: pol
         });
       });
     }
 
-    // デフォルト選択インデックスの範囲調整
     const limbBeatsCount = this.detectedBeats.filter(b => b.group === 'limb').length || 1;
     const chestBeatsCount = this.detectedBeats.filter(b => b.group === 'chest' || b.group === 'single').length || 1;
 
@@ -841,15 +965,15 @@ export class EcgImageAnalyzer {
    * 画像上に QRS認識点 (ビートマーカー) をオーバーレイ描画
    */
   renderBeatMarkersOverlay() {
-    const wrapper = this.container.querySelector('#ia-canvas-wrapper');
-    if (!wrapper) return;
+    const zoomContainer = this.container.querySelector('#ia-zoom-container') || this.container.querySelector('#ia-canvas-wrapper');
+    if (!zoomContainer) return;
 
     let overlay = this.container.querySelector('#ia-beat-markers-overlay');
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'ia-beat-markers-overlay';
       overlay.className = 'ia-beat-markers-overlay';
-      wrapper.appendChild(overlay);
+      zoomContainer.appendChild(overlay);
     }
 
     overlay.style.display = this.showBeatMarkers ? 'block' : 'none';
@@ -1150,5 +1274,141 @@ export class EcgImageAnalyzer {
     this.ctx.lineTo(startX + width, baseY);
 
     this.ctx.stroke();
+  }
+
+  /**
+   * 画像プレビューのインタラクティブ・ズーム ＆ スワイプ移動 (Pan) イベントの設定
+   */
+  setupZoomAndPanEvents() {
+    const viewport = this.container.querySelector('#ia-canvas-viewport');
+    const zoomContainer = this.container.querySelector('#ia-zoom-container');
+    const btnIn = this.container.querySelector('#ia-zoom-in');
+    const btnOut = this.container.querySelector('#ia-zoom-out');
+    const btnReset = this.container.querySelector('#ia-zoom-reset');
+    const labelLevel = this.container.querySelector('#ia-zoom-level-label');
+
+    if (!viewport || !zoomContainer) return;
+
+    const updateTransform = () => {
+      // 拡大率の制限
+      if (this.zoomScale <= 1.0) {
+        this.zoomScale = 1.0;
+        this.panX = 0;
+        this.panY = 0;
+      } else {
+        const maxPanX = (zoomContainer.clientWidth * (this.zoomScale - 1)) / 2;
+        const maxPanY = (zoomContainer.clientHeight * (this.zoomScale - 1)) / 2;
+        this.panX = Math.max(-maxPanX, Math.min(maxPanX, this.panX));
+        this.panY = Math.max(-maxPanY, Math.min(maxPanY, this.panY));
+      }
+
+      zoomContainer.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoomScale})`;
+      if (labelLevel) {
+        labelLevel.textContent = `${Math.round(this.zoomScale * 100)}%`;
+      }
+    };
+
+    const setZoom = (scale) => {
+      this.zoomScale = Math.max(1.0, Math.min(3.5, scale));
+      updateTransform();
+    };
+
+    const resetZoom = () => {
+      this.zoomScale = 1.0;
+      this.panX = 0;
+      this.panY = 0;
+      updateTransform();
+    };
+
+    if (btnIn) btnIn.addEventListener('click', () => setZoom(this.zoomScale + 0.4));
+    if (btnOut) btnOut.addEventListener('click', () => setZoom(this.zoomScale - 0.4));
+    if (btnReset) btnReset.addEventListener('click', resetZoom);
+
+    // ダブルタップ / ダブルクリックによる段階拡大 (100% -> 180% -> 280% -> 100%)
+    let lastTapTime = 0;
+    viewport.addEventListener('click', (e) => {
+      if (e.target.closest('.ia-beat-marker')) return;
+
+      const currentTime = new Date().getTime();
+      const tapLength = currentTime - lastTapTime;
+      if (tapLength < 300 && tapLength > 0) {
+        if (this.zoomScale < 1.5) {
+          setZoom(1.8);
+        } else if (this.zoomScale < 2.5) {
+          setZoom(2.8);
+        } else {
+          resetZoom();
+        }
+        e.preventDefault();
+      }
+      lastTapTime = currentTime;
+    });
+
+    // ドラッグ＆タッチスワイプ移動 (Pan)
+    let isMouseDown = false;
+    let startX = 0, startY = 0;
+
+    const handleStart = (clientX, clientY) => {
+      if (this.zoomScale > 1.0) {
+        isMouseDown = true;
+        startX = clientX - this.panX;
+        startY = clientY - this.panY;
+        viewport.style.cursor = 'grabbing';
+      }
+    };
+
+    const handleMove = (clientX, clientY) => {
+      if (!isMouseDown) return;
+      this.panX = clientX - startX;
+      this.panY = clientY - startY;
+      updateTransform();
+    };
+
+    const handleEnd = () => {
+      isMouseDown = false;
+      viewport.style.cursor = this.zoomScale > 1.0 ? 'grab' : 'default';
+    };
+
+    // マウスドラッグ
+    viewport.addEventListener('mousedown', (e) => {
+      if (e.target.closest('.ia-beat-marker')) return;
+      handleStart(e.clientX, e.clientY);
+    });
+    window.addEventListener('mousemove', (e) => {
+      handleMove(e.clientX, e.clientY);
+    });
+    window.addEventListener('mouseup', handleEnd);
+
+    // タッチスワイプ (スマートフォン・タブレット)
+    viewport.addEventListener('touchstart', (e) => {
+      if (e.target.closest('.ia-beat-marker')) return;
+      if (e.touches.length === 1) {
+        handleStart(e.touches[0].clientX, e.touches[0].clientY);
+      } else if (e.touches.length === 2) {
+        this.lastTouchDist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 1 && isMouseDown) {
+        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+      } else if (e.touches.length === 2 && this.lastTouchDist > 0) {
+        const dist = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        const delta = (dist - this.lastTouchDist) * 0.005;
+        setZoom(this.zoomScale + delta);
+        this.lastTouchDist = dist;
+      }
+    }, { passive: true });
+
+    viewport.addEventListener('touchend', () => {
+      handleEnd();
+      this.lastTouchDist = 0;
+    });
   }
 }
