@@ -4730,4 +4730,25 @@ body[data-text-size="lg"] .intramural-badge {
   color: #ffffff;
 }
 
+/* OCR自動レイアウト判別トースト通知 */
+.ia-auto-layout-toast {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(7, 12, 24, 0.94);
+  border: 1.5px solid #38bdf8;
+  color: #f8fafc;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  box-shadow: 0 6px 24px rgba(56, 189, 248, 0.45);
+  z-index: 95 !important;
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  white-space: nowrap;
+}
+
+
 

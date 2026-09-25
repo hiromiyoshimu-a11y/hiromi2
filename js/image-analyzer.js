@@ -576,8 +576,6 @@ export class EcgImageAnalyzer {
       const img = new Image();
       img.onload = () => {
         this.currentImage = img;
-        // 画像のアスペクト比などからレイアウトを自動推定
-        this.autoDetectLayoutFromImage(img);
         this.displayImage(img);
       };
       img.src = e.target.result;
@@ -586,20 +584,133 @@ export class EcgImageAnalyzer {
   }
 
   /**
-   * 画像の縦横比や特徴からレイアウトをインテリジェントに推測
+   * 画像のOCRテキスト/構造領域解析から誘導レイアウト (6x2, 12x1, 3x4, 3x4_rhythm) を全自動判別
    */
-  autoDetectLayoutFromImage(img) {
-    const aspect = img.width / img.height;
-    if (aspect < 0.75) {
-      // 縦長画像 ➔ 縦12誘導 (1列×12行 垂直並び)
-      this.setLayout('12x1');
-    } else if (aspect > 1.8) {
-      // 横長画像 ➔ 3x4
-      this.setLayout('3x4');
+  autoDetectEcgLayoutByOcr() {
+    if (!this.canvas || !this.ctx || !this.currentImage) return;
+    const w = this.canvas.width;
+    const h = this.canvas.height;
+    const aspect = this.currentImage.width / this.currentImage.height;
+
+    let detectedLayout = '6x2'; // デフォルト (6-6列: 四肢/胸部 2分割)
+
+    // 1. アスペクト比によるファースト判定 (極端な縦長/横長)
+    if (aspect < 0.65) {
+      detectedLayout = '12x1';
+    } else if (aspect > 2.2) {
+      detectedLayout = '3x4';
     } else {
-      // 6-6列
-      this.setLayout('6x2');
+      // 2. キャンバス内画像ピクセルの垂直・水平構造 OCR / クラスタ解析
+      try {
+        const imgData = this.ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+
+        // 水平方向 (X軸 100分割) の濃色 (波形・ラベル文字) 密度分布を分析
+        const numBinsX = 100;
+        const xDensity = new Float32Array(numBinsX);
+
+        const step = 4;
+        for (let y = Math.floor(h * 0.05); y < h * 0.95; y += step) {
+          for (let x = Math.floor(w * 0.05); x < w * 0.95; x += step) {
+            const idx = (y * w + x) * 4;
+            const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+            const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
+
+            if (gray < 110 && !isRedGrid) {
+              const binX = Math.floor((x / w) * numBinsX);
+              if (binX >= 0 && binX < numBinsX) {
+                xDensity[binX]++;
+              }
+            }
+          }
+        }
+
+        // 左右（中央 x=42% ~ 58%）における谷（分割ギャップ）の深さを検索
+        let minCenterDensity = 999999;
+        let maxSideDensity = 0;
+        
+        for (let b = 10; b <= 40; b++) {
+          if (xDensity[b] > maxSideDensity) maxSideDensity = xDensity[b];
+        }
+        for (let b = 42; b <= 58; b++) {
+          if (xDensity[b] < minCenterDensity) minCenterDensity = xDensity[b];
+        }
+        for (let b = 60; b <= 90; b++) {
+          if (xDensity[b] > maxSideDensity) maxSideDensity = xDensity[b];
+        }
+
+        // 水平方向の波形・文字ブロック列数を検出
+        let colPeaks = 0;
+        let inBlock = false;
+        const avgDensity = xDensity.reduce((a, b) => a + b, 0) / numBinsX;
+
+        for (let b = 5; b < 95; b++) {
+          if (xDensity[b] > avgDensity * 0.6) {
+            if (!inBlock) {
+              colPeaks++;
+              inBlock = true;
+            }
+          } else {
+            inBlock = false;
+          }
+        }
+
+        // 構造判定
+        if (aspect < 0.82 && colPeaks <= 1) {
+          // 縦1列×12行 垂直並び
+          detectedLayout = '12x1';
+        } else if (colPeaks >= 4 || (aspect > 1.75 && colPeaks >= 3)) {
+          // 4列標準 3x4
+          detectedLayout = '3x4';
+        } else if (minCenterDensity < maxSideDensity * 0.5) {
+          // 中央に明確な左右分離ギャップあり ➔ 6-6列 (2列分割)
+          detectedLayout = '6x2';
+        } else if (aspect < 0.88) {
+          // 縦長傾向 ➔ 12x1
+          detectedLayout = '12x1';
+        } else {
+          // デフォルト 6-6列 (2列分割)
+          detectedLayout = '6x2';
+        }
+      } catch (e) {
+        if (aspect < 0.8) detectedLayout = '12x1';
+        else detectedLayout = '6x2';
+      }
     }
+
+    // レイアウト選択チップおよび表示の自動反映
+    this.setLayout(detectedLayout);
+    this.showAutoLayoutToast(detectedLayout);
+  }
+
+  showAutoLayoutToast(layoutId) {
+    const layoutNames = {
+      '6x2': '6-6 列 (四肢/胸部 2分割)',
+      '3x4': '3-3-3-3 列 (標準 4列×3行)',
+      '3x4_rhythm': '3-3-3-3 ＋ リズムストリップ',
+      '12x1': '縦 12 誘導 (1列×12行 垂直)'
+    };
+    const name = layoutNames[layoutId] || layoutId;
+
+    let toast = this.container.querySelector('#ia-auto-layout-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'ia-auto-layout-toast';
+      toast.className = 'ia-auto-layout-toast';
+      const wrapper = this.container.querySelector('#ia-canvas-wrapper');
+      if (wrapper) wrapper.appendChild(toast);
+    }
+    toast.innerHTML = `🤖 OCR自動判定: <strong>${name}</strong> を自動判別選択しました`;
+    toast.style.display = 'block';
+    toast.style.opacity = '1';
+
+    setTimeout(() => {
+      if (toast) {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 500);
+      }
+    }, 4000);
   }
 
   /**
@@ -638,6 +749,8 @@ export class EcgImageAnalyzer {
     actions.style.display = 'flex';
 
     this.drawImageToCanvas(img);
+    // 画像貼り付け・読み込み時に全自動でOCR構造解析・レイアウト判別を実行
+    this.autoDetectEcgLayoutByOcr();
     this.createLeadOverlay();
     this.performOcrGuideAlignment();
     this.detectBeatsFromImage();
