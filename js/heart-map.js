@@ -92,11 +92,11 @@ export class HeartMap {
   }
 
   /**
-   * 正面・3D斜位視点 SVG (ユーザー提供3D解剖モデル & 部位ラベル配置版)
+   * 正面・3D斜位視点 SVG (ユーザー提供3D解剖断面図モデル & 部位ラベル配置版)
    */
   getAnteriorSvg() {
     return `
-      <svg class="heart-svg" viewBox="0 0 920 620" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <svg class="heart-svg" viewBox="0 0 1080 640" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <defs>
           <pattern id="hud-grid" width="30" height="30" patternUnits="userSpaceOnUse">
             <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(56, 189, 248, 0.04)" stroke-width="0.5"/>
@@ -104,12 +104,12 @@ export class HeartMap {
         </defs>
 
         <!-- 背景HUD -->
-        <rect width="920" height="620" fill="#060a14"/>
-        <rect width="920" height="620" fill="url(#hud-grid)"/>
+        <rect width="1080" height="640" fill="#060a14"/>
+        <rect width="1080" height="640" fill="url(#hud-grid)"/>
 
-        <!-- 【ユーザー指定 3D心臓解剖断面図モデル (100%確実表示設定)】 -->
+        <!-- 【ユーザー指定 3D心臓解剖断面図モデル (心臓断面がクッキリ全出)】 -->
         <g>
-          <image href="assets/heart-cross-section.png" xlink:href="assets/heart-cross-section.png" x="250" y="25" width="420" height="560" preserveAspectRatio="xMidYMid meet" opacity="0.98"/>
+          <image href="assets/heart-cross-section.png" xlink:href="assets/heart-cross-section.png" x="310" y="15" width="460" height="610" preserveAspectRatio="xMidYMid meet" opacity="0.98"/>
         </g>
 
         <!-- ================= 15部位ラベルの左右配置 (矢印指定用) ================= -->
@@ -161,49 +161,49 @@ export class HeartMap {
         <!-- 【右側配置ラベル群 (左室・LVOT・大動脈弁・乳頭筋等)】 -->
 
         <!-- 8. LVOT RCC (右冠尖) -->
-        <g class="origin-site" data-site="lvot_rcc" transform="translate(785, 75)">
+        <g class="origin-site" data-site="lvot_rcc" transform="translate(945, 75)">
           <rect class="site-label-bg" x="-115" y="-18" width="230" height="36" rx="8" fill="rgba(15, 23, 42, 0.94)" stroke="#ef4444" stroke-width="2.2" />
           <text class="site-label-text" x="0" y="5" text-anchor="middle" fill="#ffffff" font-size="14.5" font-weight="800">8. LVOT (RCC 右冠尖)</text>
         </g>
 
         <!-- 9. LVOT LCC (左冠尖) -->
-        <g class="origin-site" data-site="lvot_lcc" transform="translate(785, 135)">
+        <g class="origin-site" data-site="lvot_lcc" transform="translate(945, 135)">
           <rect class="site-label-bg" x="-115" y="-18" width="230" height="36" rx="8" fill="rgba(15, 23, 42, 0.94)" stroke="#ef4444" stroke-width="2.2" />
           <text class="site-label-text" x="0" y="5" text-anchor="middle" fill="#ffffff" font-size="14.5" font-weight="800">9. LVOT (LCC 左冠尖)</text>
         </g>
 
         <!-- 10. LVOT NCC (無冠尖) -->
-        <g class="origin-site" data-site="lvot_ncc" transform="translate(785, 195)">
+        <g class="origin-site" data-site="lvot_ncc" transform="translate(945, 195)">
           <rect class="site-label-bg" x="-115" y="-18" width="230" height="36" rx="8" fill="rgba(15, 23, 42, 0.94)" stroke="#ef4444" stroke-width="2.2" />
           <text class="site-label-text" x="0" y="5" text-anchor="middle" fill="#ffffff" font-size="14.5" font-weight="800">10. LVOT (NCC 無冠尖)</text>
         </g>
 
         <!-- 11. LV Summit -->
-        <g class="origin-site" data-site="lv_summit" transform="translate(785, 255)">
+        <g class="origin-site" data-site="lv_summit" transform="translate(945, 255)">
           <rect class="site-label-bg" x="-115" y="-18" width="230" height="36" rx="8" fill="rgba(15, 23, 42, 0.94)" stroke="#ef4444" stroke-width="2.2" />
           <text class="site-label-text" x="0" y="5" text-anchor="middle" fill="#ffffff" font-size="14.5" font-weight="800">11. LV Summit (左室頂部)</text>
         </g>
 
         <!-- 12. AMC (移行部) -->
-        <g class="origin-site" data-site="amc" transform="translate(785, 315)">
+        <g class="origin-site" data-site="amc" transform="translate(945, 315)">
           <rect class="site-label-bg" x="-115" y="-18" width="230" height="36" rx="8" fill="rgba(15, 23, 42, 0.94)" stroke="#ef4444" stroke-width="2.2" />
           <text class="site-label-text" x="0" y="5" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="800">12. AMC (大動脈僧帽弁弁膜)</text>
         </g>
 
         <!-- 13. 僧帽弁輪 (MVA) -->
-        <g class="origin-site" data-site="mva" transform="translate(785, 375)">
+        <g class="origin-site" data-site="mva" transform="translate(945, 375)">
           <rect class="site-label-bg" x="-115" y="-18" width="230" height="36" rx="8" fill="rgba(15, 23, 42, 0.94)" stroke="#ef4444" stroke-width="2.2" />
           <text class="site-label-text" x="0" y="5" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="800">13. 僧帽弁輪 (Mitral Annulus)</text>
         </g>
 
         <!-- 14. 前外側乳頭筋 (ALPM) -->
-        <g class="origin-site" data-site="alpm" transform="translate(785, 435)">
+        <g class="origin-site" data-site="alpm" transform="translate(945, 435)">
           <rect class="site-label-bg" x="-115" y="-18" width="230" height="36" rx="8" fill="rgba(15, 23, 42, 0.94)" stroke="#ef4444" stroke-width="2.2" />
           <text class="site-label-text" x="0" y="5" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="800">14. 前外側乳頭筋 (ALPM)</text>
         </g>
 
         <!-- 15. 後内側乳頭筋 (PMPM) -->
-        <g class="origin-site" data-site="pmpm" transform="translate(785, 495)">
+        <g class="origin-site" data-site="pmpm" transform="translate(945, 495)">
           <rect class="site-label-bg" x="-115" y="-18" width="230" height="36" rx="8" fill="rgba(15, 23, 42, 0.94)" stroke="#ef4444" stroke-width="2.2" />
           <text class="site-label-text" x="0" y="5" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="800">15. 後内側乳頭筋 (PMPM)</text>
         </g>
