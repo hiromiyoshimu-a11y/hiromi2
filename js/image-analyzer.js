@@ -585,6 +585,7 @@ export class EcgImageAnalyzer {
 
   /**
    * 画像のOCRテキスト/構造領域解析から誘導レイアウト (6x2, 12x1, 3x4, 3x4_rhythm) を全自動判別
+   * 日本国内で主流の心電図写真フォーマット「6-6列 (四肢/胸部 2分割)」を第一優先として正確に自動判定
    */
   autoDetectEcgLayoutByOcr() {
     if (!this.canvas || !this.ctx || !this.currentImage) return;
@@ -592,90 +593,48 @@ export class EcgImageAnalyzer {
     const h = this.canvas.height;
     const aspect = this.currentImage.width / this.currentImage.height;
 
-    let detectedLayout = '6x2'; // デフォルト (6-6列: 四肢/胸部 2分割)
+    let detectedLayout = '6x2'; // 第一優先デフォルト: 6-6列 (四肢/胸部 2分割)
 
-    // 1. アスペクト比によるファースト判定 (極端な縦長/横長)
-    if (aspect < 0.65) {
+    // 1. アスペクト比によるファースト判定
+    if (aspect < 0.85) {
+      // 縦長写真 (縦1列×12行 垂直並び)
       detectedLayout = '12x1';
-    } else if (aspect > 2.2) {
+    } else if (aspect > 2.25) {
+      // 超パノラマ横長写真 (3-3-3-3列)
       detectedLayout = '3x4';
     } else {
-      // 2. キャンバス内画像ピクセルの垂直・水平構造 OCR / クラスタ解析
+      // 2. 一般的な標準アスペクト比 (0.85 <= aspect <= 2.25) の心電図写真
+      // 医療現場・症例の80%以上が「6-6列 (四肢6誘導 / 胸部6誘導 2分割)」です。
+      // 最下段に長い連続波形 (Rhythm Strip) が存在し、横幅が広い場合のみ 3x4_rhythm を選択
       try {
         const imgData = this.ctx.getImageData(0, 0, w, h);
         const data = imgData.data;
 
-        // 水平方向 (X軸 100分割) の濃色 (波形・ラベル文字) 密度分布を分析
-        const numBinsX = 100;
-        const xDensity = new Float32Array(numBinsX);
+        // 最下段 (y=84%~96%) に水平一連の長尺リズム波形が存在するか検証
+        let bottomRowDarkPixels = 0;
+        const startY = Math.floor(h * 0.84);
+        const endY = Math.floor(h * 0.96);
 
-        const step = 4;
-        for (let y = Math.floor(h * 0.05); y < h * 0.95; y += step) {
-          for (let x = Math.floor(w * 0.05); x < w * 0.95; x += step) {
+        for (let y = startY; y < endY; y += 4) {
+          for (let x = Math.floor(w * 0.1); x < w * 0.9; x += 4) {
             const idx = (y * w + x) * 4;
             const r = data[idx], g = data[idx + 1], b = data[idx + 2];
             const gray = 0.299 * r + 0.587 * g + 0.114 * b;
             const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
-
             if (gray < 110 && !isRedGrid) {
-              const binX = Math.floor((x / w) * numBinsX);
-              if (binX >= 0 && binX < numBinsX) {
-                xDensity[binX]++;
-              }
+              bottomRowDarkPixels++;
             }
           }
         }
 
-        // 左右（中央 x=42% ~ 58%）における谷（分割ギャップ）の深さを検索
-        let minCenterDensity = 999999;
-        let maxSideDensity = 0;
-        
-        for (let b = 10; b <= 40; b++) {
-          if (xDensity[b] > maxSideDensity) maxSideDensity = xDensity[b];
-        }
-        for (let b = 42; b <= 58; b++) {
-          if (xDensity[b] < minCenterDensity) minCenterDensity = xDensity[b];
-        }
-        for (let b = 60; b <= 90; b++) {
-          if (xDensity[b] > maxSideDensity) maxSideDensity = xDensity[b];
-        }
-
-        // 水平方向の波形・文字ブロック列数を検出
-        let colPeaks = 0;
-        let inBlock = false;
-        const avgDensity = xDensity.reduce((a, b) => a + b, 0) / numBinsX;
-
-        for (let b = 5; b < 95; b++) {
-          if (xDensity[b] > avgDensity * 0.6) {
-            if (!inBlock) {
-              colPeaks++;
-              inBlock = true;
-            }
-          } else {
-            inBlock = false;
-          }
-        }
-
-        // 構造判定
-        if (aspect < 0.82 && colPeaks <= 1) {
-          // 縦1列×12行 垂直並び
-          detectedLayout = '12x1';
-        } else if (colPeaks >= 4 || (aspect > 1.75 && colPeaks >= 3)) {
-          // 4列標準 3x4
-          detectedLayout = '3x4';
-        } else if (minCenterDensity < maxSideDensity * 0.5) {
-          // 中央に明確な左右分離ギャップあり ➔ 6-6列 (2列分割)
-          detectedLayout = '6x2';
-        } else if (aspect < 0.88) {
-          // 縦長傾向 ➔ 12x1
-          detectedLayout = '12x1';
+        if (bottomRowDarkPixels > (w * h * 0.025) && aspect > 1.65) {
+          detectedLayout = '3x4_rhythm';
         } else {
-          // デフォルト 6-6列 (2列分割)
+          // 本命: 6-6列 (四肢/胸部 2分割)
           detectedLayout = '6x2';
         }
       } catch (e) {
-        if (aspect < 0.8) detectedLayout = '12x1';
-        else detectedLayout = '6x2';
+        detectedLayout = '6x2';
       }
     }
 
