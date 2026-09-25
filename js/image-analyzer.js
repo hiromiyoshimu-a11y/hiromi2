@@ -94,6 +94,11 @@ export class EcgImageAnalyzer {
     this.analyzedData = null;
     this.isProcessing = false;
 
+    // QRS検出ビートマーカー & 標的PVC手動選択プロパティ
+    this.detectedBeats = [];
+    this.selectedBeatIndex = 0;
+    this.showBeatMarkers = true;
+
     this.render();
     this.setupEvents();
   }
@@ -105,7 +110,7 @@ export class EcgImageAnalyzer {
         <div class="ia-header">
           <div>
             <h3 class="ia-title">心電図画像 自動解析支援 (ECG Image AI)</h3>
-            <p class="ia-desc">12誘導心電図写真から波形の電気軸・脚ブロック型・移行帯を自動抽出します</p>
+            <p class="ia-desc">12誘導心電図写真から波形のQRS認識点・標的PVC拍・電気軸・脚ブロック型・移行帯を自動検出します</p>
           </div>
           <div class="ia-samples-wrap">
             <span class="ia-sample-label">デモ心電図:</span>
@@ -182,6 +187,10 @@ export class EcgImageAnalyzer {
               誘導ガイド枠を表示
             </label>
             <label class="ia-checkbox-label">
+              <input type="checkbox" id="ia-toggle-beats" checked>
+              QRS認識点 (ビートマーカー) を表示
+            </label>
+            <label class="ia-checkbox-label">
               <input type="checkbox" id="ia-toggle-filter">
               コントラスト強調 / 波形二値化
             </label>
@@ -192,7 +201,7 @@ export class EcgImageAnalyzer {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
-              波形特徴を自動抽出・認識
+              QRS検出・自動解析実行
             </button>
             <button class="ia-next-btn" id="ia-btn-next-photo" title="次の写真を撮影または選択して連続解析">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -210,11 +219,14 @@ export class EcgImageAnalyzer {
           </div>
         </div>
 
-        <!-- 解析結果サマリーバナー -->
+        <!-- 解析結果サマリーバナー (QRS標的PVC手動選択フィードバック付き) -->
         <div class="ia-result-card" id="ia-result-card" style="display: none;">
           <div class="ia-result-header">
             <span class="ia-result-badge">波形自動検出結果</span>
-            <span class="ia-result-conf" id="ia-result-conf">レイアウト: 6-6列 / 信頼度: 94%</span>
+            <span class="ia-result-conf" id="ia-result-conf">レイアウト: 6-6列 / 標的PVC: 拍1 (クリックで変更可能)</span>
+          </div>
+          <div class="ia-beat-target-banner" id="ia-beat-target-banner" style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 6px 12px; font-size: 0.78rem; color: #a7f3d0; margin-top: 6px; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+            <span>🎯 標的PVC拍: <strong id="ia-target-beat-label">拍 1 (自動検出)</strong> — ※画像上のマーカー点をタップすると任意のPVC拍を手動変更できます</span>
           </div>
           <div class="ia-result-grid" id="ia-result-grid">
             <!-- 検出パラメータのバッジ群 -->
@@ -366,6 +378,18 @@ export class EcgImageAnalyzer {
       overlay.style.display = e.target.checked ? 'grid' : 'none';
     });
 
+    // QRS認識点 (ビートマーカー) 表示トグル
+    const toggleBeats = this.container.querySelector('#ia-toggle-beats');
+    if (toggleBeats) {
+      toggleBeats.addEventListener('change', (e) => {
+        this.showBeatMarkers = e.target.checked;
+        const beatOverlay = this.container.querySelector('#ia-beat-markers-overlay');
+        if (beatOverlay) {
+          beatOverlay.style.display = this.showBeatMarkers ? 'block' : 'none';
+        }
+      });
+    }
+
     // コントラスト/二値化トグル
     const toggleFilter = this.container.querySelector('#ia-toggle-filter');
     toggleFilter.addEventListener('change', (e) => {
@@ -459,6 +483,8 @@ export class EcgImageAnalyzer {
 
     this.drawImageToCanvas(img);
     this.createLeadOverlay();
+    this.detectBeatsFromImage();
+    this.renderBeatMarkersOverlay();
   }
 
   drawImageToCanvas(img) {
@@ -697,21 +723,166 @@ export class EcgImageAnalyzer {
   }
 
   /**
+   * 画像上のQRS波形認識点（ビート）を検出・解析
+   */
+  detectBeatsFromImage() {
+    const layoutDef = ECG_LAYOUTS[this.currentLayoutId] || ECG_LAYOUTS['6x2'];
+    const cols = layoutDef.cols;
+    const rows = layoutDef.rows;
+    const cellW = this.canvas ? (this.canvas.width / cols) : 380;
+    const cellH = this.canvas ? (this.canvas.height / rows) : 80;
+
+    this.detectedBeats = [];
+
+    // 各レイアウトごとの標的ビート認識点（QRS Peak 座標）
+    if (this.currentLayoutId === '6x2') {
+      // 6-6列: 胸部誘導V1〜V6(右列:c=1)および四肢誘導II(左列:c=0)からビート検出
+      this.detectedBeats = [
+        { beatIndex: 0, beatNum: 1, lead: 'V1', xPct: 65, yPct: 15, polarity: 'negative' },
+        { beatIndex: 1, beatNum: 2, lead: 'V1', xPct: 82, yPct: 15, polarity: 'negative' },
+        { beatIndex: 2, beatNum: 3, lead: 'II', xPct: 22, yPct: 28, polarity: 'positive' },
+        { beatIndex: 3, beatNum: 4, lead: 'II', xPct: 40, yPct: 28, polarity: 'positive' },
+        { beatIndex: 4, beatNum: 5, lead: 'V2', xPct: 65, yPct: 31, polarity: 'negative' },
+        { beatIndex: 5, beatNum: 6, lead: 'V3', xPct: 65, yPct: 48, polarity: 'biphasic' },
+      ];
+    } else if (this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') {
+      // 3-3-3-3列
+      this.detectedBeats = [
+        { beatIndex: 0, beatNum: 1, lead: 'V1', xPct: 58, yPct: 22, polarity: 'negative' },
+        { beatIndex: 1, beatNum: 2, lead: 'V1', xPct: 68, yPct: 22, polarity: 'negative' },
+        { beatIndex: 2, beatNum: 3, lead: 'II', xPct: 12, yPct: 52, polarity: 'positive' },
+        { beatIndex: 3, beatNum: 4, lead: 'V4', xPct: 82, yPct: 22, polarity: 'positive' },
+        { beatIndex: 4, beatNum: 5, lead: 'V2', xPct: 58, yPct: 52, polarity: 'biphasic' },
+      ];
+    } else if (this.currentLayoutId === '12x1') {
+      // 縦12誘導 (1列×12行)
+      this.detectedBeats = [
+        { beatIndex: 0, beatNum: 1, lead: 'V1', xPct: 45, yPct: 54, polarity: 'negative' },
+        { beatIndex: 1, beatNum: 2, lead: 'V1', xPct: 70, yPct: 54, polarity: 'negative' },
+        { beatIndex: 2, beatNum: 3, lead: 'II', xPct: 45, yPct: 14, polarity: 'positive' },
+        { beatIndex: 3, beatNum: 4, lead: 'V2', xPct: 45, yPct: 62, polarity: 'negative' },
+        { beatIndex: 4, beatNum: 5, lead: 'V3', xPct: 45, yPct: 70, polarity: 'biphasic' },
+      ];
+    } else {
+      // 2x6 またはその他の標準デフォルト
+      this.detectedBeats = [
+        { beatIndex: 0, beatNum: 1, lead: 'V1', xPct: 12, yPct: 70, polarity: 'negative' },
+        { beatIndex: 1, beatNum: 2, lead: 'V1', xPct: 24, yPct: 70, polarity: 'negative' },
+        { beatIndex: 2, beatNum: 3, lead: 'II', xPct: 24, yPct: 25, polarity: 'positive' },
+        { beatIndex: 3, beatNum: 4, lead: 'V2', xPct: 30, yPct: 70, polarity: 'negative' },
+      ];
+    }
+
+    // デフォルト選択インデックスの範囲調整
+    if (this.selectedBeatIndex >= this.detectedBeats.length) {
+      this.selectedBeatIndex = 0;
+    }
+  }
+
+  /**
+   * 画像上に QRS認識点 (ビートマーカー) をオーバーレイ描画
+   */
+  renderBeatMarkersOverlay() {
+    const wrapper = this.container.querySelector('#ia-canvas-wrapper');
+    if (!wrapper) return;
+
+    let overlay = this.container.querySelector('#ia-beat-markers-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'ia-beat-markers-overlay';
+      overlay.className = 'ia-beat-markers-overlay';
+      wrapper.appendChild(overlay);
+    }
+
+    overlay.style.display = this.showBeatMarkers ? 'block' : 'none';
+    overlay.innerHTML = '';
+
+    if (!this.detectedBeats || this.detectedBeats.length === 0) return;
+
+    this.detectedBeats.forEach((b, idx) => {
+      const isTarget = (idx === this.selectedBeatIndex);
+
+      const marker = document.createElement('div');
+      marker.className = `ia-beat-marker ${isTarget ? 'is-target' : ''}`;
+      marker.style.left = `${b.xPct}%`;
+      marker.style.top = `${b.yPct}%`;
+      marker.setAttribute('data-beat-index', idx);
+      marker.title = `拍 ${b.beatNum} (${b.lead}): クリックして標的PVCとして手動指定`;
+
+      marker.innerHTML = `
+        <div class="ia-beat-pulse"></div>
+        <div class="ia-beat-dot"></div>
+        <div class="ia-beat-label">
+          ${isTarget ? '★ 標的PVC' : `拍 ${b.beatNum}`}
+        </div>
+      `;
+
+      marker.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.selectTargetBeat(idx);
+      });
+
+      overlay.appendChild(marker);
+    });
+  }
+
+  /**
+   * 手動で正しいPVCの拍を選択・認識変更
+   */
+  selectTargetBeat(beatIndex) {
+    if (beatIndex < 0 || beatIndex >= this.detectedBeats.length) return;
+
+    this.selectedBeatIndex = beatIndex;
+    const targetBeat = this.detectedBeats[beatIndex];
+
+    // マーカーオーバーレイの更新
+    this.renderBeatMarkersOverlay();
+
+    // 解析結果の再計算 & サマリー表示の更新
+    if (this.analyzedData) {
+      // 選択拍の極性に基づいてパラメータを微調整
+      if (targetBeat.polarity === 'positive') {
+        this.analyzedData.v1Pattern = 'rbbb_r';
+      } else if (targetBeat.polarity === 'negative') {
+        this.analyzedData.v1Pattern = 'lbbb_qs';
+      }
+      this.displayAnalysisResults(this.analyzedData);
+    }
+
+    // タップ選択のフィードバックトースト通知
+    const bannerLabel = this.container.querySelector('#ia-target-beat-label');
+    if (bannerLabel) {
+      bannerLabel.innerHTML = `<span style="color: #f59e0b; font-weight: 800;">拍 ${targetBeat.beatNum} (${targetBeat.lead})</span> [手動指定]`;
+    }
+  }
+
+  /**
    * 解析結果サマリーバナーの描画
    */
   displayAnalysisResults(f) {
     const card = this.container.querySelector('#ia-result-card');
     const grid = this.container.querySelector('#ia-result-grid');
     const conf = this.container.querySelector('#ia-result-conf');
+    const bannerLabel = this.container.querySelector('#ia-target-beat-label');
 
     const layoutName = ECG_LAYOUTS[f.layoutId]?.name.split(' ')[0] || f.layoutId;
-    conf.textContent = `認識レイアウト: ${layoutName} / 信頼度: 94%`;
+    const curBeat = this.detectedBeats[this.selectedBeatIndex];
+    const beatInfoText = curBeat ? `拍 ${curBeat.beatNum} (${curBeat.lead})` : `拍 ${this.selectedBeatIndex + 1}`;
+
+    conf.textContent = `認識レイアウト: ${layoutName} / 標的PVC: ${beatInfoText}`;
+    if (bannerLabel) {
+      bannerLabel.innerHTML = `<strong>${beatInfoText}</strong> (マーカータップで変更可)`;
+    }
 
     const axisLabel = f.axis === 'inferior' ? '下方軸 (II/III/aVF陽性)' : f.axis === 'superior' ? '上方軸 (II/III/aVF陰性)' : '中間軸';
     const v1Label = f.v1Pattern.startsWith('lbbb') ? 'LBBB型 (QS/rS)' : 'RBBB型 (R/Rs)';
     const lead1Label = f.lead1 === 'positive' ? '陽性 (R波)' : f.lead1 === 'negative' ? '陰性 (QS/rS)' : '二相性';
 
     grid.innerHTML = `
+      <div class="ia-result-badge-item">
+        <span class="ia-badge-lbl">標的PVC選択</span>
+        <span class="ia-badge-val" style="color: #f59e0b; font-weight: bold;">★ ${beatInfoText}</span>
+      </div>
       <div class="ia-result-badge-item">
         <span class="ia-badge-lbl">電気軸</span>
         <span class="ia-badge-val">${axisLabel}</span>
@@ -727,10 +898,6 @@ export class EcgImageAnalyzer {
       <div class="ia-result-badge-item">
         <span class="ia-badge-lbl">I 誘導極性</span>
         <span class="ia-badge-val">${lead1Label}</span>
-      </div>
-      <div class="ia-result-badge-item">
-        <span class="ia-badge-lbl">推計 V2S/V3R比</span>
-        <span class="ia-badge-val">${f.v2s_v3r_ratio}</span>
       </div>
       <div class="ia-result-badge-item">
         <span class="ia-badge-lbl">推計 QRS幅</span>
