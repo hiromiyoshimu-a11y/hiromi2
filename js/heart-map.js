@@ -96,16 +96,8 @@ export class HeartMap {
    */
   getAnteriorSvg() {
     return `
-      <svg class="heart-svg" viewBox="0 0 920 620" xmlns="http://www.w3.org/2000/svg">
+      <svg class="heart-svg" viewBox="0 0 920 620" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <defs>
-          <radialGradient id="vignette-mask" cx="50%" cy="50%" r="58%">
-            <stop offset="85%" stop-color="#ffffff" stop-opacity="1"/>
-            <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
-          </radialGradient>
-          <mask id="heart-vignette">
-            <rect width="920" height="620" fill="url(#vignette-mask)"/>
-          </mask>
-
           <pattern id="hud-grid" width="30" height="30" patternUnits="userSpaceOnUse">
             <path d="M 30 0 L 0 0 0 30" fill="none" stroke="rgba(56, 189, 248, 0.04)" stroke-width="0.5"/>
           </pattern>
@@ -115,9 +107,9 @@ export class HeartMap {
         <rect width="920" height="620" fill="#060a14"/>
         <rect width="920" height="620" fill="url(#hud-grid)"/>
 
-        <!-- 【ユーザー指定 3D心臓解剖断面図モデル】 -->
-        <g mask="url(#heart-vignette)">
-          <image href="assets/heart-cross-section.png?v=20260925" x="260" y="30" width="400" height="550" preserveAspectRatio="contain" opacity="0.98"/>
+        <!-- 【ユーザー指定 3D心臓解剖断面図モデル (100%確実表示設定)】 -->
+        <g>
+          <image href="assets/heart-cross-section.png" xlink:href="assets/heart-cross-section.png" x="250" y="25" width="420" height="560" preserveAspectRatio="xMidYMid meet" opacity="0.98"/>
         </g>
 
         <!-- ================= 15部位ラベルの左右配置 (矢印指定用) ================= -->
