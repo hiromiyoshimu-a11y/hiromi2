@@ -1075,7 +1075,7 @@ export class EcgImageAnalyzer {
     const avgE = countE > 0 ? (totalE / countE) : 10;
     const threshold = Math.max(12, avgE * 1.1);
 
-    const peaks = [];
+    const candidatePeaks = [];
     const minDistance = sampleWidth * 0.08; // 心拍の最小RR間隔 (約300ms)
 
     for (let x = 3; x < sampleWidth - 3; x++) {
@@ -1084,26 +1084,47 @@ export class EcgImageAnalyzer {
         if (e >= smoothedEnergy[x - 1] && e >= smoothedEnergy[x - 2] &&
             e >= smoothedEnergy[x + 1] && e >= smoothedEnergy[x + 2]) {
           
-          if (peaks.length === 0 || (x - peaks[peaks.length - 1].x) > minDistance) {
-            // ピーク近傍のサブピクセル補正
-            let subX = x;
-            const eL = smoothedEnergy[x - 1];
-            const eR = smoothedEnergy[x + 1];
-            const denom = (eL - 2 * e + eR);
-            if (denom !== 0) {
-              const delta = (eL - eR) / (2 * denom);
-              if (Math.abs(delta) < 1.0) subX += delta;
-            }
-
-            const absX = sampleStartX + subX;
-            peaks.push({
-              x: subX,
-              xPct: parseFloat(((absX / canvasW) * 100).toFixed(1))
-            });
+          if (candidatePeaks.length === 0 || (x - candidatePeaks[candidatePeaks.length - 1].x) > minDistance) {
+            candidatePeaks.push({ x });
           }
         }
       }
     }
+
+    // 第2段階: 各候補ピーク近傍 (±16px) における実画像QRS波形の真の最尖端 (R波頂点 / S波谷底スパイク) への直接強固吸着
+    const peaks = candidatePeaks.map(pk => {
+      const searchStart = Math.max(2, Math.floor(pk.x - 16));
+      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 16));
+
+      let bestX = pk.x;
+      let maxSpikePower = -1;
+
+      for (let x = searchStart; x <= searchEnd; x++) {
+        // 近傍X位置での元エネルギーおよび変化率の合計パワー
+        const spikePower = qrsEnergy[x] * 1.5 + smoothedEnergy[x];
+        if (spikePower > maxSpikePower) {
+          maxSpikePower = spikePower;
+          bestX = x;
+        }
+      }
+
+      // サブピクセル精度の補間
+      let subX = bestX;
+      const eL = qrsEnergy[Math.max(0, bestX - 1)];
+      const eM = qrsEnergy[bestX];
+      const eR = qrsEnergy[Math.min(sampleWidth - 1, bestX + 1)];
+      const denom = (eL - 2 * eM + eR);
+      if (denom < 0) {
+        const delta = (eL - eR) / (2 * denom);
+        if (Math.abs(delta) < 1.0) subX += delta;
+      }
+
+      const absX = sampleStartX + subX;
+      return {
+        x: subX,
+        xPct: parseFloat(((absX / canvasW) * 100).toFixed(1))
+      };
+    });
 
     return peaks;
   }
