@@ -1003,6 +1003,7 @@ export class EcgImageAnalyzer {
     if (sampleWidth <= 10) return [];
 
     const qrsEnergy = new Float32Array(sampleWidth);
+    const envelopeHeight = new Float32Array(sampleWidth);
 
     targetCells.forEach(cell => {
       const cx = Math.floor(gridX + cell.cIdx * cellW + cellW * 0.12);
@@ -1041,7 +1042,6 @@ export class EcgImageAnalyzer {
 
           if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
             const height = (bottomYArr[x] - topYArr[x]); // 振幅
-            // 隣接ピクセルとの1次微分 (Yの傾き)
             let diffTop = 0, diffBottom = 0;
             if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) {
               diffTop = Math.abs(topYArr[x + 1] - topYArr[x - 1]);
@@ -1053,6 +1053,7 @@ export class EcgImageAnalyzer {
             const slope = diffTop + diffBottom;
             const energy = (slope * slope * 2.5) + (height * 1.8);
             qrsEnergy[globalX] += energy;
+            envelopeHeight[globalX] += height; // PVCの真の頂点検出用に全誘導の振幅高さを加算
           }
         }
       } catch (e) {}
@@ -1091,28 +1092,28 @@ export class EcgImageAnalyzer {
       }
     }
 
-    // 第2段階: 各候補ピーク近傍 (±16px) における実画像QRS波形の真の最尖端 (R波頂点 / S波谷底スパイク) への直接強固吸着
+    // 第2段階: 幅広QRS (PVC) 対応！候補近傍 (±24px) において実波形の「最大振幅落差・真の最尖端スパイク (R波頂点/S波底)」へ直接強固吸着
     const peaks = candidatePeaks.map(pk => {
-      const searchStart = Math.max(2, Math.floor(pk.x - 16));
-      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 16));
+      const searchStart = Math.max(2, Math.floor(pk.x - 20));
+      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 24));
 
       let bestX = pk.x;
-      let maxSpikePower = -1;
+      let maxExtremumPower = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // 近傍X位置での元エネルギーおよび変化率の合計パワー
-        const spikePower = qrsEnergy[x] * 1.5 + smoothedEnergy[x];
-        if (spikePower > maxSpikePower) {
-          maxSpikePower = spikePower;
+        // PVCなどの幅広QRSでは傾きエネルギー(立ち上がり)だけでなく、実振幅高さ(envelopeHeight)とエネルギーを複合評価
+        const power = (envelopeHeight[x] * 3.5) + (qrsEnergy[x] * 1.0);
+        if (power > maxExtremumPower) {
+          maxExtremumPower = power;
           bestX = x;
         }
       }
 
       // サブピクセル精度の補間
       let subX = bestX;
-      const eL = qrsEnergy[Math.max(0, bestX - 1)];
-      const eM = qrsEnergy[bestX];
-      const eR = qrsEnergy[Math.min(sampleWidth - 1, bestX + 1)];
+      const eL = envelopeHeight[Math.max(0, bestX - 1)];
+      const eM = envelopeHeight[bestX];
+      const eR = envelopeHeight[Math.min(sampleWidth - 1, bestX + 1)];
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
