@@ -4248,9 +4248,20 @@ body[data-text-size="lg"] .intramural-badge {
 /* ==========================================================================
    心電図画像自動解析 (ECG Image AI) QRS認識点マーカー & 手動選択スタイル
    ========================================================================== */
+/* 心電図解析パネル & 写真プレビューコンテナの画面左右限界100%フル幅化 */
+.image-analyzer-panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+}
+
 .ia-dropzone {
   width: 100% !important;
   max-width: 100% !important;
+  padding: 2px !important;
+  margin: 0 !important;
   box-sizing: border-box !important;
 }
 
@@ -4259,10 +4270,11 @@ body[data-text-size="lg"] .intramural-badge {
   overflow: hidden;
   width: 100% !important;
   max-width: 100% !important;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 8px;
+  border: 1px solid rgba(56, 189, 248, 0.5);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   background: #060b16;
+  margin: 0 !important;
 }
 
 /* ズーム ＆ タッチスワイプツールバー */
