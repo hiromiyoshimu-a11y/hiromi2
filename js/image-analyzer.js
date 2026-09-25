@@ -1094,15 +1094,17 @@ export class EcgImageAnalyzer {
     const sampleWidth = Math.floor((maxX - minX) - cellW * 0.14);
     if (sampleWidth <= 10) return [];
 
-    const qrsSlopePower = new Float32Array(sampleWidth);
-    const maxDeviationPower = new Float32Array(sampleWidth); // 基線からの絶対上下突出度 (QRS極大値/極小値)
+    // 4つの独立した評価アレイの準備
+    const slopePower = new Float32Array(sampleWidth);     // Alg A: 1次微分 (急傾斜エッジ検出器)
+    const curvaturePower = new Float32Array(sampleWidth); // Alg B: 2次微分 (最尖端曲率検出器)
+    const vppPower = new Float32Array(sampleWidth);       // Alg C: 局所Vpp (振幅エンベロープ検出器)
+    const crossLeadCount = new Float32Array(sampleWidth); // Alg D: 誘導間過半数一致検出器
 
     targetCells.forEach(cell => {
       const cx = Math.floor(gridX + cell.cIdx * cellW + cellW * 0.10);
       const cy = Math.floor(gridY + cell.rIdx * cellH + cellH * 0.08);
       const cw = Math.floor(cellW * 0.88);
       const ch = Math.floor(cellH * 0.84);
-
       if (cw <= 5 || ch <= 5) return;
 
       try {
@@ -1126,7 +1128,6 @@ export class EcgImageAnalyzer {
           }
         }
 
-        // セル内のローカルメディアン基線 (baseY) を自動判定
         const validYList = [];
         for (let x = 0; x < cw; x++) {
           if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
@@ -1143,115 +1144,114 @@ export class EcgImageAnalyzer {
 
           if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
             const centerY = (topYArr[x] + bottomYArr[x]) / 2;
-
-            // 1. ローカルメディアン基線からの純粋な振幅偏差 (R波/S波の突起度)
             const devFromBase = Math.abs(centerY - baseY);
 
-            // 2. 1次微分 (急傾斜・立ち上がり速度)
-            let slope = 0;
-            if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) {
-              slope += Math.abs(topYArr[x + 1] - topYArr[x - 1]);
-            }
-            if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) {
-              slope += Math.abs(bottomYArr[x + 1] - bottomYArr[x - 1]);
-            }
+            // Alg A: 1次微分 (急立ち上がり速度)
+            let slp = 0;
+            if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) slp += Math.abs(topYArr[x + 1] - topYArr[x - 1]);
+            if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) slp += Math.abs(bottomYArr[x + 1] - bottomYArr[x - 1]);
 
-            // 3. 2次微分 (最尖端曲率・R波山頂/S波谷底の尖り具合)
-            let curvature = 0;
-            if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) {
-              curvature += Math.abs(topYArr[x - 1] - 2 * topYArr[x] + topYArr[x + 1]);
-            }
-            if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) {
-              curvature += Math.abs(bottomYArr[x - 1] - 2 * bottomYArr[x] + bottomYArr[x + 1]);
-            }
+            // Alg B: 2次微分 (最尖端曲率)
+            let cur = 0;
+            if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) cur += Math.abs(topYArr[x - 1] - 2 * topYArr[x] + topYArr[x + 1]);
+            if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) cur += Math.abs(bottomYArr[x - 1] - 2 * bottomYArr[x] + bottomYArr[x + 1]);
 
-            qrsSlopePower[globalX] += (slope * slope * 4.0);
-            maxDeviationPower[globalX] += (devFromBase * devFromBase * 1.2 + curvature * 10.0);
+            slopePower[globalX] += slp * slp;
+            curvaturePower[globalX] += cur * cur * 6.0;
+            vppPower[globalX] += devFromBase * devFromBase;
+
+            if (slp > 8 || cur > 6) {
+              crossLeadCount[globalX] += 1.0;
+            }
           }
         }
       } catch (e) {}
     });
 
-    // QRS検出用トータルエネルギー (Pan-Tompkins型 傾き主導乗算積: T波なだらかエネルギーを完全遮断)
-    const combinedEnergy = new Float32Array(sampleWidth);
-    for (let x = 2; x < sampleWidth - 2; x++) {
-      const slopeFactor = qrsSlopePower[x]; // 1次微分 (急勾配) を主役に設定
-      const devFactor = Math.log(1.0 + Math.sqrt(maxDeviationPower[x])); 
-      const rawE = Math.sqrt(slopeFactor) * devFactor;
-      combinedEnergy[x] = rawE;
-    }
+    // --- 4つの独立アルゴリズム検出器によるピーク選出 ---
+    const getDetectorPeaks = (powerArr, minDist, thPct) => {
+      const pks = [];
+      const nonZero = Array.from(powerArr).filter(v => v > 1.0).sort((a, b) => b - a);
+      if (nonZero.length === 0) return pks;
+      const th = nonZero[Math.floor(nonZero.length * thPct)] * 0.40;
 
-    // 移動平均平滑化
-    const smoothedEnergy = new Float32Array(sampleWidth);
-    for (let x = 2; x < sampleWidth - 2; x++) {
-      smoothedEnergy[x] = (combinedEnergy[x - 2] + combinedEnergy[x - 1] * 2 + combinedEnergy[x] * 3 + combinedEnergy[x + 1] * 2 + combinedEnergy[x + 2]) / 9.0;
-    }
-
-    // アダプティブパーセンタイル閾値の算定 (上位QRSエネルギーからしきい値を自動決定)
-    const nonZeroEnergies = [];
-    for (let x = 0; x < sampleWidth; x++) {
-      if (smoothedEnergy[x] > 2.0) {
-        nonZeroEnergies.push(smoothedEnergy[x]);
-      }
-    }
-    nonZeroEnergies.sort((a, b) => b - a);
-    
-    // 上位 20% 付近のエネルギー値をしきい値基準に採用 (T波エネルギーを安全に下回るよう設定)
-    let adaptiveThreshold = 12.0;
-    if (nonZeroEnergies.length > 5) {
-      const topIdx = Math.floor(nonZeroEnergies.length * 0.20);
-      adaptiveThreshold = Math.max(10.0, nonZeroEnergies[topIdx] * 0.50);
-    }
-
-    const candidatePeaks = [];
-    // 生理学的不応期: QRS出現後 約320ms (sampleWidth * 0.082) 内のT波・ST波による二重検知を完全ガード
-    const minRRPeriod = sampleWidth * 0.082; 
-
-    for (let x = 3; x < sampleWidth - 3; x++) {
-      const e = smoothedEnergy[x];
-      if (e > adaptiveThreshold) {
-        if (e >= smoothedEnergy[x - 1] && e >= smoothedEnergy[x - 2] &&
-            e >= smoothedEnergy[x + 1] && e >= smoothedEnergy[x + 2]) {
-          
-          if (candidatePeaks.length === 0) {
-            candidatePeaks.push({ x, energy: e });
-          } else {
-            const lastPk = candidatePeaks[candidatePeaks.length - 1];
-            const dist = x - lastPk.x;
-
-            if (dist > minRRPeriod) {
-              candidatePeaks.push({ x, energy: e });
-            } else if (e > lastPk.energy * 1.35) {
-              // 距離が不応期内でより強力なQRSスパイクが現れた場合は上書き
-              candidatePeaks[candidatePeaks.length - 1] = { x, energy: e };
-            }
+      for (let x = 3; x < sampleWidth - 3; x++) {
+        const v = powerArr[x];
+        if (v > th && v >= powerArr[x - 1] && v >= powerArr[x - 2] && v >= powerArr[x + 1] && v >= powerArr[x + 2]) {
+          if (pks.length === 0 || (x - pks[pks.length - 1].x) > minDist) {
+            pks.push({ x, val: v });
           }
         }
       }
-    }
+      return pks;
+    };
 
-    // 第2段階: 真の最尖端スパイク (最高点/最深部) への高精度直撃吸着
-    const peaks = candidatePeaks.map(pk => {
-      const searchStart = Math.max(2, Math.floor(pk.x - 16));
-      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 16));
+    const minDist = sampleWidth * 0.082; // 生理学的不応期
+    const peaksA = getDetectorPeaks(slopePower, minDist, 0.20);      // Alg A (1次微分エッジ)
+    const peaksB = getDetectorPeaks(curvaturePower, minDist, 0.20);  // Alg B (2次微分最尖端)
+    const peaksC = getDetectorPeaks(vppPower, minDist, 0.25);        // Alg C (振幅エンベロープ)
+    const peaksD = getDetectorPeaks(crossLeadCount, minDist, 0.20);   // Alg D (誘導間一致)
 
-      let bestX = pk.x;
-      let maxSpikeDev = -1;
+    // --- 多数決クラスタリング (Voting Consensus) ---
+    const allVotes = [
+      ...peaksA.map(p => ({ x: p.x, detector: 'A' })),
+      ...peaksB.map(p => ({ x: p.x, detector: 'B' })),
+      ...peaksC.map(p => ({ x: p.x, detector: 'C' })),
+      ...peaksD.map(p => ({ x: p.x, detector: 'D' }))
+    ];
+
+    allVotes.sort((a, b) => a.x - b.x);
+
+    const clusters = [];
+    const clusterWin = 14; // ±14px 以内を同一心拍候補クラスタとして形成
+
+    allVotes.forEach(vote => {
+      let matchedCluster = null;
+      for (const cl of clusters) {
+        if (Math.abs(vote.x - cl.avgX) <= clusterWin) {
+          matchedCluster = cl;
+          break;
+        }
+      }
+
+      if (matchedCluster) {
+        matchedCluster.votes.push(vote);
+        matchedCluster.detectors.add(vote.detector);
+        matchedCluster.avgX = matchedCluster.votes.reduce((sum, v) => sum + v.x, 0) / matchedCluster.votes.length;
+      } else {
+        clusters.push({
+          avgX: vote.x,
+          votes: [vote],
+          detectors: new Set([vote.detector])
+        });
+      }
+    });
+
+    // ★ 多数決フィルター (2系統以上の独立アルゴリズムが同意一致したクラスタのみを真のQRSと認定)
+    const consensusClusters = clusters.filter(cl => cl.detectors.size >= 2);
+
+    // 確定した合意クラスタから真の最尖端へ100%吸着
+    const peaks = consensusClusters.map(cl => {
+      const searchStart = Math.max(2, Math.floor(cl.avgX - 16));
+      const searchEnd = Math.min(sampleWidth - 3, Math.floor(cl.avgX + 16));
+
+      let bestX = Math.round(cl.avgX);
+      let maxScore = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // 傾き ✕ 最尖端曲率 の総合スコア
-        const devPower = maxDeviationPower[x] * 1.5 + qrsSlopePower[x] * 3.0;
-        if (devPower > maxSpikeDev) {
-          maxSpikeDev = devPower;
+        // 1次微分 ✕ 2次微分最尖端の結合パワー
+        const score = slopePower[x] * 2.5 + curvaturePower[x] * 2.0;
+        if (score > maxScore) {
+          maxScore = score;
           bestX = x;
         }
       }
 
       // サブピクセル補間
       let subX = bestX;
-      const eL = maxDeviationPower[Math.max(0, bestX - 1)] * 1.5 + qrsSlopePower[Math.max(0, bestX - 1)] * 3.0;
-      const eM = maxDeviationPower[bestX] * 1.5 + qrsSlopePower[bestX] * 3.0;
-      const eR = maxDeviationPower[Math.min(sampleWidth - 1, bestX + 1)] * 1.5 + qrsSlopePower[Math.min(sampleWidth - 1, bestX + 1)] * 3.0;
+      const eL = slopePower[Math.max(0, bestX - 1)] * 2.5 + curvaturePower[Math.max(0, bestX - 1)] * 2.0;
+      const eM = slopePower[bestX] * 2.5 + curvaturePower[bestX] * 2.0;
+      const eR = slopePower[Math.min(sampleWidth - 1, bestX + 1)] * 2.5 + curvaturePower[Math.min(sampleWidth - 1, bestX + 1)] * 2.0;
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
