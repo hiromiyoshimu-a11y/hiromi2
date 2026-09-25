@@ -117,72 +117,72 @@ export class HeartMap {
         <rect width="1080" height="640" fill="#060a14"/>
         <rect width="1080" height="640" fill="url(#hud-grid)"/>
 
-        <!-- 【ユーザー指定 3D全景心臓モデル (左寄り位置 x=185 にベスト配置)】 -->
+        <!-- 【ユーザー作成の原図通り 中央に全景配置 (x=240, y=96, w=600, h=448)】 -->
         <g>
-          <image href="assets/heart-cross-section.png?v=20260925_v10212_left_shifted" xlink:href="assets/heart-cross-section.png?v=20260925_v10212_left_shifted" x="185" y="104" width="580" height="433" preserveAspectRatio="xMidYMid meet" opacity="0.98"/>
+          <image href="assets/heart-cross-section.png?v=20260925_v10213_perfect_user_drawing" xlink:href="assets/heart-cross-section.png?v=20260925_v10213_perfect_user_drawing" x="240" y="96" width="600" height="448" preserveAspectRatio="xMidYMid meet" opacity="0.98"/>
         </g>
 
-        <!-- ================= ユーザー指定の黄色の部位指示線 (1〜15) ================= -->
+        <!-- ================= ユーザー作成の原図を忠実に100%再現した黄色の指示線 (1〜15) ================= -->
         <g class="pointer-lines" filter="url(#line-shadow)">
           <!-- 1. RVOT 自由壁 -->
-          <line x1="180" y1="60" x2="395" y2="290" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="395" cy="290" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="180" y1="60" x2="455" y2="290" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="455" cy="290" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 2. RVOT 中隔 -->
-          <line x1="180" y1="135" x2="410" y2="310" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="410" cy="310" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="180" y1="135" x2="470" y2="310" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="470" cy="310" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 3. ヒス束近傍 -->
-          <line x1="180" y1="210" x2="425" y2="335" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="425" cy="335" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="180" y1="210" x2="485" y2="335" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="485" cy="335" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 4. 三尖弁輪 (TVA) -->
-          <line x1="180" y1="285" x2="350" y2="370" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="350" cy="370" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="180" y1="285" x2="410" y2="370" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="410" cy="370" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 5. 右室心尖部 -->
-          <line x1="180" y1="360" x2="445" y2="510" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="445" cy="510" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="180" y1="360" x2="505" y2="515" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="505" cy="515" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
-          <!-- 6. RVOT 後外側 -->
-          <line x1="180" y1="435" x2="470" y2="375" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="470" cy="375" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <!-- 6. RVOT 後外側 (斜め右上へ交差) -->
+          <line x1="180" y1="435" x2="530" y2="375" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="530" cy="375" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
-          <!-- 7. 心外膜/GCV -->
-          <line x1="180" y1="510" x2="485" y2="350" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="485" cy="350" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <!-- 7. 心外膜/GCV (斜め右上へ交差) -->
+          <line x1="180" y1="510" x2="545" y2="350" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="545" cy="350" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 8. LVOT (RCC 右冠尖) -->
-          <line x1="900" y1="50" x2="478" y2="305" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="478" cy="305" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="900" y1="50" x2="538" y2="305" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="538" cy="305" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 9. LVOT (LCC 左冠尖) -->
-          <line x1="900" y1="115" x2="490" y2="315" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="490" cy="315" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="900" y1="115" x2="550" y2="315" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="550" cy="315" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 10. LVOT (NCC 無冠尖) -->
-          <line x1="900" y1="180" x2="502" y2="325" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="502" cy="325" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="900" y1="180" x2="562" y2="325" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="562" cy="325" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 11. LV Summit -->
-          <line x1="900" y1="245" x2="512" y2="332" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="512" cy="332" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="900" y1="245" x2="572" y2="332" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="572" cy="332" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 12. AMC (移行部) -->
-          <line x1="900" y1="310" x2="508" y2="348" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="508" cy="348" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="900" y1="310" x2="568" y2="348" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="568" cy="348" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 13. 僧帽弁輪 (MVA) -->
-          <line x1="900" y1="375" x2="545" y2="375" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="545" cy="375" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="900" y1="375" x2="605" y2="375" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="605" cy="375" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 14. 前外側乳頭筋 -->
-          <line x1="900" y1="440" x2="525" y2="430" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="525" cy="430" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="900" y1="440" x2="585" y2="430" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="585" cy="430" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
 
           <!-- 15. 後内側乳頭筋 -->
-          <line x1="900" y1="505" x2="510" y2="450" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
-          <circle cx="510" cy="450" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
+          <line x1="900" y1="505" x2="570" y2="450" stroke="#facc15" stroke-width="2.5" marker-end="url(#yellow-arrow)"/>
+          <circle cx="570" cy="450" r="3.5" fill="#facc15" stroke="#000" stroke-width="0.8"/>
         </g>
 
         <!-- ================= 15部位ラベルの左右配置 (矢印指定用) ================= -->
