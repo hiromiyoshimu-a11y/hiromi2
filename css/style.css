@@ -4144,3 +4144,53 @@ body[data-text-size="lg"] .intramural-badge {
     border-radius: 8px !important;
   }
 }
+
+/* ==========================================================================
+   PC表示 (デスクトップ・大画面 1024px〜) 12誘導心電図 & モーダル最適化
+   PC画面で12誘導心電図や図表が巨大化して見えなくなるのを完全防止
+   ========================================================================== */
+@media (min-width: 1024px) {
+  /* 12誘導心電図・論文図表・フローチャートモーダルのPC最適サイズ制限 */
+  #paper-figure-modal .figure-modal-content,
+  #naito-flowchart-modal .flowchart-modal-content,
+  #algorithm-modal .algorithm-modal-content {
+    max-width: 1080px !important;
+    width: 88vw !important;
+    max-height: 86vh !important;
+    margin: 0 auto !important;
+    padding: 1rem 1.25rem !important;
+    border-radius: 14px !important;
+  }
+
+  #paper-fig-modal-body img,
+  #paper-fig-modal-body svg {
+    max-height: 68vh !important;
+    width: auto !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+  }
+
+  /* 典型12誘導心電図プレビューコンテナのPC最適化 */
+  .citation-ecg-grid-wrapper {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .citation-lead-box {
+    max-height: 105px;
+  }
+
+  .ecg-lead-svg {
+    max-height: 85px;
+    width: 100%;
+  }
+
+  /* クイズ・診断画面の12誘導エリアPC最適化 */
+  .quiz-ecg-box {
+    max-width: 1080px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+

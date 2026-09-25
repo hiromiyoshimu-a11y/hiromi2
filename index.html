@@ -1059,9 +1059,9 @@
     </div>
   </div>
 
-  <!-- 📸 出典論文図表・アルゴリズム拡大ダイアログ (Paper Figure Modal - 画面左右最大全幅化) -->
-  <div class="modal-overlay" id="paper-figure-modal" style="display: none; z-index: 999999; padding: 6px 2px;">
-    <div class="modal-content figure-modal-content" style="max-width: 98vw; width: 98vw; max-height: 94vh; overflow-y: auto; display: flex; flex-direction: column; padding: 0.75rem 0.5rem 1.5rem 0.5rem; -webkit-overflow-scrolling: touch;">
+  <!-- 📸 出典論文図表・アルゴリズム拡大ダイアログ (Paper Figure Modal - PC & Mobile 最適化) -->
+  <div class="modal-overlay" id="paper-figure-modal" style="display: none; z-index: 999999;">
+    <div class="modal-content figure-modal-content">
       <button class="modal-close-btn" id="figure-modal-close-btn" title="閉じる" onclick="if(window.closePaperFigureModal){window.closePaperFigureModal();return false;}">✕</button>
       
       <div class="modal-header-row" style="display: flex; align-items: center; justify-content: space-between; padding-right: 48px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; flex-shrink: 0;">
@@ -1158,6 +1158,6 @@
   </nav>
 
   <!-- アプリケーションモジュール構築 (強硬キャッシュバスター適用 & 100%完全動的ロード) -->
-  <script type="module" src="./js/app.js?v=20260925_v10213_perfect_user_original_diagram"></script>
+  <script type="module" src="./js/app.js?v=20260925_v10214_pc_ecg_size_optimized"></script>
 </body>
 </html>
