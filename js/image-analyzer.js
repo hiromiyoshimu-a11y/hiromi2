@@ -1002,23 +1002,22 @@ export class EcgImageAnalyzer {
     const sampleWidth = Math.floor((maxX - minX) - cellW * 0.14);
     if (sampleWidth <= 10) return [];
 
-    const qrsEnergy = new Float32Array(sampleWidth);
-    const spikeCurvature = new Float32Array(sampleWidth); // 2次微分 (曲率: QRS針状スパイク強度の直接評価)
-    const envelopeHeight = new Float32Array(sampleWidth);
+    const qrsSlopePower = new Float32Array(sampleWidth);
+    const maxDeviationPower = new Float32Array(sampleWidth); // 基線からの絶対上下突出度 (QRS極大値/極小値)
 
     targetCells.forEach(cell => {
-      const cx = Math.floor(gridX + cell.cIdx * cellW + cellW * 0.12);
-      const cy = Math.floor(gridY + cell.rIdx * cellH + cellH * 0.10);
-      const cw = Math.floor(cellW * 0.86);
-      const ch = Math.floor(cellH * 0.80);
+      const cx = Math.floor(gridX + cell.cIdx * cellW + cellW * 0.10);
+      const cy = Math.floor(gridY + cell.rIdx * cellH + cellH * 0.08);
+      const cw = Math.floor(cellW * 0.88);
+      const ch = Math.floor(cellH * 0.84);
 
       if (cw <= 5 || ch <= 5) return;
 
       try {
         const imgData = this.ctx.getImageData(cx, cy, cw, ch);
         const data = imgData.data;
+        const midY = ch / 2;
 
-        // 各Xラインにおける波形（黒ピクセル）のTop Y と Bottom Y をスキャン
         const topYArr = new Int32Array(cw).fill(-1);
         const bottomYArr = new Int32Array(cw).fill(-1);
 
@@ -1029,48 +1028,52 @@ export class EcgImageAnalyzer {
             const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
             const gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-            if (gray < 125 && !isRedGrid) {
+            if (gray < 130 && !isRedGrid) {
               if (topYArr[x] === -1) topYArr[x] = y;
               bottomYArr[x] = y;
             }
           }
         }
 
-        // 1次微分・2次微分（高周波スパイク曲率）＆ 振幅の加算
         for (let x = 2; x < cw - 2; x++) {
-          const globalX = Math.floor((gridX + cell.cIdx * cellW + cellW * 0.12 + x) - sampleStartX);
+          const globalX = Math.floor((gridX + cell.cIdx * cellW + cellW * 0.10 + x) - sampleStartX);
           if (globalX < 2 || globalX >= sampleWidth - 2) continue;
 
           if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
-            const height = (bottomYArr[x] - topYArr[x]); // 振幅
-            
-            // 2次微分 (曲率: 尖った針状ピークを検出し、丸い巨大T波を100%カット)
-            let curvTop = 0, curvBottom = 0;
+            // 基線 midY からの最大上下乖離偏差 (QRSスパイク突起)
+            const devTop = Math.abs(topYArr[x] - midY);
+            const devBottom = Math.abs(bottomYArr[x] - midY);
+            const maxDev = Math.max(devTop, devBottom);
+
+            // 1次微分 (傾き)
+            let slope = 0;
             if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) {
-              curvTop = Math.abs(topYArr[x + 1] - 2 * topYArr[x] + topYArr[x - 1]);
+              slope += Math.abs(topYArr[x + 1] - topYArr[x - 1]);
             }
             if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) {
-              curvBottom = Math.abs(bottomYArr[x + 1] - 2 * bottomYArr[x] + bottomYArr[x - 1]);
+              slope += Math.abs(bottomYArr[x + 1] - bottomYArr[x - 1]);
             }
 
-            const curvature = (curvTop + curvBottom);
-            // QRSスパイク重視のエネルギー関数 (T波は丸いため0に抑え込まれる)
-            const energy = (curvature * curvature * 8.0) + (height * 1.2);
-            qrsEnergy[globalX] += energy;
-            spikeCurvature[globalX] += curvature;
-            envelopeHeight[globalX] += height;
+            qrsSlopePower[globalX] += (slope * slope * 3.0);
+            maxDeviationPower[globalX] += (maxDev * maxDev);
           }
         }
       } catch (e) {}
     });
 
-    // 移動平均スモーシング (Integration Window)
-    const smoothedEnergy = new Float32Array(sampleWidth);
+    // QRS検出用トータルエネルギー (急傾き ✕ 上下突き出し偏差)
+    const combinedEnergy = new Float32Array(sampleWidth);
     for (let x = 2; x < sampleWidth - 2; x++) {
-      smoothedEnergy[x] = (qrsEnergy[x - 2] + qrsEnergy[x - 1] * 2 + qrsEnergy[x] * 3 + qrsEnergy[x + 1] * 2 + qrsEnergy[x + 2]) / 9.0;
+      const rawE = qrsSlopePower[x] * 0.5 + maxDeviationPower[x] * 0.5;
+      combinedEnergy[x] = rawE;
     }
 
-    // 平均エネルギー閾値
+    // 移動平均平滑化
+    const smoothedEnergy = new Float32Array(sampleWidth);
+    for (let x = 2; x < sampleWidth - 2; x++) {
+      smoothedEnergy[x] = (combinedEnergy[x - 2] + combinedEnergy[x - 1] * 2 + combinedEnergy[x] * 3 + combinedEnergy[x + 1] * 2 + combinedEnergy[x + 2]) / 9.0;
+    }
+
     let totalE = 0, countE = 0;
     for (let x = 0; x < sampleWidth; x++) {
       if (smoothedEnergy[x] > 0) {
@@ -1079,11 +1082,10 @@ export class EcgImageAnalyzer {
       }
     }
     const avgE = countE > 0 ? (totalE / countE) : 10;
-    const threshold = Math.max(10, avgE * 0.95);
+    const threshold = Math.max(15, avgE * 1.1);
 
     const candidatePeaks = [];
-    // T波誤検知を防ぐ不応期（QRSの直後 220ms 内の巨大T波を拒絶）
-    const refractoryPeriod = sampleWidth * 0.11;
+    const minRRPeriod = sampleWidth * 0.085; // 最小RR間隔
 
     for (let x = 3; x < sampleWidth - 3; x++) {
       const e = smoothedEnergy[x];
@@ -1091,35 +1093,35 @@ export class EcgImageAnalyzer {
         if (e >= smoothedEnergy[x - 1] && e >= smoothedEnergy[x - 2] &&
             e >= smoothedEnergy[x + 1] && e >= smoothedEnergy[x + 2]) {
           
-          if (candidatePeaks.length === 0 || (x - candidatePeaks[candidatePeaks.length - 1].x) > refractoryPeriod) {
+          if (candidatePeaks.length === 0 || (x - candidatePeaks[candidatePeaks.length - 1].x) > minRRPeriod) {
             candidatePeaks.push({ x });
           }
         }
       }
     }
 
-    // 第2段階: 各候補ピーク近傍 (±20px) において、最も曲率（2次微分スパイク）が高く振幅の大きい「真のQRS頂点/谷底」へ強固吸着
+    // 第2段階: 真のQRS最尖端スパイク (上下方向への絶対最大突起 X 位置) への絶対吸着
     const peaks = candidatePeaks.map(pk => {
-      const searchStart = Math.max(2, Math.floor(pk.x - 18));
+      const searchStart = Math.max(2, Math.floor(pk.x - 20));
       const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 20));
 
       let bestX = pk.x;
-      let maxSpikeScore = -1;
+      let maxSpikeDev = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // スパイク曲率 (2次微分) ＋ 振幅高さを複合評価
-        const score = (spikeCurvature[x] * 5.0) + (envelopeHeight[x] * 2.0) + (qrsEnergy[x] * 1.0);
-        if (score > maxSpikeScore) {
-          maxSpikeScore = score;
+        // T波ではなくQRSスパイク真頂点 (基線からの上下突き出し二乗値) が最大の場所を直撃！
+        const devPower = maxDeviationPower[x] * 2.0 + qrsSlopePower[x] * 1.0;
+        if (devPower > maxSpikeDev) {
+          maxSpikeDev = devPower;
           bestX = x;
         }
       }
 
-      // サブピクセル精度の補間
+      // サブピクセル補間
       let subX = bestX;
-      const eL = spikeCurvature[Math.max(0, bestX - 1)];
-      const eM = spikeCurvature[bestX];
-      const eR = spikeCurvature[Math.min(sampleWidth - 1, bestX + 1)];
+      const eL = maxDeviationPower[Math.max(0, bestX - 1)];
+      const eM = maxDeviationPower[bestX];
+      const eR = maxDeviationPower[Math.min(sampleWidth - 1, bestX + 1)];
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
