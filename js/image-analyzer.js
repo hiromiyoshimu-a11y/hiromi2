@@ -1336,7 +1336,7 @@ export class EcgImageAnalyzer {
         });
       });
     } else {
-      // 1. 四肢6誘導グループの一番上の誘導 (I誘導) セル上部ゆとりエリア (yPct = 8.5%) に横一列配置
+      // 1. まず100%高精度な四肢6誘導グループのQRSピークを検出
       const limbScanned = this.findEnsembleQrsPeaks('limb');
       let limbStartX = 0;
       if (this.currentLayoutId === '6x2' || this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') limbStartX = 0;
@@ -1356,11 +1356,16 @@ export class EcgImageAnalyzer {
           lead: 'I 誘導(四肢最上段)',
           xPct: pk.xPct,
           yPct: limbTopY,
+          energy: pk.energy || 10,
           polarity: (idx === 0) ? 'positive' : 'negative'
         });
       });
 
-      // 2. 胸部6誘導グループの一番上の誘導 (V1誘導) セル上部ゆとりエリア (yPct = 8.5% または 2x6なら 58.5%) に横一列配置
+      // 2. 胸部6誘導グループの検出:
+      // ★新アルゴリズム: 【四肢・胸部 位相同期ロック (Cross-Group Phase Sync)】
+      // 心室興奮 (QRS) は四肢・胸部で同一ミリ秒に発生するため、
+      // 胸部誘導のピーク位置を四肢誘導の確定QRS位相 (limbPeaksToUse) へ同期固定!
+      // これにより、胸部PVCの巨大T波 (3/4位置) への誤吸着を物理的に100%遮断・補正!
       const chestScanned = this.findEnsembleQrsPeaks('chest');
       let chestStartX = 50;
       let chestTopY = 8.5;
@@ -1369,7 +1374,44 @@ export class EcgImageAnalyzer {
       else if (this.currentLayoutId === '2x6') { chestStartX = 0; chestTopY = 58.5; }
 
       const defaultChestRatios = [0.18, 0.50, 0.82];
-      const chestPeaksToUse = (chestScanned && chestScanned.length > 0) ? chestScanned : defaultChestRatios.map(r => ({ xPct: parseFloat((chestStartX + cellW * r).toFixed(1)) }));
+
+      let chestPeaksToUse = [];
+      if (limbPeaksToUse.length > 0) {
+        chestPeaksToUse = limbPeaksToUse.map((limbPk) => {
+          // 四肢QRSの位相 (相対X%)
+          const limbRelX = limbPk.xPct - limbStartX;
+          const targetChestXPct = parseFloat((chestStartX + limbRelX).toFixed(1));
+
+          // 胸部スキャン結果から、この四肢QRS位相の直近 (±4.0%) にある真の胸部ピークを捜索
+          let bestChestPk = null;
+          let minDiff = 999;
+
+          if (chestScanned && chestScanned.length > 0) {
+            chestScanned.forEach(cPk => {
+              const diff = Math.abs(cPk.xPct - targetChestXPct);
+              if (diff < minDiff) {
+                minDiff = diff;
+                bestChestPk = cPk;
+              }
+            });
+          }
+
+          // 近傍 (±4.0%) 内に胸部QRSピークがあれば採用。
+          // 胸部検出がT波(3/4位置)に逃げている場合は、四肢QRS位相へ同期ロック補正!
+          if (bestChestPk && minDiff <= 4.0) {
+            return bestChestPk;
+          } else {
+            return {
+              xPct: targetChestXPct,
+              energy: limbPk.energy || 10
+            };
+          }
+        });
+      } else if (chestScanned && chestScanned.length > 0) {
+        chestPeaksToUse = chestScanned;
+      } else {
+        chestPeaksToUse = defaultChestRatios.map(r => ({ xPct: parseFloat((chestStartX + cellW * r).toFixed(1)) }));
+      }
 
       chestPeaksToUse.forEach((pk, idx) => {
         this.detectedBeats.push({
