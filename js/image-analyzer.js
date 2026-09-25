@@ -1231,45 +1231,61 @@ export class EcgImageAnalyzer {
       }
     });
 
-    // ★ 多数決フィルター ＋ 1次微分必須チェック (T波クラスタの厳重排除)
+    // ★ 多数決フィルター ＋ 1次微分急坂存在チェック (四肢見落としゼロ ＆ T波完全排除)
     const maxSlopeInRecord = Math.max(...slopePower);
+    const minSlopeRatio = (groupType === 'limb') ? 0.06 : 0.12; // 四肢誘導は洞調律保護のため低域保護
+
     const consensusClusters = clusters.filter(cl => {
-      // 条件1: 2系統以上の検出器が一致賛同
+      // 条件1: 2系統以上の独立検出器が一致賛同
       if (cl.detectors.size < 2) return false;
-      // 条件2: そのクラスタの近傍 (±12px) における 1次微分 (急傾斜) が全体の20%以上存在すること (T波完全排除)
+      // 条件2: そのクラスタの近傍 (±14px) における 1次微分 (急傾斜) が存在すること
       const cX = Math.round(cl.avgX);
       let localMaxSlope = 0;
-      for (let dx = -12; dx <= 12; dx++) {
+      for (let dx = -14; dx <= 14; dx++) {
         const xIdx = cX + dx;
         if (xIdx >= 0 && xIdx < sampleWidth) {
           if (slopePower[xIdx] > localMaxSlope) localMaxSlope = slopePower[xIdx];
         }
       }
-      return (localMaxSlope >= maxSlopeInRecord * 0.18);
+      return (localMaxSlope >= maxSlopeInRecord * minSlopeRatio);
     });
 
-    // 確定した合意クラスタから真のQRS最尖端スパイクへ100%直撃吸着
+    // 確定した合意クラスタから「急坂アンカー方式 (Steep Slope Anchor)」で真のQRS最尖端スパイクへ100%直撃吸着
     const peaks = consensusClusters.map(cl => {
-      const searchStart = Math.max(2, Math.floor(cl.avgX - 16));
-      const searchEnd = Math.min(sampleWidth - 3, Math.floor(cl.avgX + 16));
+      const searchStart = Math.max(2, Math.floor(cl.avgX - 18));
+      const searchEnd = Math.min(sampleWidth - 3, Math.floor(cl.avgX + 18));
 
-      let bestX = Math.round(cl.avgX);
-      let maxScore = -1;
+      // 1. 探査領域内で最も垂直傾斜 (1次微分 slopePower) が激しい真のQRS壁 (急坂アンカー) を特定
+      let anchorX = Math.round(cl.avgX);
+      let maxSlope = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // 1次微分 (急傾斜エッジ) に圧倒的重み (* 6.0) を与えてT波頂点を完全シャットアウト
-        const score = slopePower[x] * 6.0 + curvaturePower[x] * 1.5;
-        if (score > maxScore) {
-          maxScore = score;
+        if (slopePower[x] > maxSlope) {
+          maxSlope = slopePower[x];
+          anchorX = x;
+        }
+      }
+
+      // 2. 急坂アンカーの直近 (±6px) 内で波形が最も折り返している最尖端 (R波頂点 / S波谷底) を直撃
+      const fineStart = Math.max(2, anchorX - 6);
+      const fineEnd = Math.min(sampleWidth - 3, anchorX + 6);
+
+      let bestX = anchorX;
+      let maxCurvature = -1;
+
+      for (let x = fineStart; x <= fineEnd; x++) {
+        const score = curvaturePower[x] * 3.0 + slopePower[x] * 1.0;
+        if (score > maxCurvature) {
+          maxCurvature = score;
           bestX = x;
         }
       }
 
       // サブピクセル補間
       let subX = bestX;
-      const eL = slopePower[Math.max(0, bestX - 1)] * 6.0 + curvaturePower[Math.max(0, bestX - 1)] * 1.5;
-      const eM = slopePower[bestX] * 6.0 + curvaturePower[bestX] * 1.5;
-      const eR = slopePower[Math.min(sampleWidth - 1, bestX + 1)] * 6.0 + curvaturePower[Math.min(sampleWidth - 1, bestX + 1)] * 1.5;
+      const eL = curvaturePower[Math.max(0, bestX - 1)] * 3.0 + slopePower[Math.max(0, bestX - 1)];
+      const eM = curvaturePower[bestX] * 3.0 + slopePower[bestX];
+      const eR = curvaturePower[Math.min(sampleWidth - 1, bestX + 1)] * 3.0 + slopePower[Math.min(sampleWidth - 1, bestX + 1)];
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
@@ -1279,7 +1295,8 @@ export class EcgImageAnalyzer {
       const absX = sampleStartX + subX;
       return {
         x: subX,
-        xPct: parseFloat(((absX / canvasW) * 100).toFixed(1))
+        xPct: parseFloat(((absX / canvasW) * 100).toFixed(1)),
+        energy: maxSlope
       };
     });
 
