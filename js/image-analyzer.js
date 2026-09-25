@@ -1165,19 +1165,19 @@ export class EcgImageAnalyzer {
               curvature += Math.abs(bottomYArr[x - 1] - 2 * bottomYArr[x] + bottomYArr[x + 1]);
             }
 
-            qrsSlopePower[globalX] += (slope * slope);
-            maxDeviationPower[globalX] += (devFromBase * devFromBase * 2.0 + curvature * 12.0);
+            qrsSlopePower[globalX] += (slope * slope * 4.0);
+            maxDeviationPower[globalX] += (devFromBase * devFromBase * 1.2 + curvature * 10.0);
           }
         }
       } catch (e) {}
     });
 
-    // QRS検出用トータルエネルギー (動的レンジ圧縮 ✕ 乗算積: 巨大PVCが全体の平均閾値を引き上げすぎる現象を完全防護)
+    // QRS検出用トータルエネルギー (Pan-Tompkins型 傾き主導乗算積: T波なだらかエネルギーを完全遮断)
     const combinedEnergy = new Float32Array(sampleWidth);
     for (let x = 2; x < sampleWidth - 2; x++) {
-      const slopeFactor = Math.sqrt(qrsSlopePower[x]);
-      const devFactor = Math.log(1.0 + Math.sqrt(maxDeviationPower[x])); // ログ圧縮で極大PVCと洞調律を均一評価
-      const rawE = (slopeFactor * devFactor * 10.0);
+      const slopeFactor = qrsSlopePower[x]; // 1次微分 (急勾配) を主役に設定
+      const devFactor = Math.log(1.0 + Math.sqrt(maxDeviationPower[x])); 
+      const rawE = Math.sqrt(slopeFactor) * devFactor;
       combinedEnergy[x] = rawE;
     }
 
@@ -1187,7 +1187,7 @@ export class EcgImageAnalyzer {
       smoothedEnergy[x] = (combinedEnergy[x - 2] + combinedEnergy[x - 1] * 2 + combinedEnergy[x] * 3 + combinedEnergy[x + 1] * 2 + combinedEnergy[x + 2]) / 9.0;
     }
 
-    // アダプティブパーセンタイル閾値の算定 (上位エネルギーから適応的しきい値を自動算出)
+    // アダプティブパーセンタイル閾値の算定 (上位QRSエネルギーからしきい値を自動決定)
     const nonZeroEnergies = [];
     for (let x = 0; x < sampleWidth; x++) {
       if (smoothedEnergy[x] > 2.0) {
@@ -1196,15 +1196,16 @@ export class EcgImageAnalyzer {
     }
     nonZeroEnergies.sort((a, b) => b - a);
     
-    // 上位 25% 付近のエネルギー値をしきい値基準に採用
-    let adaptiveThreshold = 10.0;
+    // 上位 20% 付近のエネルギー値をしきい値基準に採用 (T波エネルギーを安全に下回るよう設定)
+    let adaptiveThreshold = 12.0;
     if (nonZeroEnergies.length > 5) {
-      const topIdx = Math.floor(nonZeroEnergies.length * 0.25);
-      adaptiveThreshold = Math.max(8.0, nonZeroEnergies[topIdx] * 0.45);
+      const topIdx = Math.floor(nonZeroEnergies.length * 0.20);
+      adaptiveThreshold = Math.max(10.0, nonZeroEnergies[topIdx] * 0.50);
     }
 
     const candidatePeaks = [];
-    const minRRPeriod = sampleWidth * 0.065; // PVC早期出現に対応 (約 250ms)
+    // 生理学的不応期: QRS出現後 約320ms (sampleWidth * 0.082) 内のT波・ST波による二重検知を完全ガード
+    const minRRPeriod = sampleWidth * 0.082; 
 
     for (let x = 3; x < sampleWidth - 3; x++) {
       const e = smoothedEnergy[x];
@@ -1212,24 +1213,34 @@ export class EcgImageAnalyzer {
         if (e >= smoothedEnergy[x - 1] && e >= smoothedEnergy[x - 2] &&
             e >= smoothedEnergy[x + 1] && e >= smoothedEnergy[x + 2]) {
           
-          if (candidatePeaks.length === 0 || (x - candidatePeaks[candidatePeaks.length - 1].x) > minRRPeriod) {
-            candidatePeaks.push({ x });
+          if (candidatePeaks.length === 0) {
+            candidatePeaks.push({ x, energy: e });
+          } else {
+            const lastPk = candidatePeaks[candidatePeaks.length - 1];
+            const dist = x - lastPk.x;
+
+            if (dist > minRRPeriod) {
+              candidatePeaks.push({ x, energy: e });
+            } else if (e > lastPk.energy * 1.35) {
+              // 距離が不応期内でより強力なQRSスパイクが現れた場合は上書き
+              candidatePeaks[candidatePeaks.length - 1] = { x, energy: e };
+            }
           }
         }
       }
     }
 
-    // 第2段階: 洞調律 & 幅広PVCの両方に対応！候補近傍 (±18px) における真の最尖端スパイク (最高点/最深部) への高精度直撃吸着
+    // 第2段階: 真の最尖端スパイク (最高点/最深部) への高精度直撃吸着
     const peaks = candidatePeaks.map(pk => {
-      const searchStart = Math.max(2, Math.floor(pk.x - 18));
-      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 18));
+      const searchStart = Math.max(2, Math.floor(pk.x - 16));
+      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 16));
 
       let bestX = pk.x;
       let maxSpikeDev = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // 傾き ✕ 基線相対振幅 ✕ 最尖端曲率 の総合スコア
-        const devPower = maxDeviationPower[x] * 2.0 + qrsSlopePower[x] * 1.5;
+        // 傾き ✕ 最尖端曲率 の総合スコア
+        const devPower = maxDeviationPower[x] * 1.5 + qrsSlopePower[x] * 3.0;
         if (devPower > maxSpikeDev) {
           maxSpikeDev = devPower;
           bestX = x;
@@ -1238,9 +1249,9 @@ export class EcgImageAnalyzer {
 
       // サブピクセル補間
       let subX = bestX;
-      const eL = maxDeviationPower[Math.max(0, bestX - 1)] * 2.0 + qrsSlopePower[Math.max(0, bestX - 1)] * 1.5;
-      const eM = maxDeviationPower[bestX] * 2.0 + qrsSlopePower[bestX] * 1.5;
-      const eR = maxDeviationPower[Math.min(sampleWidth - 1, bestX + 1)] * 2.0 + qrsSlopePower[Math.min(sampleWidth - 1, bestX + 1)] * 1.5;
+      const eL = maxDeviationPower[Math.max(0, bestX - 1)] * 1.5 + qrsSlopePower[Math.max(0, bestX - 1)] * 3.0;
+      const eM = maxDeviationPower[bestX] * 1.5 + qrsSlopePower[bestX] * 3.0;
+      const eR = maxDeviationPower[Math.min(sampleWidth - 1, bestX + 1)] * 1.5 + qrsSlopePower[Math.min(sampleWidth - 1, bestX + 1)] * 3.0;
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
