@@ -110,6 +110,11 @@ export class EcgImageAnalyzer {
     this.startDragY = 0;
     this.lastTouchDist = 0;
 
+    // 誘導ガイド位置OCR & 手動アライメント微調整プロパティ
+    this.guideOffsetX = 0;
+    this.guideOffsetY = 0;
+    this.guideScale = 1.0;
+
     this.render();
     this.setupEvents();
     this.setupZoomAndPanEvents();
@@ -189,7 +194,7 @@ export class EcgImageAnalyzer {
               <div class="ia-zoom-controls">
                 <button type="button" class="ia-fullscreen-btn" id="ia-btn-fullscreen" title="画面全体（フルスクリーン）で大きく表示">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                    <path d="M8 3H5a2 2 0 0 1-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 1 2-2v-3M3 16v3a2 2 0 0 1 2 2h3"/>
                   </svg>
                   画面全体表示
                 </button>
@@ -226,6 +231,19 @@ export class EcgImageAnalyzer {
               <input type="checkbox" id="ia-toggle-filter">
               コントラスト強調 / 波形二値化
             </label>
+          </div>
+
+          <!-- 誘導ガイド枠のOCR自動吸着 ＆ 位置ズレ微調整アライメントバー -->
+          <div class="ia-guide-align-bar">
+            <span class="ia-guide-align-title">🎯 ガイド枠吸着・ズレ微調整:</span>
+            <button type="button" class="ia-align-btn" id="ia-btn-ocr-realign" title="写真の印字・格子領域にOCR自動吸着">✨ OCR自動吸着</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-align-up" title="上へ移動">↑ 上</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-align-down" title="下へ移動">↓ 下</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-align-left" title="左へ移動">← 左</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-align-right" title="右へ移動">→ 右</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-align-expand" title="拡大">＋ 拡大</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-align-shrink" title="縮小">－ 縮小</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-align-reset" title="アライメントリセット">リセット</button>
           </div>
 
           <div class="ia-action-buttons-group">
@@ -454,14 +472,72 @@ export class EcgImageAnalyzer {
 
     // コントラスト/二値化トグル
     const toggleFilter = this.container.querySelector('#ia-toggle-filter');
-    toggleFilter.addEventListener('change', (e) => {
-      if (!this.currentImage) return;
-      if (e.target.checked) {
-        this.applyImagePreprocessing(true);
-      } else {
-        this.drawImageToCanvas(this.currentImage);
-      }
-    });
+    if (toggleFilter) {
+      toggleFilter.addEventListener('change', (e) => {
+        if (!this.currentImage) return;
+        if (e.target.checked) {
+          this.applyImagePreprocessing(true);
+        } else {
+          this.drawImageToCanvas(this.currentImage);
+        }
+      });
+    }
+
+    // 誘導ガイド枠 OCR自動吸着 ＆ 手動微調整アライメントボタン群
+    const btnRealign = this.container.querySelector('#ia-btn-ocr-realign');
+    const btnUp = this.container.querySelector('#ia-btn-align-up');
+    const btnDown = this.container.querySelector('#ia-btn-align-down');
+    const btnLeft = this.container.querySelector('#ia-btn-align-left');
+    const btnRight = this.container.querySelector('#ia-btn-align-right');
+    const btnExpand = this.container.querySelector('#ia-btn-align-expand');
+    const btnShrink = this.container.querySelector('#ia-btn-align-shrink');
+    const btnResetAlign = this.container.querySelector('#ia-btn-align-reset');
+
+    if (btnRealign) btnRealign.addEventListener('click', () => this.performOcrGuideAlignment());
+    if (btnUp) btnUp.addEventListener('click', () => this.adjustGuideOffset(0, -1.5));
+    if (btnDown) btnDown.addEventListener('click', () => this.adjustGuideOffset(0, 1.5));
+    if (btnLeft) btnLeft.addEventListener('click', () => this.adjustGuideOffset(-1.5, 0));
+    if (btnRight) btnRight.addEventListener('click', () => this.adjustGuideOffset(1.5, 0));
+    if (btnExpand) btnExpand.addEventListener('click', () => this.adjustGuideScale(0.04));
+    if (btnShrink) btnShrink.addEventListener('click', () => this.adjustGuideScale(-0.04));
+    if (btnResetAlign) btnResetAlign.addEventListener('click', () => this.resetGuideOffset());
+  }
+
+  adjustGuideOffset(dx, dy) {
+    this.guideOffsetX += dx;
+    this.guideOffsetY += dy;
+    this.applyGuideTransform();
+  }
+
+  adjustGuideScale(ds) {
+    this.guideScale = Math.max(0.7, Math.min(1.4, this.guideScale + ds));
+    this.applyGuideTransform();
+  }
+
+  resetGuideOffset() {
+    this.guideOffsetX = 0;
+    this.guideOffsetY = 0;
+    this.guideScale = 1.0;
+    this.applyGuideTransform();
+  }
+
+  applyGuideTransform() {
+    const overlay = this.container.querySelector('#ia-overlay-guide');
+    if (!overlay) return;
+    const baseTop = parseFloat(overlay.dataset.baseTop || '0');
+    const baseLeft = parseFloat(overlay.dataset.baseLeft || '0');
+    const baseWidth = parseFloat(overlay.dataset.baseWidth || '100');
+    const baseHeight = parseFloat(overlay.dataset.baseHeight || '100');
+
+    const finalTop = baseTop + this.guideOffsetY;
+    const finalLeft = baseLeft + this.guideOffsetX;
+    const finalWidth = baseWidth * this.guideScale;
+    const finalHeight = baseHeight * this.guideScale;
+
+    overlay.style.top = `${finalTop.toFixed(2)}%`;
+    overlay.style.left = `${finalLeft.toFixed(2)}%`;
+    overlay.style.width = `${finalWidth.toFixed(2)}%`;
+    overlay.style.height = `${finalHeight.toFixed(2)}%`;
   }
 
   setLayout(layoutId) {
@@ -565,7 +641,7 @@ export class EcgImageAnalyzer {
 
   /**
    * 撮影した心電図写真の印刷領域・文字位置をOCR画像認識スキャンし、
-   * 12誘導ガイド枠 (ia-overlay-guide) を実写真テキスト位置とピッタリ自動吸着アライメント補正
+   * 12誘導ガイド枠 (ia-overlay-guide) を実写真テキスト領域とピッタリ自動吸着アライメント補正
    */
   performOcrGuideAlignment() {
     if (!this.canvas || !this.ctx) return;
@@ -578,46 +654,52 @@ export class EcgImageAnalyzer {
       const imgData = this.ctx.getImageData(0, 0, w, h);
       const data = imgData.data;
 
-      // 写真の有効波形・テキストの境界座標 (余白・撮影枠を除外)
+      // 心電図用紙（ピンク方眼紙・白地記録紙）領域の境界座標スキャン
       let minX = w, maxX = 0, minY = h, maxY = 0;
-      let textCount = 0;
+      let gridCount = 0;
 
-      const step = 4; // 高速スキャン
+      const step = 4;
       for (let y = 0; y < h; y += step) {
         for (let x = 0; x < w; x += step) {
           const idx = (y * w + x) * 4;
           const r = data[idx], g = data[idx + 1], b = data[idx + 2];
           const gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-          // 赤色方眼線以外の黒色テキスト・暗色波形線ピクセルを抽出
-          const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
-          if (gray < 115 && !isRedGrid) {
+          // 心電図記録紙の色特徴 (方眼色 r > 130 または 紙白地 gray > 175)
+          const isEcgPaper = (r > 130 && r > g * 1.05 && r > b * 1.05) || (gray > 175);
+          if (isEcgPaper) {
             if (x < minX) minX = x;
             if (x > maxX) maxX = x;
             if (y < minY) minY = y;
             if (y > maxY) maxY = y;
-            textCount++;
+            gridCount++;
           }
         }
       }
 
-      if (textCount > 100 && minX < maxX && minY < maxY) {
-        // 画像内の文字・波形印刷実効領域のパディング比率を計算
-        const padLeftPct = Math.max(0, Math.min(8, (minX / w) * 100));
-        const padRightPct = Math.max(0, Math.min(8, ((w - maxX) / w) * 100));
-        const padTopPct = Math.max(0, Math.min(10, (minY / h) * 100));
-        const padBottomPct = Math.max(0, Math.min(10, ((h - maxY) / h) * 100));
+      if (gridCount > 500 && minX < maxX && minY < maxY) {
+        const padLeftPct = Math.max(0, Math.min(15, (minX / w) * 100));
+        const padRightPct = Math.max(0, Math.min(15, ((w - maxX) / w) * 100));
+        const padTopPct = Math.max(0, Math.min(18, (minY / h) * 100));
+        const padBottomPct = Math.max(0, Math.min(18, ((h - maxY) / h) * 100));
 
-        overlay.style.top = `${padTopPct.toFixed(1)}%`;
-        overlay.style.left = `${padLeftPct.toFixed(1)}%`;
-        overlay.style.width = `${(100 - padLeftPct - padRightPct).toFixed(1)}%`;
-        overlay.style.height = `${(100 - padTopPct - padBottomPct).toFixed(1)}%`;
+        const baseTop = padTopPct;
+        const baseLeft = padLeftPct;
+        const baseWidth = (100 - padLeftPct - padRightPct);
+        const baseHeight = (100 - padTopPct - padBottomPct);
+
+        overlay.dataset.baseTop = baseTop.toFixed(2);
+        overlay.dataset.baseLeft = baseLeft.toFixed(2);
+        overlay.dataset.baseWidth = baseWidth.toFixed(2);
+        overlay.dataset.baseHeight = baseHeight.toFixed(2);
       } else {
-        overlay.style.top = '0%';
-        overlay.style.left = '0%';
-        overlay.style.width = '100%';
-        overlay.style.height = '100%';
+        overlay.dataset.baseTop = '0';
+        overlay.dataset.baseLeft = '0';
+        overlay.dataset.baseWidth = '100';
+        overlay.dataset.baseHeight = '100';
       }
+
+      this.applyGuideTransform();
     } catch (e) {
       overlay.style.top = '0%';
       overlay.style.left = '0%';
@@ -975,10 +1057,10 @@ export class EcgImageAnalyzer {
     this.detectedBeats = [];
 
     if (this.currentLayoutId === '12x1') {
-      // 縦12誘導 (1列×12行): 最上段(I誘導)直上に全QRSマーカーを配置
+      // 縦12誘導 (1列×12行): 最上段(I誘導)セルの上部ゆとりエリア (yPct = 6.0%) に全QRSマーカーを配置
       const scannedPeaks = this.findEnsembleQrsPeaks('single');
       const defaultRatios = [0.15, 0.35, 0.55, 0.75, 0.90];
-      const topY = 2.5;
+      const topY = 6.0;
 
       const peaksToUse = (scannedPeaks && scannedPeaks.length >= 2) ? scannedPeaks : defaultRatios.map(r => ({ xPct: parseFloat((100 * r).toFixed(1)) }));
 
@@ -995,14 +1077,14 @@ export class EcgImageAnalyzer {
         });
       });
     } else {
-      // 1. 四肢6誘導グループの一番上の誘導 (I誘導: r=0, c=0) の直上ライン (yPct = 4.5%) に横一列配置
+      // 1. 四肢6誘導グループの一番上の誘導 (I誘導) セル上部ゆとりエリア (yPct = 8.5%) に横一列配置
       const limbScanned = this.findEnsembleQrsPeaks('limb');
       let limbStartX = 0;
       if (this.currentLayoutId === '6x2' || this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') limbStartX = 0;
       else if (this.currentLayoutId === '2x6') limbStartX = 50;
 
       const defaultLimbRatios = [0.18, 0.50, 0.82];
-      const limbTopY = 4.5;
+      const limbTopY = 8.5;
 
       const limbPeaksToUse = (limbScanned && limbScanned.length > 0) ? limbScanned : defaultLimbRatios.map(r => ({ xPct: parseFloat((limbStartX + cellW * r).toFixed(1)) }));
 
@@ -1019,13 +1101,13 @@ export class EcgImageAnalyzer {
         });
       });
 
-      // 2. 胸部6誘導グループの一番上の誘導 (V1誘導) の直上ライン (yPct = 4.5% または上下2分割なら 54.5%) に横一列配置
+      // 2. 胸部6誘導グループの一番上の誘導 (V1誘導) セル上部ゆとりエリア (yPct = 8.5% または 2x6なら 58.5%) に横一列配置
       const chestScanned = this.findEnsembleQrsPeaks('chest');
       let chestStartX = 50;
-      let chestTopY = 4.5;
+      let chestTopY = 8.5;
 
-      if (this.currentLayoutId === '6x2' || this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') { chestStartX = 50; chestTopY = 4.5; }
-      else if (this.currentLayoutId === '2x6') { chestStartX = 0; chestTopY = 54.5; }
+      if (this.currentLayoutId === '6x2' || this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') { chestStartX = 50; chestTopY = 8.5; }
+      else if (this.currentLayoutId === '2x6') { chestStartX = 0; chestTopY = 58.5; }
 
       const defaultChestRatios = [0.18, 0.50, 0.82];
       const chestPeaksToUse = (chestScanned && chestScanned.length > 0) ? chestScanned : defaultChestRatios.map(r => ({ xPct: parseFloat((chestStartX + cellW * r).toFixed(1)) }));
