@@ -58,6 +58,28 @@ export const ECG_LAYOUTS = {
       ['I', 'II', 'III', 'aVR', 'aVL', 'aVF'],
       ['V1', 'V2', 'V3', 'V4', 'V5', 'V6']
     ]
+  },
+  '12x1': {
+    id: '12x1',
+    name: '縦 12 誘導 (1列×12行 垂直並び)',
+    desc: '縦一列にI〜V6まで12誘導が一直線に垂直並びのフォーマット',
+    cols: 1,
+    rows: 12,
+    hasRhythmStrip: false,
+    mapping: [
+      ['I'],
+      ['II'],
+      ['III'],
+      ['aVR'],
+      ['aVL'],
+      ['aVF'],
+      ['V1'],
+      ['V2'],
+      ['V3'],
+      ['V4'],
+      ['V5'],
+      ['V6']
+    ]
   }
 };
 
@@ -93,7 +115,7 @@ export class EcgImageAnalyzer {
           </div>
         </div>
 
-        <!-- レイアウト選択バー (6-6列 / 3-3-3-3列の切替) -->
+        <!-- レイアウト選択バー (6-6列 / 3-3-3-3列 / 縦12誘導等の切替) -->
         <div class="ia-layout-bar">
           <div class="ia-layout-label">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -113,6 +135,9 @@ export class EcgImageAnalyzer {
             </button>
             <button class="ia-layout-chip" data-layout="2x6" title="上段四肢6、下段胸部6">
               <strong>6-6 段</strong> (上下2分割)
+            </button>
+            <button class="ia-layout-chip" data-layout="12x1" title="縦一列にI〜V6まで12誘導が一直線に並ぶ垂直フォーマット">
+              <strong>縦 12 誘導</strong> (1列×12行 垂直)
             </button>
           </div>
         </div>
@@ -149,7 +174,7 @@ export class EcgImageAnalyzer {
           </div>
         </div>
 
-        <!-- コントロールバー & 解析実行 -->
+        <!-- コントロールバー & 解析実行 & 画像連続操作（クリア・次撮影） -->
         <div class="ia-actions" id="ia-actions" style="display: none;">
           <div class="ia-adjust-tools">
             <label class="ia-checkbox-label">
@@ -161,12 +186,28 @@ export class EcgImageAnalyzer {
               コントラスト強調 / 波形二値化
             </label>
           </div>
-          <button class="ia-analyze-btn" id="ia-btn-analyze">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-            </svg>
-            波形特徴を自動抽出・認識
-          </button>
+
+          <div class="ia-action-buttons-group">
+            <button class="ia-analyze-btn" id="ia-btn-analyze">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+              波形特徴を自動抽出・認識
+            </button>
+            <button class="ia-next-btn" id="ia-btn-next-photo" title="次の写真を撮影または選択して連続解析">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
+              次の写真を撮影 / 選択
+            </button>
+            <button class="ia-clear-btn" id="ia-btn-clear-photo" title="画像を消去して初期状態に戻す">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+              クリア (初期化)
+            </button>
+          </div>
         </div>
 
         <!-- 解析結果サマリーバナー -->
@@ -178,12 +219,17 @@ export class EcgImageAnalyzer {
           <div class="ia-result-grid" id="ia-result-grid">
             <!-- 検出パラメータのバッジ群 -->
           </div>
-          <button class="ia-apply-btn" id="ia-btn-apply">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="20 6 9 17 4 12"/>
-            </svg>
-            検出パラメータを起源推定に反映する
-          </button>
+          <div class="ia-result-actions" style="display: flex; gap: 10px; width: 100%; margin-top: 10px; flex-wrap: wrap;">
+            <button class="ia-apply-btn" id="ia-btn-apply" style="flex: 2; min-width: 200px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              検出パラメータを起源推定に反映する
+            </button>
+            <button class="ia-next-btn" id="ia-btn-next-photo-result" style="flex: 1; min-width: 150px; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8;">
+              📷 次の写真を解析
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -280,17 +326,38 @@ export class EcgImageAnalyzer {
 
     // 解析実行ボタン
     const btnAnalyze = this.container.querySelector('#ia-btn-analyze');
-    btnAnalyze.addEventListener('click', () => {
-      this.runImageAnalysis();
-    });
+    if (btnAnalyze) {
+      btnAnalyze.addEventListener('click', () => {
+        this.runImageAnalysis();
+      });
+    }
+
+    // 次の写真撮影・選択ボタン
+    const btnNextPhoto = this.container.querySelector('#ia-btn-next-photo');
+    const btnNextPhotoResult = this.container.querySelector('#ia-btn-next-photo-result');
+    const triggerNextPhoto = () => {
+      if (fileInput) fileInput.click();
+    };
+    if (btnNextPhoto) btnNextPhoto.addEventListener('click', triggerNextPhoto);
+    if (btnNextPhotoResult) btnNextPhotoResult.addEventListener('click', triggerNextPhoto);
+
+    // 画像クリア（初期化）ボタン
+    const btnClearPhoto = this.container.querySelector('#ia-btn-clear-photo');
+    if (btnClearPhoto) {
+      btnClearPhoto.addEventListener('click', () => {
+        this.resetImage();
+      });
+    }
 
     // パラメータ適用ボタン
     const btnApply = this.container.querySelector('#ia-btn-apply');
-    btnApply.addEventListener('click', () => {
-      if (this.analyzedData && this.onAnalysisComplete) {
-        this.onAnalysisComplete(this.analyzedData);
-      }
-    });
+    if (btnApply) {
+      btnApply.addEventListener('click', () => {
+        if (this.analyzedData && this.onAnalysisComplete) {
+          this.onAnalysisComplete(this.analyzedData);
+        }
+      });
+    }
 
     // グリッド表示トグル
     const toggleGrid = this.container.querySelector('#ia-toggle-grid');
@@ -341,13 +408,42 @@ export class EcgImageAnalyzer {
    */
   autoDetectLayoutFromImage(img) {
     const aspect = img.width / img.height;
-    // 横幅が極端に広い (2.0以上) ➔ 3x4 または 3x4+リズム
-    // 縦横比が 1.2〜1.6 付近 ➔ 6-6列（縦長寄り）
-    if (aspect > 1.8) {
+    if (aspect < 0.75) {
+      // 縦長画像 ➔ 縦12誘導 (1列×12行 垂直並び)
+      this.setLayout('12x1');
+    } else if (aspect > 1.8) {
+      // 横長画像 ➔ 3x4
       this.setLayout('3x4');
     } else {
+      // 6-6列
       this.setLayout('6x2');
     }
+  }
+
+  /**
+   * 画像および検出状態の完全クリア（初期ドラッグ＆ドロップ状態に戻す）
+   */
+  resetImage() {
+    this.currentImage = null;
+    this.analyzedData = null;
+
+    if (this.ctx && this.canvas) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    const wrapper = this.container.querySelector('#ia-canvas-wrapper');
+    const prompt = this.container.querySelector('#ia-drop-prompt');
+    const actions = this.container.querySelector('#ia-actions');
+    const resultCard = this.container.querySelector('#ia-result-card');
+    const fileInput = this.container.querySelector('#ia-file-input');
+    const cameraInput = this.container.querySelector('#ia-camera-input');
+
+    if (fileInput) fileInput.value = '';
+    if (cameraInput) cameraInput.value = '';
+    if (wrapper) wrapper.style.display = 'none';
+    if (actions) actions.style.display = 'none';
+    if (resultCard) resultCard.style.display = 'none';
+    if (prompt) prompt.style.display = 'flex';
   }
 
   displayImage(img) {
