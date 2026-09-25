@@ -1363,16 +1363,76 @@ export class EcgImageAnalyzer {
           lead: 'V1 誘導(胸部最上段)',
           xPct: pk.xPct,
           yPct: chestTopY,
+          energy: pk.energy || 10,
           polarity: (idx === 0) ? 'negative' : 'positive'
         });
       });
     }
+
+    // ★ 全心拍の波高・QRS幅・期外性 (RR間隔短縮) を自動解析し、最有力PVC拍を初期自動選択!
+    this.autoIdentifyTargetPvcBeat();
 
     const limbBeatsCount = this.detectedBeats.filter(b => b.group === 'limb').length || 1;
     const chestBeatsCount = this.detectedBeats.filter(b => b.group === 'chest' || b.group === 'single').length || 1;
 
     if (this.selectedLimbBeatIndex >= limbBeatsCount) this.selectedLimbBeatIndex = 0;
     if (this.selectedChestBeatIndex >= chestBeatsCount) this.selectedChestBeatIndex = 0;
+  }
+
+  /**
+   * 検出された全心拍の中から、波高(Vpp振幅)・QRS幅・RR間隔(期外性)を解析し、
+   * 最もPVCの可能性が高い心拍を自動識別して標的PVC選択状態に自動セット
+   */
+  autoIdentifyTargetPvcBeat() {
+    if (!this.detectedBeats || this.detectedBeats.length === 0) return;
+
+    ['limb', 'chest', 'single'].forEach(groupKey => {
+      const groupBeats = this.detectedBeats.filter(b => b.group === groupKey);
+      if (groupBeats.length < 2) return;
+
+      // 1. 各拍のRR間隔 (位置%の差) をスキャン
+      const rrIntervals = [];
+      for (let i = 0; i < groupBeats.length; i++) {
+        if (i === 0) {
+          rrIntervals.push(groupBeats[1].xPct - groupBeats[0].xPct);
+        } else {
+          rrIntervals.push(groupBeats[i].xPct - groupBeats[i - 1].xPct);
+        }
+      }
+
+      // 中央値 RR 間隔
+      const sortedRR = [...rrIntervals].sort((a, b) => a - b);
+      const medianRR = sortedRR[Math.floor(sortedRR.length / 2)] || 1.0;
+
+      let maxPvcScore = -1;
+      let pvcBeatIndex = 0;
+
+      groupBeats.forEach((b, idx) => {
+        // ① 早期出現度 (Prematurity): 直前拍との間隔が通常より短いほど高スコア
+        const currentRR = rrIntervals[idx];
+        const prematurityRatio = medianRR / Math.max(0.1, currentRR);
+        let prematurityScore = 0;
+        if (prematurityRatio > 1.10) {
+          prematurityScore = prematurityRatio * 3.5;
+        }
+
+        // ② 波高・エネルギー
+        const energyScore = (b.energy || 10.0) / 8.0;
+
+        const totalPvcScore = prematurityScore + energyScore;
+
+        if (totalPvcScore > maxPvcScore) {
+          maxPvcScore = totalPvcScore;
+          pvcBeatIndex = b.beatIndex;
+        }
+      });
+
+      if (groupKey === 'limb') {
+        this.selectedLimbBeatIndex = pvcBeatIndex;
+      } else if (groupKey === 'chest' || groupKey === 'single') {
+        this.selectedChestBeatIndex = pvcBeatIndex;
+      }
+    });
   }
 
   /**
