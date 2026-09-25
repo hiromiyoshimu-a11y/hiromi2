@@ -1061,10 +1061,13 @@ export class EcgImageAnalyzer {
       } catch (e) {}
     });
 
-    // QRS検出用トータルエネルギー (急傾き ✕ 上下突き出し偏差)
+    // QRS検出用トータルエネルギー (急傾き ✕ 上下突き出し偏差 の【乗算積】: T波は傾きが0に近いためスコアが0になり完全消滅)
     const combinedEnergy = new Float32Array(sampleWidth);
     for (let x = 2; x < sampleWidth - 2; x++) {
-      const rawE = qrsSlopePower[x] * 0.5 + maxDeviationPower[x] * 0.5;
+      const slopeFactor = Math.sqrt(qrsSlopePower[x]);
+      const devFactor = Math.sqrt(maxDeviationPower[x]);
+      // 乗算積: 傾きと偏差の両方が同時に極めて高いQRS波形のみが巨大スコアを獲得
+      const rawE = (slopeFactor * devFactor * devFactor);
       combinedEnergy[x] = rawE;
     }
 
@@ -1082,10 +1085,10 @@ export class EcgImageAnalyzer {
       }
     }
     const avgE = countE > 0 ? (totalE / countE) : 10;
-    const threshold = Math.max(15, avgE * 1.1);
+    const threshold = Math.max(12, avgE * 1.05);
 
     const candidatePeaks = [];
-    const minRRPeriod = sampleWidth * 0.085; // 最小RR間隔
+    const minRRPeriod = sampleWidth * 0.085; // 最小RR間隔 (約320ms)
 
     for (let x = 3; x < sampleWidth - 3; x++) {
       const e = smoothedEnergy[x];
@@ -1100,17 +1103,17 @@ export class EcgImageAnalyzer {
       }
     }
 
-    // 第2段階: 真のQRS最尖端スパイク (上下方向への絶対最大突起 X 位置) への絶対吸着
+    // 第2段階: 真のQRS最尖端スパイク (基線からの突出度 ✕ 傾き が共に最大の QRS 頂点/谷底) へのピンポイント吸着
     const peaks = candidatePeaks.map(pk => {
-      const searchStart = Math.max(2, Math.floor(pk.x - 20));
-      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 20));
+      const searchStart = Math.max(2, Math.floor(pk.x - 18));
+      const searchEnd = Math.min(sampleWidth - 3, Math.floor(pk.x + 18));
 
       let bestX = pk.x;
       let maxSpikeDev = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // T波ではなくQRSスパイク真頂点 (基線からの上下突き出し二乗値) が最大の場所を直撃！
-        const devPower = maxDeviationPower[x] * 2.0 + qrsSlopePower[x] * 1.0;
+        // T波(丸い山)を100%排除し、QRS真の頂点スパイク(急傾斜かつ垂直突起)のみを直撃！
+        const devPower = maxDeviationPower[x] * (qrsSlopePower[x] + 1.0);
         if (devPower > maxSpikeDev) {
           maxSpikeDev = devPower;
           bestX = x;
