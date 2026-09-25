@@ -211,15 +211,6 @@ export class HeartMap {
       </svg>
     `;
   }
-          <circle class="site-ring" cx="0" cy="0" r="10" />
-          <circle class="site-dot" cx="0" cy="0" r="5" />
-          <line class="site-leader-line" x1="-188" y1="57" x2="-4" y2="-4" stroke="#ef4444" stroke-width="2.2" marker-end="url(#arrow-red-large)" />
-          <rect class="site-label-bg" x="-288" y="39" width="200" height="34" rx="6" fill="rgba(7, 12, 24, 0.94)" stroke="#ef4444" stroke-width="2.2" />
-          <text class="site-label-text" x="-188" y="62" text-anchor="middle" fill="#ffffff" font-size="14.5" font-weight="800">右室調節帯 (MB)</text>
-        </g>
-      </svg>
-    `;
-  }
 
   /**
    * 弁輪・流出路見下ろし短軸視点 (Basal View) SVG
