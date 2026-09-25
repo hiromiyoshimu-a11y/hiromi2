@@ -1157,10 +1157,14 @@ export class EcgImageAnalyzer {
             if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) cur += Math.abs(bottomYArr[x - 1] - 2 * bottomYArr[x] + bottomYArr[x + 1]);
 
             slopePower[globalX] += slp * slp;
-            curvaturePower[globalX] += cur * cur * 6.0;
-            vppPower[globalX] += devFromBase * devFromBase;
 
-            if (slp > 8 || cur > 6) {
+            // ★ T-Wave Slope Gate: 1次微分 (急傾斜 slp) が小さい箇所はなだらかなT波のため、Alg B・Alg C へのスコア加算を遮断!
+            if (slp >= 3.5) {
+              curvaturePower[globalX] += cur * cur * 5.0;
+              vppPower[globalX] += devFromBase * devFromBase;
+            }
+
+            if (slp > 7 || cur > 5) {
               crossLeadCount[globalX] += 1.0;
             }
           }
@@ -1186,7 +1190,7 @@ export class EcgImageAnalyzer {
       return pks;
     };
 
-    const minDist = sampleWidth * 0.082; // 生理学的不応期
+    const minDist = sampleWidth * 0.082; // 生理学的不応期 (約320ms)
     const peaksA = getDetectorPeaks(slopePower, minDist, 0.20);      // Alg A (1次微分エッジ)
     const peaksB = getDetectorPeaks(curvaturePower, minDist, 0.20);  // Alg B (2次微分最尖端)
     const peaksC = getDetectorPeaks(vppPower, minDist, 0.25);        // Alg C (振幅エンベロープ)
@@ -1227,10 +1231,24 @@ export class EcgImageAnalyzer {
       }
     });
 
-    // ★ 多数決フィルター (2系統以上の独立アルゴリズムが同意一致したクラスタのみを真のQRSと認定)
-    const consensusClusters = clusters.filter(cl => cl.detectors.size >= 2);
+    // ★ 多数決フィルター ＋ 1次微分必須チェック (T波クラスタの厳重排除)
+    const maxSlopeInRecord = Math.max(...slopePower);
+    const consensusClusters = clusters.filter(cl => {
+      // 条件1: 2系統以上の検出器が一致賛同
+      if (cl.detectors.size < 2) return false;
+      // 条件2: そのクラスタの近傍 (±12px) における 1次微分 (急傾斜) が全体の20%以上存在すること (T波完全排除)
+      const cX = Math.round(cl.avgX);
+      let localMaxSlope = 0;
+      for (let dx = -12; dx <= 12; dx++) {
+        const xIdx = cX + dx;
+        if (xIdx >= 0 && xIdx < sampleWidth) {
+          if (slopePower[xIdx] > localMaxSlope) localMaxSlope = slopePower[xIdx];
+        }
+      }
+      return (localMaxSlope >= maxSlopeInRecord * 0.18);
+    });
 
-    // 確定した合意クラスタから真の最尖端へ100%吸着
+    // 確定した合意クラスタから真のQRS最尖端スパイクへ100%直撃吸着
     const peaks = consensusClusters.map(cl => {
       const searchStart = Math.max(2, Math.floor(cl.avgX - 16));
       const searchEnd = Math.min(sampleWidth - 3, Math.floor(cl.avgX + 16));
@@ -1239,8 +1257,8 @@ export class EcgImageAnalyzer {
       let maxScore = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        // 1次微分 ✕ 2次微分最尖端の結合パワー
-        const score = slopePower[x] * 2.5 + curvaturePower[x] * 2.0;
+        // 1次微分 (急傾斜エッジ) に圧倒的重み (* 6.0) を与えてT波頂点を完全シャットアウト
+        const score = slopePower[x] * 6.0 + curvaturePower[x] * 1.5;
         if (score > maxScore) {
           maxScore = score;
           bestX = x;
@@ -1249,9 +1267,9 @@ export class EcgImageAnalyzer {
 
       // サブピクセル補間
       let subX = bestX;
-      const eL = slopePower[Math.max(0, bestX - 1)] * 2.5 + curvaturePower[Math.max(0, bestX - 1)] * 2.0;
-      const eM = slopePower[bestX] * 2.5 + curvaturePower[bestX] * 2.0;
-      const eR = slopePower[Math.min(sampleWidth - 1, bestX + 1)] * 2.5 + curvaturePower[Math.min(sampleWidth - 1, bestX + 1)] * 2.0;
+      const eL = slopePower[Math.max(0, bestX - 1)] * 6.0 + curvaturePower[Math.max(0, bestX - 1)] * 1.5;
+      const eM = slopePower[bestX] * 6.0 + curvaturePower[bestX] * 1.5;
+      const eR = slopePower[Math.min(sampleWidth - 1, bestX + 1)] * 6.0 + curvaturePower[Math.min(sampleWidth - 1, bestX + 1)] * 1.5;
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
