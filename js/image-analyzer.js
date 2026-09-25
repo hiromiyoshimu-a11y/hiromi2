@@ -185,8 +185,14 @@ export class EcgImageAnalyzer {
           <!-- Canvasプレビュー (画面左右全幅拡大 ＆ ダブルタップ・タッチスワイプ操作付き) -->
           <div class="ia-canvas-wrapper" id="ia-canvas-wrapper" style="display: none;">
             <div class="ia-zoom-bar">
-              <span class="ia-zoom-hint">🔍 ダブルタップで拡大・縮小 ｜ 指やマウスでスワイプ移動できます</span>
+              <span class="ia-zoom-hint">🔍 ダブルタップで拡大 ｜ スワイプで移動できます</span>
               <div class="ia-zoom-controls">
+                <button type="button" class="ia-fullscreen-btn" id="ia-btn-fullscreen" title="画面全体（フルスクリーン）で大きく表示">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+                  </svg>
+                  画面全体表示
+                </button>
                 <button type="button" class="ia-zoom-btn" id="ia-zoom-out" title="縮小">-</button>
                 <span class="ia-zoom-level" id="ia-zoom-level-label">100%</span>
                 <button type="button" class="ia-zoom-btn" id="ia-zoom-in" title="拡大">+</button>
@@ -385,11 +391,26 @@ export class EcgImageAnalyzer {
     if (btnNextPhoto) btnNextPhoto.addEventListener('click', triggerNextPhoto);
     if (btnNextPhotoResult) btnNextPhotoResult.addEventListener('click', triggerNextPhoto);
 
-    // 画像クリア（初期化）ボタン
-    const btnClearPhoto = this.container.querySelector('#ia-btn-clear-photo');
-    if (btnClearPhoto) {
-      btnClearPhoto.addEventListener('click', () => {
-        this.resetImage();
+    // 画面全体表示（フルスクリーンモード）ボタン
+    const btnFullscreen = this.container.querySelector('#ia-btn-fullscreen');
+    if (btnFullscreen) {
+      btnFullscreen.addEventListener('click', () => {
+        const wrapper = this.container.querySelector('#ia-canvas-wrapper');
+        if (wrapper) {
+          wrapper.classList.toggle('is-fullscreen');
+          const isFull = wrapper.classList.contains('is-fullscreen');
+          btnFullscreen.innerHTML = isFull ? `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+            </svg>
+            通常サイズに戻す
+          ` : `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+            </svg>
+            画面全体表示
+          `;
+        }
       });
     }
 
@@ -769,10 +790,10 @@ export class EcgImageAnalyzer {
   }
 
   /**
-   * 指定誘導グループ（四肢6誘導 or 胸部6誘導）をアンサンブル一括走査
-   * グループ内の6つの誘導のどこかでQRSが認識できれば、その時間軸X位置にピークを検出
+   * 指定誘導セル（特に一番上の誘導: I誘導 / V1誘導）のCanvas画像ピクセルから、
+   * 急峻なQRS波形振幅・微分値を解析してQRSピーク(頂点/谷底)の物理座標(x, y)を高精度特定
    */
-  findEnsembleQrsPeaks(groupType) {
+  findPreciseQrsPeaksInLead(rIdx, cIdx) {
     if (!this.canvas || !this.ctx) return [];
 
     const layoutDef = ECG_LAYOUTS[this.currentLayoutId] || ECG_LAYOUTS['6x2'];
@@ -780,188 +801,175 @@ export class EcgImageAnalyzer {
     const rows = layoutDef.rows;
     const canvasW = this.canvas.width;
     const canvasH = this.canvas.height;
-
-    // 対象セル（6誘導）の範囲を収集
-    const targetCells = [];
-    layoutDef.mapping.forEach((row, rIdx) => {
-      row.forEach((leadName, cIdx) => {
-        if (leadName.includes('Rhythm')) return;
-
-        const isLimb = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF'].includes(leadName);
-        const isChest = ['V1', 'V2', 'V3', 'V4', 'V5', 'V6'].includes(leadName);
-
-        if (groupType === 'limb' && isLimb) {
-          targetCells.push({ rIdx, cIdx, leadName });
-        } else if (groupType === 'chest' && isChest) {
-          targetCells.push({ rIdx, cIdx, leadName });
-        } else if (groupType === 'single') {
-          targetCells.push({ rIdx, cIdx, leadName });
-        }
-      });
-    });
-
-    if (targetCells.length === 0) return [];
-
     const cellW = canvasW / cols;
     const cellH = canvasH / rows;
 
-    let minX = canvasW, maxX = 0;
-    targetCells.forEach(cell => {
-      const x0 = cell.cIdx * cellW;
-      const x1 = (cell.cIdx + 1) * cellW;
-      if (x0 < minX) minX = x0;
-      if (x1 > maxX) maxX = x1;
-    });
+    const cellX = cIdx * cellW;
+    const cellY = rIdx * cellH;
 
-    const sampleStartX = Math.floor(minX + cellW * 0.05);
-    const sampleWidth = Math.floor((maxX - minX) * 0.90);
-    if (sampleWidth <= 0) return [];
+    const startX = Math.floor(cellX + cellW * 0.04);
+    const sampleW = Math.floor(cellW * 0.92);
+    const startY = Math.floor(cellY + cellH * 0.08);
+    const sampleH = Math.floor(cellH * 0.84);
 
-    const ensembleAmplitudes = new Float32Array(sampleWidth);
+    try {
+      const imgData = this.ctx.getImageData(startX, startY, sampleW, sampleH);
+      const data = imgData.data;
+      const midY = sampleH / 2;
 
-    targetCells.forEach(cell => {
-      const cx = Math.floor(cell.cIdx * cellW + cellW * 0.05);
-      const cy = Math.floor(cell.rIdx * cellH + cellH * 0.10);
-      const cw = Math.floor(cellW * 0.90);
-      const ch = Math.floor(cellH * 0.80);
+      const colDevs = new Float32Array(sampleW);
+      const colPeakY = new Float32Array(sampleW);
 
-      try {
-        const imgData = this.ctx.getImageData(cx, cy, cw, ch);
-        const data = imgData.data;
-        const midY = ch / 2;
+      for (let x = 0; x < sampleW; x++) {
+        let maxDev = 0;
+        let pY = midY;
 
-        for (let x = 0; x < cw; x++) {
-          const globalX = Math.floor((cell.cIdx * cellW + x) - sampleStartX);
-          if (globalX < 0 || globalX >= sampleWidth) continue;
+        for (let y = 0; y < sampleH; y++) {
+          const idx = (y * sampleW + x) * 4;
+          const r = data[idx], g = data[idx + 1], b = data[idx + 2];
 
-          let maxDev = 0;
-          for (let y = 0; y < ch; y++) {
-            const idx = (y * cw + x) * 4;
-            const r = data[idx], g = data[idx + 1], b = data[idx + 2];
-            const gray = 0.299 * r + 0.587 * g + 0.114 * b;
-            const isGrid = (r > 160 && g < 135 && b < 135);
+          const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-            if (gray < 130 && !isGrid) {
-              const dev = Math.abs(y - midY);
-              if (dev > maxDev) maxDev = dev;
+          if (gray < 140 && !isRedGrid) {
+            const dev = Math.abs(y - midY);
+            if (dev > maxDev) {
+              maxDev = dev;
+              pY = y;
             }
           }
-          ensembleAmplitudes[globalX] += maxDev;
         }
-      } catch (e) {}
-    });
+        colDevs[x] = maxDev;
+        colPeakY[x] = pY;
+      }
 
-    const peaks = [];
-    const minDistance = sampleWidth * 0.15;
-    const threshold = 18;
+      const energy = new Float32Array(sampleW);
+      for (let x = 1; x < sampleW - 1; x++) {
+        const diff = Math.abs(colDevs[x + 1] - colDevs[x - 1]);
+        energy[x] = colDevs[x] * 1.5 + diff * 2.0;
+      }
 
-    for (let x = 2; x < sampleWidth - 2; x++) {
-      const amp = ensembleAmplitudes[x];
-      if (amp > threshold) {
-        if (amp >= ensembleAmplitudes[x - 1] && amp >= ensembleAmplitudes[x - 2] &&
-            amp >= ensembleAmplitudes[x + 1] && amp >= ensembleAmplitudes[x + 2]) {
-          
-          if (peaks.length === 0 || (x - peaks[peaks.length - 1].x) > minDistance) {
-            const absX = sampleStartX + x;
-            peaks.push({
-              x: x,
-              xPct: parseFloat(((absX / canvasW) * 100).toFixed(1))
-            });
+      const peaks = [];
+      const threshold = sampleH * 0.12;
+      const minDistance = sampleW * 0.14;
+
+      for (let x = 2; x < sampleW - 2; x++) {
+        const eng = energy[x];
+        if (eng > threshold) {
+          if (eng >= energy[x - 1] && eng >= energy[x - 2] &&
+              eng >= energy[x + 1] && eng >= energy[x + 2]) {
+            
+            if (peaks.length === 0 || (x - peaks[peaks.length - 1].x) > minDistance) {
+              const absX = startX + x;
+              const absY = Math.max(startY + 4, startY + colPeakY[x] - 12);
+
+              peaks.push({
+                x: x,
+                xPct: parseFloat(((absX / canvasW) * 100).toFixed(1)),
+                yPct: parseFloat(((absY / canvasH) * 100).toFixed(1)),
+                polarity: (colPeakY[x] < midY) ? 'positive' : 'negative'
+              });
+            }
           }
         }
       }
-    }
 
-    return peaks;
+      return peaks;
+    } catch (e) {
+      return [];
+    }
   }
 
   /**
    * 画像上のQRS波形認識点（ビート）を検出・解析
-   * 四肢6誘導・胸部6誘導を全スキャンし、QRSが認識された位置に対し、各エリアの【最上部】に横一列のマーカーを整列表示
+   * 四肢誘導/胸部誘導それぞれの【一番上の誘導】の波形QRSピーク直上にマーカーをジャスト表示
    */
   detectBeatsFromImage() {
     const layoutDef = ECG_LAYOUTS[this.currentLayoutId] || ECG_LAYOUTS['6x2'];
     const cols = layoutDef.cols;
     const rows = layoutDef.rows;
+    const cellW = (100 / cols);
+    const cellH = (100 / rows);
 
     this.detectedBeats = [];
 
     if (this.currentLayoutId === '12x1') {
-      // 縦12誘導 (1列×12行): 最上部 (2.5%) に横一列でマーカーを整列配置
-      const scannedPeaks = this.findEnsembleQrsPeaks('single');
+      // 縦12誘導 (1列×12行): 一番上の誘導 (I誘導: r=0, c=0) のQRS直上に表示
+      const scannedPeaks = this.findPreciseQrsPeaksInLead(0, 0);
       const beatRatios = [0.18, 0.40, 0.62, 0.84];
-      const topY = 2.5; // 画面最上部
+      const defaultY = cellH * 0.25;
 
       beatRatios.forEach((ratio, idx) => {
-        const defaultX = parseFloat((100 * ratio).toFixed(1));
+        const defX = parseFloat((100 * ratio).toFixed(1));
         const matched = scannedPeaks[idx];
-        const finalX = matched ? matched.xPct : defaultX;
+        const finalX = matched ? matched.xPct : defX;
+        const finalY = matched ? matched.yPct : defaultY;
 
         this.detectedBeats.push({
           group: 'single',
           groupName: '全誘導',
           beatIndex: idx,
           beatNum: idx + 1,
-          lead: '全誘導',
+          lead: 'I 誘導',
           xPct: finalX,
-          yPct: topY,
-          polarity: (idx === 0) ? 'negative' : 'positive'
+          yPct: finalY,
+          polarity: matched ? matched.polarity : ((idx === 0) ? 'negative' : 'positive')
         });
       });
     } else {
-      // 四肢6誘導 ＆ 胸部6誘導それぞれで全スキャンを実施
-      // 1. 四肢6誘導グループの最上部マーカー (四肢誘導エリアのトップ: yPct = 5.5%)
-      const limbScanned = this.findEnsembleQrsPeaks('limb');
-      let limbStartX = 0;
-      if (this.currentLayoutId === '6x2' || this.currentLayoutId === '3x4') limbStartX = 0;
-      else if (this.currentLayoutId === '2x6') limbStartX = 50; // 下段または右側
+      // 1. 四肢6誘導グループの一番上の誘導 (I誘導: r=0, c=0) のQRS直上に表示
+      let limbCol = 0;
+      if (this.currentLayoutId === '2x6') limbCol = 0;
 
+      const limbScanned = this.findPreciseQrsPeaksInLead(0, limbCol);
+      const limbStartX = cellW * limbCol;
       const limbRatios = [0.18, 0.50, 0.82];
-      const cellW = 100 / cols;
-      const limbTopY = 5.5; // 四肢誘導エリア最上部
+      const defaultLimbY = cellH * 0.25;
 
       limbRatios.forEach((ratio, idx) => {
-        const defX = parseFloat((limbStartX + (100 / cols) * ratio).toFixed(1));
+        const defX = parseFloat((limbStartX + cellW * ratio).toFixed(1));
         const matched = limbScanned[idx];
         const finalX = matched ? matched.xPct : defX;
+        const finalY = matched ? matched.yPct : defaultLimbY;
 
         this.detectedBeats.push({
           group: 'limb',
           groupName: '四肢',
           beatIndex: idx,
           beatNum: idx + 1,
-          lead: '四肢誘導',
+          lead: 'I 誘導',
           xPct: finalX,
-          yPct: limbTopY,
-          polarity: (idx === 0) ? 'positive' : 'negative'
+          yPct: finalY,
+          polarity: matched ? matched.polarity : ((idx === 0) ? 'positive' : 'negative')
         });
       });
 
-      // 2. 胸部6誘導グループの最上部マーカー (胸部誘導エリアのトップ: yPct = 5.5% または上下2分割なら 55.5%)
-      const chestScanned = this.findEnsembleQrsPeaks('chest');
-      let chestStartX = 50;
-      let chestTopY = 5.5; // 左右2分割ならトップ同じ
+      // 2. 胸部6誘導グループの一番上の誘導 (V1誘導) のQRS直上に表示
+      let chestRow = 0; let chestCol = 1;
+      if (this.currentLayoutId === '6x2') { chestRow = 0; chestCol = 1; }
+      else if (this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') { chestRow = 0; chestCol = 2; }
+      else if (this.currentLayoutId === '2x6') { chestRow = 1; chestCol = 0; }
 
-      if (this.currentLayoutId === '6x2') { chestStartX = 50; chestTopY = 5.5; }
-      else if (this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') { chestStartX = 50; chestTopY = 5.5; }
-      else if (this.currentLayoutId === '2x6') { chestStartX = 0; chestTopY = 55.5; } // 2x6(上下2分割)なら下段トップ
-
+      const chestScanned = this.findPreciseQrsPeaksInLead(chestRow, chestCol);
+      const chestStartX = cellW * chestCol;
       const chestRatios = [0.18, 0.50, 0.82];
+      const defaultChestY = cellH * (chestRow + 0.25);
 
       chestRatios.forEach((ratio, idx) => {
-        const defX = parseFloat((chestStartX + (100 / cols) * ratio).toFixed(1));
+        const defX = parseFloat((chestStartX + cellW * ratio).toFixed(1));
         const matched = chestScanned[idx];
         const finalX = matched ? matched.xPct : defX;
+        const finalY = matched ? matched.yPct : defaultChestY;
 
         this.detectedBeats.push({
           group: 'chest',
           groupName: '胸部',
           beatIndex: idx,
           beatNum: idx + 1,
-          lead: '胸部誘導',
+          lead: 'V1 誘導',
           xPct: finalX,
-          yPct: chestTopY,
-          polarity: (idx === 0) ? 'negative' : 'positive'
+          yPct: finalY,
+          polarity: matched ? matched.polarity : ((idx === 0) ? 'negative' : 'positive')
         });
       });
     }
