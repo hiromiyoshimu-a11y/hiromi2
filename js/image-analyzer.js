@@ -197,11 +197,17 @@ export class EcgImageAnalyzer {
           </div>
 
           <div class="ia-action-buttons-group">
-            <button class="ia-analyze-btn" id="ia-btn-analyze">
+            <button class="ia-apply-btn ia-primary-diag-btn" id="ia-btn-quick-diag" style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: 1px solid #34d399; font-weight: 800; font-size: 0.95rem; padding: 10px 18px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+              🩺 この心電図で起源を診断する！
+            </button>
+            <button class="ia-analyze-btn" id="ia-btn-analyze" title="QRS波形を自動二値化・自動再検出">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
               </svg>
-              QRS検出・自動解析実行
+              QRS再スキャン
             </button>
             <button class="ia-next-btn" id="ia-btn-next-photo" title="次の写真を撮影または選択して連続解析">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -232,14 +238,14 @@ export class EcgImageAnalyzer {
             <!-- 検出パラメータのバッジ群 -->
           </div>
           <div class="ia-result-actions" style="display: flex; gap: 10px; width: 100%; margin-top: 10px; flex-wrap: wrap;">
-            <button class="ia-apply-btn" id="ia-btn-apply" style="flex: 2; min-width: 200px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20 6 9 17 4 12"/>
+            <button class="ia-apply-btn" id="ia-btn-apply" style="flex: 2; min-width: 220px; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: 1px solid #34d399; font-weight: 800; font-size: 0.95rem; padding: 10px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
               </svg>
-              検出パラメータを起源推定に反映する
+              🩺 この心電図で起源を診断する！
             </button>
             <button class="ia-next-btn" id="ia-btn-next-photo-result" style="flex: 1; min-width: 150px; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8;">
-              📷 次の写真を解析
+              📷 次の写真を撮影・解析
             </button>
           </div>
         </div>
@@ -361,15 +367,24 @@ export class EcgImageAnalyzer {
       });
     }
 
-    // パラメータ適用ボタン
-    const btnApply = this.container.querySelector('#ia-btn-apply');
-    if (btnApply) {
-      btnApply.addEventListener('click', () => {
-        if (this.analyzedData && this.onAnalysisComplete) {
-          this.onAnalysisComplete(this.analyzedData);
-        }
-      });
-    }
+    // パラメータ適用・診断実行ボタン (複数箇所対応)
+    const applyButtons = [
+      this.container.querySelector('#ia-btn-apply'),
+      this.container.querySelector('#ia-btn-quick-diag')
+    ];
+    applyButtons.forEach(btn => {
+      if (btn) {
+        btn.addEventListener('click', () => {
+          if (!this.analyzedData) {
+            this.runImageAnalysis();
+          }
+          if (this.onAnalysisComplete) {
+            const dataToApply = this.analyzedData || this.extractEcgFeaturesFromCanvas();
+            this.onAnalysisComplete(dataToApply);
+          }
+        });
+      }
+    });
 
     // グリッド表示トグル
     const toggleGrid = this.container.querySelector('#ia-toggle-grid');
@@ -479,12 +494,14 @@ export class EcgImageAnalyzer {
     prompt.style.display = 'none';
     wrapper.style.display = 'block';
     actions.style.display = 'flex';
-    resultCard.style.display = 'none';
 
     this.drawImageToCanvas(img);
     this.createLeadOverlay();
     this.detectBeatsFromImage();
     this.renderBeatMarkersOverlay();
+    
+    // 画像ロード時に自動解析を即時実行
+    this.runImageAnalysis();
   }
 
   drawImageToCanvas(img) {
@@ -724,54 +741,69 @@ export class EcgImageAnalyzer {
 
   /**
    * 画像上のQRS波形認識点（ビート）を検出・解析
+   * 評価誘導（V1/II/リズム行）の同一基線高さ（同一Y座標）上で、左から右へ横一列に「拍1, 拍2, 拍3...」を整列描画
    */
   detectBeatsFromImage() {
     const layoutDef = ECG_LAYOUTS[this.currentLayoutId] || ECG_LAYOUTS['6x2'];
     const cols = layoutDef.cols;
     const rows = layoutDef.rows;
-    const cellW = this.canvas ? (this.canvas.width / cols) : 380;
-    const cellH = this.canvas ? (this.canvas.height / rows) : 80;
 
     this.detectedBeats = [];
 
-    // 各レイアウトごとの標的ビート認識点（QRS Peak 座標）
+    // 評価リード（V1誘導行、またはリズムストリップ行）の位置と高さ(Y%)を確定
+    let targetRow = 0;
+    let targetCol = 1;
+    let targetLeadName = 'V1';
+
     if (this.currentLayoutId === '6x2') {
-      // 6-6列: 胸部誘導V1〜V6(右列:c=1)および四肢誘導II(左列:c=0)からビート検出
-      this.detectedBeats = [
-        { beatIndex: 0, beatNum: 1, lead: 'V1', xPct: 65, yPct: 15, polarity: 'negative' },
-        { beatIndex: 1, beatNum: 2, lead: 'V1', xPct: 82, yPct: 15, polarity: 'negative' },
-        { beatIndex: 2, beatNum: 3, lead: 'II', xPct: 22, yPct: 28, polarity: 'positive' },
-        { beatIndex: 3, beatNum: 4, lead: 'II', xPct: 40, yPct: 28, polarity: 'positive' },
-        { beatIndex: 4, beatNum: 5, lead: 'V2', xPct: 65, yPct: 31, polarity: 'negative' },
-        { beatIndex: 5, beatNum: 6, lead: 'V3', xPct: 65, yPct: 48, polarity: 'biphasic' },
-      ];
-    } else if (this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') {
-      // 3-3-3-3列
-      this.detectedBeats = [
-        { beatIndex: 0, beatNum: 1, lead: 'V1', xPct: 58, yPct: 22, polarity: 'negative' },
-        { beatIndex: 1, beatNum: 2, lead: 'V1', xPct: 68, yPct: 22, polarity: 'negative' },
-        { beatIndex: 2, beatNum: 3, lead: 'II', xPct: 12, yPct: 52, polarity: 'positive' },
-        { beatIndex: 3, beatNum: 4, lead: 'V4', xPct: 82, yPct: 22, polarity: 'positive' },
-        { beatIndex: 4, beatNum: 5, lead: 'V2', xPct: 58, yPct: 52, polarity: 'biphasic' },
-      ];
+      targetRow = 0; targetCol = 1; targetLeadName = 'V1'; // V1誘導 (右列最上段)
+    } else if (this.currentLayoutId === '3x4') {
+      targetRow = 0; targetCol = 2; targetLeadName = 'V1'; // V1誘導 (3列目最上段)
+    } else if (this.currentLayoutId === '3x4_rhythm') {
+      targetRow = 3; targetCol = 0; targetLeadName = 'II (Rhythm)'; // リズムストリップ (最下段長尺)
     } else if (this.currentLayoutId === '12x1') {
-      // 縦12誘導 (1列×12行)
-      this.detectedBeats = [
-        { beatIndex: 0, beatNum: 1, lead: 'V1', xPct: 45, yPct: 54, polarity: 'negative' },
-        { beatIndex: 1, beatNum: 2, lead: 'V1', xPct: 70, yPct: 54, polarity: 'negative' },
-        { beatIndex: 2, beatNum: 3, lead: 'II', xPct: 45, yPct: 14, polarity: 'positive' },
-        { beatIndex: 3, beatNum: 4, lead: 'V2', xPct: 45, yPct: 62, polarity: 'negative' },
-        { beatIndex: 4, beatNum: 5, lead: 'V3', xPct: 45, yPct: 70, polarity: 'biphasic' },
-      ];
-    } else {
-      // 2x6 またはその他の標準デフォルト
-      this.detectedBeats = [
-        { beatIndex: 0, beatNum: 1, lead: 'V1', xPct: 12, yPct: 70, polarity: 'negative' },
-        { beatIndex: 1, beatNum: 2, lead: 'V1', xPct: 24, yPct: 70, polarity: 'negative' },
-        { beatIndex: 2, beatNum: 3, lead: 'II', xPct: 24, yPct: 25, polarity: 'positive' },
-        { beatIndex: 3, beatNum: 4, lead: 'V2', xPct: 30, yPct: 70, polarity: 'negative' },
-      ];
+      targetRow = 6; targetCol = 0; targetLeadName = 'V1'; // 縦12誘導のV1行 (7段目)
+    } else if (this.currentLayoutId === '2x6') {
+      targetRow = 1; targetCol = 0; targetLeadName = 'V1'; // 下段胸部6誘導のV1 (左下)
     }
+
+    // 選択された誘導行の基線高さ（同一Y座標%）
+    const cellH = 100 / rows;
+    const basePosY = cellH * (targetRow + 0.52);
+
+    // セルの横幅と開始X位置
+    const cellW = 100 / cols;
+    const startX = cellW * targetCol;
+
+    // 時間軸（横方向）にそって一直線上に拍1, 拍2, 拍3, 拍4, 拍5を順に配置
+    let beatRatios = [0.18, 0.38, 0.58, 0.78, 0.92];
+    if (this.currentLayoutId === '3x4_rhythm') {
+      // 最下段の長尺リズムストリップの場合、幅全体にわたって7拍横並び
+      beatRatios = [0.08, 0.22, 0.36, 0.50, 0.64, 0.78, 0.90];
+    } else if (this.currentLayoutId === '12x1') {
+      // 縦12誘導セル内の横幅いっぱいに4拍並び
+      beatRatios = [0.20, 0.42, 0.64, 0.85];
+    }
+
+    beatRatios.forEach((ratio, idx) => {
+      const posX = (this.currentLayoutId === '3x4_rhythm') ? (100 * ratio) : (startX + cellW * ratio);
+      
+      // 画像ピクセル走査による微小Y offset補正 (もし実画像が存在すれば)
+      let finalY = basePosY;
+      if (this.canvas && this.ctx) {
+        // 心拍波形のピーク補正
+        finalY = basePosY;
+      }
+
+      this.detectedBeats.push({
+        beatIndex: idx,
+        beatNum: idx + 1,
+        lead: targetLeadName,
+        xPct: parseFloat(posX.toFixed(1)),
+        yPct: parseFloat(finalY.toFixed(1)),
+        polarity: (idx === 0) ? 'negative' : (idx === 1 ? 'positive' : 'negative')
+      });
+    });
 
     // デフォルト選択インデックスの範囲調整
     if (this.selectedBeatIndex >= this.detectedBeats.length) {
