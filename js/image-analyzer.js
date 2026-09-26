@@ -1382,7 +1382,7 @@ export class EcgImageAnalyzer {
           const limbRelX = limbPk.xPct - limbStartX;
           const targetChestXPct = parseFloat((chestStartX + limbRelX).toFixed(1));
 
-          // 胸部スキャン結果から、この四肢QRS位相の直近 (±4.0%) にある真の胸部ピークを捜索
+          // 胸部スキャン結果から、この四肢QRS位相の絶対直近 (±1.2% ≒ ±80ms 以内) にある真のQRSピークのみを捜索
           let bestChestPk = null;
           let minDiff = 999;
 
@@ -1396,9 +1396,9 @@ export class EcgImageAnalyzer {
             });
           }
 
-          // 近傍 (±4.0%) 内に胸部QRSピークがあれば採用。
-          // 胸部検出がT波(3/4位置)に逃げている場合は、四肢QRS位相へ同期ロック補正!
-          if (bestChestPk && minDiff <= 4.0) {
+          // ★ 同期ロック判定: 直近 (±1.2% ≒ ±80ms 以内) に真の胸部QRSスパイクがあればそれを採用。
+          // それ以上離れた位置 (T波領域など) にある誤検出ピークは 100% 偽物として捨て、四肢QRSの絶対正解位相へ完全固定!
+          if (bestChestPk && minDiff <= 1.2) {
             return bestChestPk;
           } else {
             return {
