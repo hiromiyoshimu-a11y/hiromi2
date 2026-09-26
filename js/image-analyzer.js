@@ -1168,20 +1168,25 @@ export class EcgImageAnalyzer {
 
             // ★ Alg 16: 変曲点における角度の急峻度 (Inflection Angular Sharpness)
             // T波のなだらかな山頂 (鈍角 > 120°) は 0 スコア、QRSの鋭いV字/A字スパイク (鋭角 < 60°) は爆発的ハイスコア (* 15.0)
+            // ★ Alg 16: 変曲点における角度の急峻度 (Inflection Angular Sharpness)
+            // ノイズゲート: 1次微分 slp >= 4.0 かつ 基線偏差 devFromBase >= 4.0 の本物の波形スパイクの場所でのみ発動!
+            // 何もない基線のグリッドノイズや画像のチラつきでは 0 スコアに完全ガード!
             let angSharpness = 0;
-            if (topYArr[x - 2] !== -1 && topYArr[x] !== -1 && topYArr[x + 2] !== -1) {
-              const dy1 = topYArr[x] - topYArr[x - 2];
-              const dy2 = topYArr[x + 2] - topYArr[x];
-              const diffDy = Math.abs(dy1 - dy2);
-              const norm = Math.sqrt(1 + dy1 * dy1) * Math.sqrt(1 + dy2 * dy2);
-              angSharpness += (diffDy / norm) * 100.0;
-            }
-            if (bottomYArr[x - 2] !== -1 && bottomYArr[x] !== -1 && bottomYArr[x + 2] !== -1) {
-              const dy1 = bottomYArr[x] - bottomYArr[x - 2];
-              const dy2 = bottomYArr[x + 2] - bottomYArr[x];
-              const diffDy = Math.abs(dy1 - dy2);
-              const norm = Math.sqrt(1 + dy1 * dy1) * Math.sqrt(1 + dy2 * dy2);
-              angSharpness += (diffDy / norm) * 100.0;
+            if (slp >= 4.0 && devFromBase >= 4.0) {
+              if (topYArr[x - 2] !== -1 && topYArr[x] !== -1 && topYArr[x + 2] !== -1) {
+                const dy1 = topYArr[x] - topYArr[x - 2];
+                const dy2 = topYArr[x + 2] - topYArr[x];
+                const diffDy = Math.abs(dy1 - dy2);
+                const norm = Math.sqrt(1 + dy1 * dy1) * Math.sqrt(1 + dy2 * dy2);
+                angSharpness += (diffDy / norm) * 50.0;
+              }
+              if (bottomYArr[x - 2] !== -1 && bottomYArr[x] !== -1 && bottomYArr[x + 2] !== -1) {
+                const dy1 = bottomYArr[x] - bottomYArr[x - 2];
+                const dy2 = bottomYArr[x + 2] - bottomYArr[x];
+                const diffDy = Math.abs(dy1 - dy2);
+                const norm = Math.sqrt(1 + dy1 * dy1) * Math.sqrt(1 + dy2 * dy2);
+                angSharpness += (diffDy / norm) * 50.0;
+              }
             }
 
             // 特徴値の集計
@@ -1191,7 +1196,7 @@ export class EcgImageAnalyzer {
             alg5_zeroSlope[globalX] += (slp > 5) ? (slp * 3.0) : 0;
             alg6_heightSpan[globalX] += (span > 8) ? (span * span) : 0;
             alg8_composite[globalX] += slp * cur * 2.0;
-            alg16_angularSharpness[globalX] += angSharpness * 15.0;
+            alg16_angularSharpness[globalX] += angSharpness * 5.0;
 
             if (slp >= 3.0) {
               alg4_devBase[globalX] += devFromBase * devFromBase;
@@ -1211,8 +1216,8 @@ export class EcgImageAnalyzer {
       const pks = [];
       const nonZero = Array.from(arr).filter(v => v > 0.5).sort((a, b) => b - a);
       if (nonZero.length === 0) return pks;
-      const th = nonZero[Math.floor(nonZero.length * thRatio)] * 0.35;
-      const minDist = sampleWidth * 0.08;
+      const th = nonZero[Math.floor(nonZero.length * thRatio)] * 0.40;
+      const minDist = sampleWidth * 0.082; // 約320ms 不応期
 
       for (let x = 3; x < sampleWidth - 3; x++) {
         const v = arr[x];
@@ -1234,7 +1239,7 @@ export class EcgImageAnalyzer {
     const p7 = getPeaks(alg7_multiLead, 0.25);
     const p8 = getPeaks(alg8_composite, 0.25);
     const p9 = getPeaks(alg9_localVpp, 0.25);
-    const p16 = getPeaks(alg16_angularSharpness, 0.20); // Alg 16 変曲点鋭角折れ曲がり
+    const p16 = getPeaks(alg16_angularSharpness, 0.25);
 
     const allVotes = [
       ...p1.map(p => ({ x: p.x, alg: 1 })),
@@ -1246,14 +1251,13 @@ export class EcgImageAnalyzer {
       ...p7.map(p => ({ x: p.x, alg: 7 })),
       ...p8.map(p => ({ x: p.x, alg: 8 })),
       ...p9.map(p => ({ x: p.x, alg: 9 })),
-      ...p16.map(p => ({ x: p.x, alg: 16 })),
-      ...p16.map(p => ({ x: p.x, alg: 16 })) // Alg 16 へ2重加重投票
+      ...p16.map(p => ({ x: p.x, alg: 16 }))
     ];
 
     allVotes.sort((a, b) => a.x - b.x);
 
     const clusters = [];
-    const clusterWin = 15;
+    const clusterWin = 14;
 
     allVotes.forEach(vote => {
       let matchedCluster = null;
@@ -1277,8 +1281,30 @@ export class EcgImageAnalyzer {
       }
     });
 
-    // ★ スーパー多数決ルール
-    const consensusClusters = clusters.filter(cl => cl.algs.size >= 3);
+    // ★ 多数決フィルター (3系統以上の独立アルゴリズムが同意一致した信頼性の高い心拍クラスタのみ採用)
+    let consensusClusters = clusters.filter(cl => cl.algs.size >= 3);
+
+    // ★ 不応期 NMS (Non-Maximum Suppression) 近接重複クラスタの合体統合
+    // 不応期 (約300ms ≒ sampleWidth * 0.078) 以内に2つのクラスタがある場合、得票数・エネルギーが高い方だけを残す
+    const minClusterDist = sampleWidth * 0.078;
+    const nmsClusters = [];
+    consensusClusters.sort((a, b) => b.algs.size - a.algs.size); // 得票数順にソート
+
+    consensusClusters.forEach(cl => {
+      let isDuplicate = false;
+      for (const existing of nmsClusters) {
+        if (Math.abs(cl.avgX - existing.avgX) < minClusterDist) {
+          isDuplicate = true;
+          break;
+        }
+      }
+      if (!isDuplicate) {
+        nmsClusters.push(cl);
+      }
+    });
+
+    nmsClusters.sort((a, b) => a.avgX - b.avgX);
+    consensusClusters = nmsClusters;
 
     // 確定した合意クラスタから「変曲点角度急峻度 (Alg16)」重視で真のQRS最尖端スパイクへ100%直撃吸着
     const peaks = consensusClusters.map(cl => {
