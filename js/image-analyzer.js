@@ -1390,23 +1390,30 @@ export class EcgImageAnalyzer {
           const limbRelX = limbPk.xPct - limbStartX;
           const targetChestXPct = parseFloat((chestStartX + limbRelX).toFixed(1));
 
-          // 胸部スキャン結果から、この四肢QRS位相の絶対直近 (±1.2% ≒ ±80ms 以内) にある真のQRSピークのみを捜索
+          // ★【幅広QRS (PVC) 専用 5大アルゴリズム (Wide-QRS Specialist 5)】
+          // 1. PVCのT波はQRS位相より必ず右側 (120ms~300ms後方) に発生するため、
+          // 検索範囲を四肢QRS位相 (targetChestXPct) の【前方〜直上窓 (-1.0% ~ +0.3%)】に厳重制限!
+          // 右側 (+0.4%以上) にあるピークはT波として 100% 遮断・除外!
           let bestChestPk = null;
           let minDiff = 999;
 
           if (chestScanned && chestScanned.length > 0) {
             chestScanned.forEach(cPk => {
-              const diff = Math.abs(cPk.xPct - targetChestXPct);
-              if (diff < minDiff) {
-                minDiff = diff;
-                bestChestPk = cPk;
+              const diff = cPk.xPct - targetChestXPct; // 符号付き差分
+              // QRS前半〜直上窓 (-1.0% <= diff <= +0.3%) にある真のQRSスパイクのみを評価
+              if (diff >= -1.0 && diff <= 0.3) {
+                const absDiff = Math.abs(diff);
+                if (absDiff < minDiff) {
+                  minDiff = absDiff;
+                  bestChestPk = cPk;
+                }
               }
             });
           }
 
-          // ★ 同期ロック判定: 直近 (±1.2% ≒ ±80ms 以内) に真の胸部QRSスパイクがあればそれを採用。
-          // それ以上離れた位置 (T波領域など) にある誤検出ピークは 100% 偽物として捨て、四肢QRSの絶対正解位相へ完全固定!
-          if (bestChestPk && minDiff <= 1.2) {
+          // 2. もし直上窓内に適切な胸部ピークがあればそれを採用。
+          // 右側にズレたT波領域のピークは完全に遮断し、四肢QRSの絶対正解位相 (targetChestXPct) へ100%固定!
+          if (bestChestPk) {
             return bestChestPk;
           } else {
             return {
