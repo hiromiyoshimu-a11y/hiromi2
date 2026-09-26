@@ -1030,6 +1030,120 @@ export class EcgImageAnalyzer {
   }
 
   /**
+   * 指定した誘導セルおよびX座標位置 (%指定) におけるQRS波形の局所極性 (positive: 上向きR波 vs negative: 下向きQS/S波) を画像ピンポイントサンプリング
+   */
+  detectBeatPolarityAtX(leadName, xPct) {
+    if (!this.canvas || !this.ctx) return 'negative';
+
+    const layoutDef = ECG_LAYOUTS[this.currentLayoutId] || ECG_LAYOUTS['6x2'];
+    const cols = layoutDef.cols;
+    const rows = layoutDef.rows;
+    const canvasW = this.canvas.width;
+    const canvasH = this.canvas.height;
+
+    // 該当誘導のセル座標を特定
+    let targetCell = null;
+    layoutDef.mapping.forEach((row, rIdx) => {
+      row.forEach((lName, cIdx) => {
+        if (lName === leadName) {
+          targetCell = { rIdx, cIdx };
+        }
+      });
+    });
+
+    if (!targetCell) return 'negative';
+
+    // 誘導ガイド枠の適用オフセットを取得
+    const overlay = this.container.querySelector('#ia-overlay-guide');
+    let guideTopPct = 0, guideLeftPct = 0, guideWidthPct = 100, guideHeightPct = 100;
+    if (overlay) {
+      guideTopPct = parseFloat(overlay.style.top || '0') || 0;
+      guideLeftPct = parseFloat(overlay.style.left || '0') || 0;
+      guideWidthPct = parseFloat(overlay.style.width || '100') || 100;
+      guideHeightPct = parseFloat(overlay.style.height || '100') || 100;
+    }
+
+    const gridX = (guideLeftPct / 100) * canvasW;
+    const gridY = (guideTopPct / 100) * canvasH;
+    const gridW = (guideWidthPct / 100) * canvasW;
+    const gridH = (guideHeightPct / 100) * canvasH;
+
+    const cellW = gridW / cols;
+    const cellH = gridH / rows;
+
+    const cellX0 = gridX + targetCell.cIdx * cellW;
+    const cellY0 = gridY + targetCell.rIdx * cellH;
+
+    // 心拍の中心X座標 (キャンバス絶対ピクセル)
+    const centerX = (xPct / 100) * canvasW;
+    // 心拍QRSの左右幅サンプリング窓 (約 ±2.2% ≒ ±15〜22px)
+    const winW = Math.floor(canvasW * 0.022);
+    const startX = Math.max(Math.floor(cellX0), Math.floor(centerX - winW));
+    const endX = Math.min(Math.floor(cellX0 + cellW), Math.floor(centerX + winW));
+    const sampleW = endX - startX;
+    const sampleH = Math.floor(cellH * 0.82);
+    const startY = Math.floor(cellY0 + cellH * 0.09);
+
+    if (sampleW <= 3 || sampleH <= 5) return 'negative';
+
+    try {
+      const imgData = this.ctx.getImageData(startX, startY, sampleW, sampleH);
+      const data = imgData.data;
+
+      // 各列の最高Y(topY)と最低Y(bottomY)を抽出
+      const topYArr = new Int32Array(sampleW).fill(-1);
+      const bottomYArr = new Int32Array(sampleW).fill(-1);
+
+      for (let x = 0; x < sampleW; x++) {
+        for (let y = 0; y < sampleH; y++) {
+          const idx = (y * sampleW + x) * 4;
+          const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+          const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
+          const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+
+          if (gray < 130 && !isRedGrid) {
+            if (topYArr[x] === -1) topYArr[x] = y;
+            bottomYArr[x] = y;
+          }
+        }
+      }
+
+      // 基線(BaseY)の算出
+      const validY = [];
+      for (let x = 0; x < sampleW; x++) {
+        if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
+          validY.push((topYArr[x] + bottomYArr[x]) / 2);
+        }
+      }
+      if (validY.length === 0) return 'negative';
+      validY.sort((a, b) => a - b);
+      const baseY = validY[Math.floor(validY.length / 2)];
+
+      let upperArea = 0; // 上向き(R波)の領域エネルギー
+      let lowerArea = 0; // 下向き(QS波)の領域エネルギー
+
+      for (let x = 0; x < sampleW; x++) {
+        if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
+          const topDev = baseY - topYArr[x];      // 上への出っ張り (陽性)
+          const botDev = bottomYArr[x] - baseY;   // 下への出っ張り (陰性)
+
+          if (topDev > 3.0) upperArea += topDev * topDev;
+          if (botDev > 3.0) lowerArea += botDev * botDev;
+        }
+      }
+
+      // 上向き(R波)の主張が下向き(QS波)より有意に大きければ 'positive' (RBBB型)、それ以外は 'negative' (LBBB型)
+      if (upperArea > lowerArea * 1.15) {
+        return 'positive';
+      } else {
+        return 'negative';
+      }
+    } catch (e) {
+      return 'negative';
+    }
+  }
+
+  /**
    * 指定誘導グループ（四肢6誘導 or 胸部6誘導）をアンサンブル一括走査
    * Pan-Tompkins型 1次微分＆波形エンベロープエネルギー積分による超高精度QRSピーク吸着検出
    */
@@ -1404,6 +1518,7 @@ export class EcgImageAnalyzer {
       const peaksToUse = (scannedPeaks && scannedPeaks.length >= 2) ? scannedPeaks : defaultRatios.map(r => ({ xPct: parseFloat((100 * r).toFixed(1)) }));
 
       peaksToUse.forEach((pk, idx) => {
+        const polV1 = this.detectBeatPolarityAtX('V1', pk.xPct);
         this.detectedBeats.push({
           group: 'single',
           groupName: '全誘導',
@@ -1412,7 +1527,7 @@ export class EcgImageAnalyzer {
           lead: 'I 誘導(最上段)',
           xPct: pk.xPct,
           yPct: topY,
-          polarity: (idx === 0) ? 'negative' : 'positive'
+          polarity: polV1
         });
       });
     } else {
@@ -1428,6 +1543,7 @@ export class EcgImageAnalyzer {
       const limbPeaksToUse = (limbScanned && limbScanned.length > 0) ? limbScanned : defaultLimbRatios.map(r => ({ xPct: parseFloat((limbStartX + cellW * r).toFixed(1)) }));
 
       limbPeaksToUse.forEach((pk, idx) => {
+        const polII = this.detectBeatPolarityAtX('II', pk.xPct);
         this.detectedBeats.push({
           group: 'limb',
           groupName: '四肢',
@@ -1437,7 +1553,7 @@ export class EcgImageAnalyzer {
           xPct: pk.xPct,
           yPct: limbTopY,
           energy: pk.energy || 10,
-          polarity: (idx === 0) ? 'positive' : 'negative'
+          polarity: polII
         });
       });
 
@@ -1461,6 +1577,7 @@ export class EcgImageAnalyzer {
       }
 
       chestPeaksToUse.forEach((pk, idx) => {
+        const polV1 = this.detectBeatPolarityAtX('V1', pk.xPct);
         this.detectedBeats.push({
           group: 'chest',
           groupName: '胸部',
@@ -1470,7 +1587,7 @@ export class EcgImageAnalyzer {
           xPct: pk.xPct,
           yPct: chestTopY,
           energy: pk.energy || 10,
-          polarity: (idx === 0) ? 'negative' : 'positive'
+          polarity: polV1
         });
       });
     }
@@ -1614,11 +1731,15 @@ export class EcgImageAnalyzer {
 
     // 解析結果の再計算 & サマリー表示の更新
     if (this.analyzedData) {
-      // 選択拍の極性に基づいてパラメータを微調整
+      // 選択拍の場所で実際に画像から判定された極性(polarity)を動的リアルタイム再判定
       if (targetBeat.group === 'limb') {
-        this.analyzedData.axis = (targetBeat.polarity === 'positive') ? 'inferior' : 'superior';
+        const pol = this.detectBeatPolarityAtX('II', targetBeat.xPct);
+        targetBeat.polarity = pol;
+        this.analyzedData.axis = (pol === 'positive') ? 'inferior' : 'superior';
       } else {
-        this.analyzedData.v1Pattern = (targetBeat.polarity === 'positive') ? 'rbbb_r' : 'lbbb_qs';
+        const pol = this.detectBeatPolarityAtX('V1', targetBeat.xPct);
+        targetBeat.polarity = pol;
+        this.analyzedData.v1Pattern = (pol === 'positive') ? 'rbbb_r' : 'lbbb_qs';
       }
       this.displayAnalysisResults(this.analyzedData);
     }
