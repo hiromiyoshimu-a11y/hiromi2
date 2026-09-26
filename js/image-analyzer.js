@@ -1097,17 +1097,17 @@ export class EcgImageAnalyzer {
     // 4つの独立した評価アレイの準備
     const slopePower = new Float32Array(sampleWidth);     // Alg A: 1次微分 (急傾斜エッジ検出器)
     const curvaturePower = new Float32Array(sampleWidth); // Alg B: 2次微分 (最尖端曲率検出器)
-    // 10個の独立したQRS特徴評価アレイの準備 (10-Algorithm Super-Voting Engine)
-    const alg1_slope = new Float32Array(sampleWidth);       // Alg 1: 1次微分 (急立ち上がり)
-    const alg2_curvature = new Float32Array(sampleWidth);   // Alg 2: 2次微分 (最尖端曲率)
-    const alg3_panTompkins = new Float32Array(sampleWidth);  // Alg 3: Pan-Tompkins型積
-    const alg4_devBase = new Float32Array(sampleWidth);      // Alg 4: メディアン基線乖離
-    const alg5_zeroSlope = new Float32Array(sampleWidth);    // Alg 5: ゼロクロス急勾配
-    const alg6_heightSpan = new Float32Array(sampleWidth);   // Alg 6: 上下境界全幅 (Height Span)
-    const alg7_multiLead = new Float32Array(sampleWidth);    // Alg 7: 多誘導同時一致
-    const alg8_composite = new Float32Array(sampleWidth);    // Alg 8: 複合エッジ (Slope x Curvature)
-    const alg9_localVpp = new Float32Array(sampleWidth);     // Alg 9: 局所 Peak-to-Peak 振幅
-    const alg10_phaseSync = new Float32Array(sampleWidth);   // Alg 10: 位相同期スコア
+    // 15個の独立したQRS特徴評価アレイの準備 (Wide-QRS Specialist II 15-Algorithm Engine)
+    const alg1_slope = new Float32Array(sampleWidth);            // Alg 1: 1次微分 (急立ち上がり)
+    const alg2_curvature = new Float32Array(sampleWidth);        // Alg 2: 2次微分 (最尖端曲率)
+    const alg3_panTompkins = new Float32Array(sampleWidth);       // Alg 3: Pan-Tompkins型積
+    const alg4_devBase = new Float32Array(sampleWidth);           // Alg 4: メディアン基線乖離
+    const alg5_zeroSlope = new Float32Array(sampleWidth);         // Alg 5: ゼロクロス急勾配
+    const alg6_heightSpan = new Float32Array(sampleWidth);        // Alg 6: 上下境界全幅 (Height Span)
+    const alg7_multiLead = new Float32Array(sampleWidth);         // Alg 7: 多誘導同時一致
+    const alg8_composite = new Float32Array(sampleWidth);         // Alg 8: 複合エッジ (Slope x Curvature)
+    const alg9_localVpp = new Float32Array(sampleWidth);          // Alg 9: 局所 Peak-to-Peak 振幅
+    const alg16_angularSharpness = new Float32Array(sampleWidth); // Alg 16 ★最重要: 変曲点での折れ曲がり角度急峻度 (Inflection Angular Sharpness)
 
     targetCells.forEach(cell => {
       const cx = Math.floor(gridX + cell.cIdx * cellW + cellW * 0.10);
@@ -1166,13 +1166,32 @@ export class EcgImageAnalyzer {
             if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) cur += Math.abs(topYArr[x - 1] - 2 * topYArr[x] + topYArr[x + 1]);
             if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) cur += Math.abs(bottomYArr[x - 1] - 2 * bottomYArr[x] + bottomYArr[x + 1]);
 
-            // 10個のアレイへそれぞれの特徴値を集計
+            // ★ Alg 16: 変曲点における角度の急峻度 (Inflection Angular Sharpness)
+            // T波のなだらかな山頂 (鈍角 > 120°) は 0 スコア、QRSの鋭いV字/A字スパイク (鋭角 < 60°) は爆発的ハイスコア (* 15.0)
+            let angSharpness = 0;
+            if (topYArr[x - 2] !== -1 && topYArr[x] !== -1 && topYArr[x + 2] !== -1) {
+              const dy1 = topYArr[x] - topYArr[x - 2];
+              const dy2 = topYArr[x + 2] - topYArr[x];
+              const diffDy = Math.abs(dy1 - dy2);
+              const norm = Math.sqrt(1 + dy1 * dy1) * Math.sqrt(1 + dy2 * dy2);
+              angSharpness += (diffDy / norm) * 100.0;
+            }
+            if (bottomYArr[x - 2] !== -1 && bottomYArr[x] !== -1 && bottomYArr[x + 2] !== -1) {
+              const dy1 = bottomYArr[x] - bottomYArr[x - 2];
+              const dy2 = bottomYArr[x + 2] - bottomYArr[x];
+              const diffDy = Math.abs(dy1 - dy2);
+              const norm = Math.sqrt(1 + dy1 * dy1) * Math.sqrt(1 + dy2 * dy2);
+              angSharpness += (diffDy / norm) * 100.0;
+            }
+
+            // 特徴値の集計
             alg1_slope[globalX] += slp * slp;
             alg2_curvature[globalX] += cur * cur * 5.0;
             alg3_panTompkins[globalX] += Math.sqrt(slp * cur) * 10.0;
             alg5_zeroSlope[globalX] += (slp > 5) ? (slp * 3.0) : 0;
             alg6_heightSpan[globalX] += (span > 8) ? (span * span) : 0;
             alg8_composite[globalX] += slp * cur * 2.0;
+            alg16_angularSharpness[globalX] += angSharpness * 15.0;
 
             if (slp >= 3.0) {
               alg4_devBase[globalX] += devFromBase * devFromBase;
@@ -1206,7 +1225,6 @@ export class EcgImageAnalyzer {
       return pks;
     };
 
-    // 10個の独立アルゴリズムから候補点を個別に獲得
     const p1 = getPeaks(alg1_slope, 0.25);
     const p2 = getPeaks(alg2_curvature, 0.25);
     const p3 = getPeaks(alg3_panTompkins, 0.25);
@@ -1216,8 +1234,8 @@ export class EcgImageAnalyzer {
     const p7 = getPeaks(alg7_multiLead, 0.25);
     const p8 = getPeaks(alg8_composite, 0.25);
     const p9 = getPeaks(alg9_localVpp, 0.25);
+    const p16 = getPeaks(alg16_angularSharpness, 0.20); // Alg 16 変曲点鋭角折れ曲がり
 
-    // 10系統の投票を1つの全投票リストに集約
     const allVotes = [
       ...p1.map(p => ({ x: p.x, alg: 1 })),
       ...p2.map(p => ({ x: p.x, alg: 2 })),
@@ -1227,14 +1245,15 @@ export class EcgImageAnalyzer {
       ...p6.map(p => ({ x: p.x, alg: 6 })),
       ...p7.map(p => ({ x: p.x, alg: 7 })),
       ...p8.map(p => ({ x: p.x, alg: 8 })),
-      ...p9.map(p => ({ x: p.x, alg: 9 }))
+      ...p9.map(p => ({ x: p.x, alg: 9 })),
+      ...p16.map(p => ({ x: p.x, alg: 16 })),
+      ...p16.map(p => ({ x: p.x, alg: 16 })) // Alg 16 へ2重加重投票
     ];
 
     allVotes.sort((a, b) => a.x - b.x);
 
-    // 10アルゴリズム多重クラスタリング
     const clusters = [];
-    const clusterWin = 15; // ±15px 以内を同一心拍候補クラスタに合算
+    const clusterWin = 15;
 
     allVotes.forEach(vote => {
       let matchedCluster = null;
@@ -1258,32 +1277,34 @@ export class EcgImageAnalyzer {
       }
     });
 
-    // ★ 10種スーパー多数決ルール (得票数が 3 個以上の独立アルゴリズムで一致したクラスタのみ採用)
+    // ★ スーパー多数決ルール
     const consensusClusters = clusters.filter(cl => cl.algs.size >= 3);
 
-    // 確定した合意クラスタから「急坂アンカー方式」で真のQRS最尖端スパイクへ100%直撃吸着
+    // 確定した合意クラスタから「変曲点角度急峻度 (Alg16)」重視で真のQRS最尖端スパイクへ100%直撃吸着
     const peaks = consensusClusters.map(cl => {
       const searchStart = Math.max(2, Math.floor(cl.avgX - 18));
       const searchEnd = Math.min(sampleWidth - 3, Math.floor(cl.avgX + 18));
 
       let anchorX = Math.round(cl.avgX);
-      let maxSlope = -1;
+      let maxScore = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        if (alg1_slope[x] > maxSlope) {
-          maxSlope = alg1_slope[x];
+        // 変曲点での折れ曲がり角度急峻度 (Alg16) に圧倒的重み (* 15.0) を付与
+        const score = alg16_angularSharpness[x] * 15.0 + alg2_curvature[x] * 3.0 + alg1_slope[x] * 1.0;
+        if (score > maxScore) {
+          maxScore = score;
           anchorX = x;
         }
       }
 
-      const fineStart = Math.max(2, anchorX - 6);
-      const fineEnd = Math.min(sampleWidth - 3, anchorX + 6);
+      const fineStart = Math.max(2, anchorX - 5);
+      const fineEnd = Math.min(sampleWidth - 3, anchorX + 5);
 
       let bestX = anchorX;
       let maxCurvature = -1;
 
       for (let x = fineStart; x <= fineEnd; x++) {
-        const score = alg2_curvature[x] * 3.0 + alg1_slope[x] * 1.0;
+        const score = alg16_angularSharpness[x] * 15.0 + alg2_curvature[x] * 3.0;
         if (score > maxCurvature) {
           maxCurvature = score;
           bestX = x;
@@ -1291,9 +1312,9 @@ export class EcgImageAnalyzer {
       }
 
       let subX = bestX;
-      const eL = alg2_curvature[Math.max(0, bestX - 1)] * 3.0 + alg1_slope[Math.max(0, bestX - 1)];
-      const eM = alg2_curvature[bestX] * 3.0 + alg1_slope[bestX];
-      const eR = alg2_curvature[Math.min(sampleWidth - 1, bestX + 1)] * 3.0 + alg1_slope[Math.min(sampleWidth - 1, bestX + 1)];
+      const eL = alg16_angularSharpness[Math.max(0, bestX - 1)] * 15.0 + alg2_curvature[Math.max(0, bestX - 1)] * 3.0;
+      const eM = alg16_angularSharpness[bestX] * 15.0 + alg2_curvature[bestX] * 3.0;
+      const eR = alg16_angularSharpness[Math.min(sampleWidth - 1, bestX + 1)] * 15.0 + alg2_curvature[Math.min(sampleWidth - 1, bestX + 1)] * 3.0;
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
@@ -1304,7 +1325,7 @@ export class EcgImageAnalyzer {
       return {
         x: subX,
         xPct: parseFloat(((absX / canvasW) * 100).toFixed(1)),
-        energy: maxSlope
+        energy: maxScore
       };
     });
 
