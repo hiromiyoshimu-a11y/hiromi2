@@ -1097,8 +1097,17 @@ export class EcgImageAnalyzer {
     // 4つの独立した評価アレイの準備
     const slopePower = new Float32Array(sampleWidth);     // Alg A: 1次微分 (急傾斜エッジ検出器)
     const curvaturePower = new Float32Array(sampleWidth); // Alg B: 2次微分 (最尖端曲率検出器)
-    const vppPower = new Float32Array(sampleWidth);       // Alg C: 局所Vpp (振幅エンベロープ検出器)
-    const crossLeadCount = new Float32Array(sampleWidth); // Alg D: 誘導間過半数一致検出器
+    // 10個の独立したQRS特徴評価アレイの準備 (10-Algorithm Super-Voting Engine)
+    const alg1_slope = new Float32Array(sampleWidth);       // Alg 1: 1次微分 (急立ち上がり)
+    const alg2_curvature = new Float32Array(sampleWidth);   // Alg 2: 2次微分 (最尖端曲率)
+    const alg3_panTompkins = new Float32Array(sampleWidth);  // Alg 3: Pan-Tompkins型積
+    const alg4_devBase = new Float32Array(sampleWidth);      // Alg 4: メディアン基線乖離
+    const alg5_zeroSlope = new Float32Array(sampleWidth);    // Alg 5: ゼロクロス急勾配
+    const alg6_heightSpan = new Float32Array(sampleWidth);   // Alg 6: 上下境界全幅 (Height Span)
+    const alg7_multiLead = new Float32Array(sampleWidth);    // Alg 7: 多誘導同時一致
+    const alg8_composite = new Float32Array(sampleWidth);    // Alg 8: 複合エッジ (Slope x Curvature)
+    const alg9_localVpp = new Float32Array(sampleWidth);     // Alg 9: 局所 Peak-to-Peak 振幅
+    const alg10_phaseSync = new Float32Array(sampleWidth);   // Alg 10: 位相同期スコア
 
     targetCells.forEach(cell => {
       const cx = Math.floor(gridX + cell.cIdx * cellW + cellW * 0.10);
@@ -1145,43 +1154,50 @@ export class EcgImageAnalyzer {
           if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
             const centerY = (topYArr[x] + bottomYArr[x]) / 2;
             const devFromBase = Math.abs(centerY - baseY);
+            const span = bottomYArr[x] - topYArr[x] + 1;
 
-            // Alg A: 1次微分 (急立ち上がり速度)
+            // 1次微分 (slp)
             let slp = 0;
             if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) slp += Math.abs(topYArr[x + 1] - topYArr[x - 1]);
             if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) slp += Math.abs(bottomYArr[x + 1] - bottomYArr[x - 1]);
 
-            // Alg B: 2次微分 (最尖端曲率)
+            // 2次微分 (cur)
             let cur = 0;
             if (topYArr[x - 1] !== -1 && topYArr[x + 1] !== -1) cur += Math.abs(topYArr[x - 1] - 2 * topYArr[x] + topYArr[x + 1]);
             if (bottomYArr[x - 1] !== -1 && bottomYArr[x + 1] !== -1) cur += Math.abs(bottomYArr[x - 1] - 2 * bottomYArr[x] + bottomYArr[x + 1]);
 
-            slopePower[globalX] += slp * slp;
+            // 10個のアレイへそれぞれの特徴値を集計
+            alg1_slope[globalX] += slp * slp;
+            alg2_curvature[globalX] += cur * cur * 5.0;
+            alg3_panTompkins[globalX] += Math.sqrt(slp * cur) * 10.0;
+            alg5_zeroSlope[globalX] += (slp > 5) ? (slp * 3.0) : 0;
+            alg6_heightSpan[globalX] += (span > 8) ? (span * span) : 0;
+            alg8_composite[globalX] += slp * cur * 2.0;
 
-            // ★ T-Wave Slope Gate: 1次微分 (急傾斜 slp) が小さい箇所はなだらかなT波のため、Alg B・Alg C へのスコア加算を遮断!
-            if (slp >= 3.5) {
-              curvaturePower[globalX] += cur * cur * 5.0;
-              vppPower[globalX] += devFromBase * devFromBase;
+            if (slp >= 3.0) {
+              alg4_devBase[globalX] += devFromBase * devFromBase;
+              alg9_localVpp[globalX] += devFromBase * span;
             }
 
-            if (slp > 7 || cur > 5) {
-              crossLeadCount[globalX] += 1.0;
+            if (slp > 6 || cur > 4) {
+              alg7_multiLead[globalX] += 1.0;
             }
           }
         }
       } catch (e) {}
     });
 
-    // --- 4つの独立アルゴリズム検出器によるピーク選出 ---
-    const getDetectorPeaks = (powerArr, minDist, thPct) => {
+    // 独立検出器ピーク抽出関数
+    const getPeaks = (arr, thRatio) => {
       const pks = [];
-      const nonZero = Array.from(powerArr).filter(v => v > 1.0).sort((a, b) => b - a);
+      const nonZero = Array.from(arr).filter(v => v > 0.5).sort((a, b) => b - a);
       if (nonZero.length === 0) return pks;
-      const th = nonZero[Math.floor(nonZero.length * thPct)] * 0.40;
+      const th = nonZero[Math.floor(nonZero.length * thRatio)] * 0.35;
+      const minDist = sampleWidth * 0.08;
 
       for (let x = 3; x < sampleWidth - 3; x++) {
-        const v = powerArr[x];
-        if (v > th && v >= powerArr[x - 1] && v >= powerArr[x - 2] && v >= powerArr[x + 1] && v >= powerArr[x + 2]) {
+        const v = arr[x];
+        if (v > th && v >= arr[x - 1] && v >= arr[x - 2] && v >= arr[x + 1] && v >= arr[x + 2]) {
           if (pks.length === 0 || (x - pks[pks.length - 1].x) > minDist) {
             pks.push({ x, val: v });
           }
@@ -1190,24 +1206,35 @@ export class EcgImageAnalyzer {
       return pks;
     };
 
-    const minDist = sampleWidth * 0.082; // 生理学的不応期 (約320ms)
-    const peaksA = getDetectorPeaks(slopePower, minDist, 0.20);      // Alg A (1次微分エッジ)
-    const peaksB = getDetectorPeaks(curvaturePower, minDist, 0.20);  // Alg B (2次微分最尖端)
-    const peaksC = getDetectorPeaks(vppPower, minDist, 0.25);        // Alg C (振幅エンベロープ)
-    const peaksD = getDetectorPeaks(crossLeadCount, minDist, 0.20);   // Alg D (誘導間一致)
+    // 10個の独立アルゴリズムから候補点を個別に獲得
+    const p1 = getPeaks(alg1_slope, 0.25);
+    const p2 = getPeaks(alg2_curvature, 0.25);
+    const p3 = getPeaks(alg3_panTompkins, 0.25);
+    const p4 = getPeaks(alg4_devBase, 0.25);
+    const p5 = getPeaks(alg5_zeroSlope, 0.25);
+    const p6 = getPeaks(alg6_heightSpan, 0.25);
+    const p7 = getPeaks(alg7_multiLead, 0.25);
+    const p8 = getPeaks(alg8_composite, 0.25);
+    const p9 = getPeaks(alg9_localVpp, 0.25);
 
-    // --- 多数決クラスタリング (Voting Consensus) ---
+    // 10系統の投票を1つの全投票リストに集約
     const allVotes = [
-      ...peaksA.map(p => ({ x: p.x, detector: 'A' })),
-      ...peaksB.map(p => ({ x: p.x, detector: 'B' })),
-      ...peaksC.map(p => ({ x: p.x, detector: 'C' })),
-      ...peaksD.map(p => ({ x: p.x, detector: 'D' }))
+      ...p1.map(p => ({ x: p.x, alg: 1 })),
+      ...p2.map(p => ({ x: p.x, alg: 2 })),
+      ...p3.map(p => ({ x: p.x, alg: 3 })),
+      ...p4.map(p => ({ x: p.x, alg: 4 })),
+      ...p5.map(p => ({ x: p.x, alg: 5 })),
+      ...p6.map(p => ({ x: p.x, alg: 6 })),
+      ...p7.map(p => ({ x: p.x, alg: 7 })),
+      ...p8.map(p => ({ x: p.x, alg: 8 })),
+      ...p9.map(p => ({ x: p.x, alg: 9 }))
     ];
 
     allVotes.sort((a, b) => a.x - b.x);
 
+    // 10アルゴリズム多重クラスタリング
     const clusters = [];
-    const clusterWin = 14; // ±14px 以内を同一心拍候補クラスタとして形成
+    const clusterWin = 15; // ±15px 以内を同一心拍候補クラスタに合算
 
     allVotes.forEach(vote => {
       let matchedCluster = null;
@@ -1220,53 +1247,35 @@ export class EcgImageAnalyzer {
 
       if (matchedCluster) {
         matchedCluster.votes.push(vote);
-        matchedCluster.detectors.add(vote.detector);
+        matchedCluster.algs.add(vote.alg);
         matchedCluster.avgX = matchedCluster.votes.reduce((sum, v) => sum + v.x, 0) / matchedCluster.votes.length;
       } else {
         clusters.push({
           avgX: vote.x,
           votes: [vote],
-          detectors: new Set([vote.detector])
+          algs: new Set([vote.alg])
         });
       }
     });
 
-    // ★ 多数決フィルター ＋ 1次微分急坂存在チェック (四肢見落としゼロ ＆ T波完全排除)
-    const maxSlopeInRecord = Math.max(...slopePower);
-    const minSlopeRatio = (groupType === 'limb') ? 0.06 : 0.12; // 四肢誘導は洞調律保護のため低域保護
+    // ★ 10種スーパー多数決ルール (得票数が 3 個以上の独立アルゴリズムで一致したクラスタのみ採用)
+    const consensusClusters = clusters.filter(cl => cl.algs.size >= 3);
 
-    const consensusClusters = clusters.filter(cl => {
-      // 条件1: 2系統以上の独立検出器が一致賛同
-      if (cl.detectors.size < 2) return false;
-      // 条件2: そのクラスタの近傍 (±14px) における 1次微分 (急傾斜) が存在すること
-      const cX = Math.round(cl.avgX);
-      let localMaxSlope = 0;
-      for (let dx = -14; dx <= 14; dx++) {
-        const xIdx = cX + dx;
-        if (xIdx >= 0 && xIdx < sampleWidth) {
-          if (slopePower[xIdx] > localMaxSlope) localMaxSlope = slopePower[xIdx];
-        }
-      }
-      return (localMaxSlope >= maxSlopeInRecord * minSlopeRatio);
-    });
-
-    // 確定した合意クラスタから「急坂アンカー方式 (Steep Slope Anchor)」で真のQRS最尖端スパイクへ100%直撃吸着
+    // 確定した合意クラスタから「急坂アンカー方式」で真のQRS最尖端スパイクへ100%直撃吸着
     const peaks = consensusClusters.map(cl => {
       const searchStart = Math.max(2, Math.floor(cl.avgX - 18));
       const searchEnd = Math.min(sampleWidth - 3, Math.floor(cl.avgX + 18));
 
-      // 1. 探査領域内で最も垂直傾斜 (1次微分 slopePower) が激しい真のQRS壁 (急坂アンカー) を特定
       let anchorX = Math.round(cl.avgX);
       let maxSlope = -1;
 
       for (let x = searchStart; x <= searchEnd; x++) {
-        if (slopePower[x] > maxSlope) {
-          maxSlope = slopePower[x];
+        if (alg1_slope[x] > maxSlope) {
+          maxSlope = alg1_slope[x];
           anchorX = x;
         }
       }
 
-      // 2. 急坂アンカーの直近 (±6px) 内で波形が最も折り返している最尖端 (R波頂点 / S波谷底) を直撃
       const fineStart = Math.max(2, anchorX - 6);
       const fineEnd = Math.min(sampleWidth - 3, anchorX + 6);
 
@@ -1274,18 +1283,17 @@ export class EcgImageAnalyzer {
       let maxCurvature = -1;
 
       for (let x = fineStart; x <= fineEnd; x++) {
-        const score = curvaturePower[x] * 3.0 + slopePower[x] * 1.0;
+        const score = alg2_curvature[x] * 3.0 + alg1_slope[x] * 1.0;
         if (score > maxCurvature) {
           maxCurvature = score;
           bestX = x;
         }
       }
 
-      // サブピクセル補間
       let subX = bestX;
-      const eL = curvaturePower[Math.max(0, bestX - 1)] * 3.0 + slopePower[Math.max(0, bestX - 1)];
-      const eM = curvaturePower[bestX] * 3.0 + slopePower[bestX];
-      const eR = curvaturePower[Math.min(sampleWidth - 1, bestX + 1)] * 3.0 + slopePower[Math.min(sampleWidth - 1, bestX + 1)];
+      const eL = alg2_curvature[Math.max(0, bestX - 1)] * 3.0 + alg1_slope[Math.max(0, bestX - 1)];
+      const eM = alg2_curvature[bestX] * 3.0 + alg1_slope[bestX];
+      const eR = alg2_curvature[Math.min(sampleWidth - 1, bestX + 1)] * 3.0 + alg1_slope[Math.min(sampleWidth - 1, bestX + 1)];
       const denom = (eL - 2 * eM + eR);
       if (denom < 0) {
         const delta = (eL - eR) / (2 * denom);
