@@ -1168,11 +1168,10 @@ export class EcgImageAnalyzer {
 
             // ★ Alg 16: 変曲点における角度の急峻度 (Inflection Angular Sharpness)
             // T波のなだらかな山頂 (鈍角 > 120°) は 0 スコア、QRSの鋭いV字/A字スパイク (鋭角 < 60°) は爆発的ハイスコア (* 15.0)
-            // ★ Alg 16: 変曲点における角度の急峻度 (Inflection Angular Sharpness)
-            // ノイズゲート: 1次微分 slp >= 4.0 かつ 基線偏差 devFromBase >= 4.0 の本物の波形スパイクの場所でのみ発動!
-            // 何もない基線のグリッドノイズや画像のチラつきでは 0 スコアに完全ガード!
+            // ノイズゲート: 1次微分 slp >= 5.0 かつ 基線偏差 devFromBase >= 5.0 かつ 波形全幅 span >= 3 の本物の波形スパイクの場所でのみ発動!
+            // 何もない基線のグリッドノイズや画像のチラつき・P波・T波領域では 0 スコアに完全ガード!
             let angSharpness = 0;
-            if (slp >= 4.0 && devFromBase >= 4.0) {
+            if (slp >= 5.0 && devFromBase >= 5.0 && span >= 3) {
               if (topYArr[x - 2] !== -1 && topYArr[x] !== -1 && topYArr[x + 2] !== -1) {
                 const dy1 = topYArr[x] - topYArr[x - 2];
                 const dy2 = topYArr[x + 2] - topYArr[x];
@@ -1198,7 +1197,7 @@ export class EcgImageAnalyzer {
             alg8_composite[globalX] += slp * cur * 2.0;
             alg16_angularSharpness[globalX] += angSharpness * 5.0;
 
-            if (slp >= 3.0) {
+            if (slp >= 4.0 && devFromBase >= 4.0) {
               alg4_devBase[globalX] += devFromBase * devFromBase;
               alg9_localVpp[globalX] += devFromBase * span;
             }
@@ -1211,23 +1210,46 @@ export class EcgImageAnalyzer {
       } catch (e) {}
     });
 
-    // 独立検出器ピーク抽出関数
+    // 独立検出器ピーク抽出関数 (真の Non-Maximum Suppression ＆ 厳格動的閾値)
     const getPeaks = (arr, thRatio) => {
-      const pks = [];
       const nonZero = Array.from(arr).filter(v => v > 0.5).sort((a, b) => b - a);
-      if (nonZero.length === 0) return pks;
-      const th = nonZero[Math.floor(nonZero.length * thRatio)] * 0.40;
+      if (nonZero.length === 0) return [];
+      
+      // 動的閾値: 上位8%の最高エネルギーを基準とし、その45%以上を要求（P波・T波・基線ノイズを足切り）
+      const maxP = nonZero[Math.floor(nonZero.length * 0.08)] || nonZero[0];
+      const th = Math.max(1.0, maxP * 0.45);
       const minDist = sampleWidth * 0.082; // 約320ms 不応期
 
+      // 1. ローカル極大値候補の抽出
+      const candidates = [];
       for (let x = 3; x < sampleWidth - 3; x++) {
         const v = arr[x];
         if (v > th && v >= arr[x - 1] && v >= arr[x - 2] && v >= arr[x + 1] && v >= arr[x + 2]) {
-          if (pks.length === 0 || (x - pks[pks.length - 1].x) > minDist) {
-            pks.push({ x, val: v });
-          }
+          candidates.push({ x, val: v });
         }
       }
-      return pks;
+
+      // 2. エネルギー(スコア)が高い順にソート
+      candidates.sort((a, b) => b.val - a.val);
+
+      // 3. 真の NMS (Non-Maximum Suppression): 一番強いピークから確定し、近傍(minDist内)のP波・T波・ノイズ小ピークを完全排除
+      const selected = [];
+      candidates.forEach(cand => {
+        let isSuppressed = false;
+        for (const sel of selected) {
+          if (Math.abs(cand.x - sel.x) < minDist) {
+            isSuppressed = true;
+            break;
+          }
+        }
+        if (!isSuppressed) {
+          selected.push(cand);
+        }
+      });
+
+      // 4. 時系列 (x座標順) に戻して出力
+      selected.sort((a, b) => a.x - b.x);
+      return selected;
     };
 
     const p1 = getPeaks(alg1_slope, 0.25);
@@ -1288,7 +1310,10 @@ export class EcgImageAnalyzer {
     // 不応期 (約300ms ≒ sampleWidth * 0.078) 以内に2つのクラスタがある場合、得票数・エネルギーが高い方だけを残す
     const minClusterDist = sampleWidth * 0.078;
     const nmsClusters = [];
-    consensusClusters.sort((a, b) => b.algs.size - a.algs.size); // 得票数順にソート
+    consensusClusters.sort((a, b) => {
+      if (b.algs.size !== a.algs.size) return b.algs.size - a.algs.size;
+      return b.votes.length - a.votes.length;
+    });
 
     consensusClusters.forEach(cl => {
       let isDuplicate = false;
