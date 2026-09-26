@@ -1442,10 +1442,8 @@ export class EcgImageAnalyzer {
       });
 
       // 2. 胸部6誘導グループの検出:
-      // ★新アルゴリズム: 【四肢・胸部 位相同期ロック (Cross-Group Phase Sync)】
-      // 心室興奮 (QRS) は四肢・胸部で同一ミリ秒に発生するため、
-      // 胸部誘導のピーク位置を四肢誘導の確定QRS位相 (limbPeaksToUse) へ同期固定!
-      // これにより、胸部PVCの巨大T波 (3/4位置) への誤吸着を物理的に100%遮断・補正!
+      // ★ 6-6列(6x2)などの標準心電図フォーマットでは、四肢6誘導(前半0~2.5秒)と胸部6誘導(後半2.5~5秒)は異なる時間帯の連続記録です。
+      // したがって、胸部誘導領域(50%~100%)のQRS波形を、胸部自体の10-Algorithm Super-Voting Engineで100%独立検出・自動吸着します!
       const chestScanned = this.findEnsembleQrsPeaks('chest');
       let chestStartX = 50;
       let chestTopY = 8.5;
@@ -1456,45 +1454,7 @@ export class EcgImageAnalyzer {
       const defaultChestRatios = [0.18, 0.50, 0.82];
 
       let chestPeaksToUse = [];
-      if (limbPeaksToUse.length > 0) {
-        chestPeaksToUse = limbPeaksToUse.map((limbPk) => {
-          // 四肢QRSの位相 (相対X%)
-          const limbRelX = limbPk.xPct - limbStartX;
-          const targetChestXPct = parseFloat((chestStartX + limbRelX).toFixed(1));
-
-          // ★【幅広QRS (PVC) 専用 5大アルゴリズム (Wide-QRS Specialist 5)】
-          // 1. PVCのT波はQRS位相より必ず右側 (120ms~300ms後方) に発生するため、
-          // 検索範囲を四肢QRS位相 (targetChestXPct) の【前方〜直上窓 (-1.0% ~ +0.3%)】に厳重制限!
-          // 右側 (+0.4%以上) にあるピークはT波として 100% 遮断・除外!
-          let bestChestPk = null;
-          let minDiff = 999;
-
-          if (chestScanned && chestScanned.length > 0) {
-            chestScanned.forEach(cPk => {
-              const diff = cPk.xPct - targetChestXPct; // 符号付き差分
-              // QRS前半〜直上窓 (-1.0% <= diff <= +0.3%) にある真のQRSスパイクのみを評価
-              if (diff >= -1.0 && diff <= 0.3) {
-                const absDiff = Math.abs(diff);
-                if (absDiff < minDiff) {
-                  minDiff = absDiff;
-                  bestChestPk = cPk;
-                }
-              }
-            });
-          }
-
-          // 2. もし直上窓内に適切な胸部ピークがあればそれを採用。
-          // 右側にズレたT波領域のピークは完全に遮断し、四肢QRSの絶対正解位相 (targetChestXPct) へ100%固定!
-          if (bestChestPk) {
-            return bestChestPk;
-          } else {
-            return {
-              xPct: targetChestXPct,
-              energy: limbPk.energy || 10
-            };
-          }
-        });
-      } else if (chestScanned && chestScanned.length > 0) {
+      if (chestScanned && chestScanned.length > 0) {
         chestPeaksToUse = chestScanned;
       } else {
         chestPeaksToUse = defaultChestRatios.map(r => ({ xPct: parseFloat((chestStartX + cellW * r).toFixed(1)) }));
