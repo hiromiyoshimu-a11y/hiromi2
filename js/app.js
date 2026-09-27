@@ -651,15 +651,35 @@ function renderPresets() {
 
   const filtered = PRESETS.filter(preset => {
     if (currentCategoryFilter === 'all') return true;
+
+    // 1. メタデータ (ventricleGroup) による直接判定
+    if (preset.ventricleGroup) {
+      if (Array.isArray(preset.ventricleGroup)) {
+        if (preset.ventricleGroup.includes(currentCategoryFilter)) return true;
+      } else if (preset.ventricleGroup === currentCategoryFilter) {
+        return true;
+      }
+    }
+
     const cat = (preset.category || '').toLowerCase();
     const id = (preset.id || '').toLowerCase();
+    const name = (preset.name || '').toLowerCase();
 
     if (currentCategoryFilter === 'rv') {
-      return cat.includes('右室') || cat.includes('rvot') || id.includes('rv') || id.includes('tva');
+      // 右心室系: RVOT, 右室, 三尖弁(TV/Tricuspid), モデレーターバンド(MB), ヒス束/Parahisian
+      return cat.includes('右室') || cat.includes('右房') || cat.includes('rvot') || cat.includes('三尖弁') || cat.includes('parahisian') || 
+             id.includes('rv') || id.includes('tva') || id.includes('tricuspid') || id.includes('moderator') || id.includes('parahisian') ||
+             name.includes('右室') || name.includes('rv') || name.includes('三尖弁') || name.includes('モデレーター');
     } else if (currentCategoryFilter === 'lv') {
-      return cat.includes('左室') || cat.includes('lvot') || cat.includes('aortic') || id.includes('lv') || id.includes('rcc') || id.includes('lcc') || id.includes('ncc') || id.includes('amc') || id.includes('fascicular');
+      // 左心室系: LVOT, 左室, 冠尖(LCC/RCC/Aortic), 僧帽弁(MVA/Mitral/AMC), 乳頭筋(PMPM/ALPM), 左脚/ILVT, 器質的/心筋梗塞
+      return cat.includes('左室') || cat.includes('lvot') || cat.includes('aortic') || cat.includes('冠尖') || cat.includes('僧帽弁') || cat.includes('乳頭筋') || cat.includes('束枝') || cat.includes('amc') || cat.includes('瘢痕') || cat.includes('心筋梗塞') ||
+             id.includes('lv') || id.includes('rcc') || id.includes('lcc') || id.includes('ncc') || id.includes('amc') || id.includes('mva') || id.includes('fascicular') || id.includes('ilvt') || id.includes('pmpm') || id.includes('alpm') || id.includes('omi') ||
+             name.includes('左室') || name.includes('lv') || name.includes('僧帽弁') || name.includes('大動脈');
     } else if (currentCategoryFilter === 'other') {
-      return cat.includes('心外膜') || cat.includes('特殊') || cat.includes('other') || id.includes('epi') || id.includes('gcv') || id.includes('cs');
+      // その他系: 心外膜(Epicardial/Summit/Crux), 特殊頻拍(BBRVT), 刺激伝導系
+      return cat.includes('心外膜') || cat.includes('特殊') || cat.includes('other') || cat.includes('十字部') || cat.includes('伝導系') || cat.includes('bbrvt') ||
+             id.includes('epi') || id.includes('gcv') || id.includes('cs') || id.includes('crux') || id.includes('bbrvt') || id.includes('summit') ||
+             name.includes('心外膜') || name.includes('summit') || name.includes('十字部') || name.includes('bbrvt');
     }
     return true;
   });

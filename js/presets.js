@@ -11,6 +11,7 @@ export const PRESETS = [
     name: 'RVOT 後中隔 (Posterior Septum)',
     subtitle: '最も頻度の高い特発性PVCの典型例',
     category: '右室流出路 (RVOT)',
+    ventricleGroup: 'rv',
     transmuralSite: '心内膜側 (Endocardial)',
     citation: {
       authors: '篠原徹二 (大分大学医学部循環器内科)',
@@ -72,6 +73,7 @@ export const PRESETS = [
     name: 'RVOT 自由壁 (Free Wall)',
     subtitle: '幅広いQRS波と下壁ノッチが特徴 (発生頻度 10%)',
     category: '右室流出路 (RVOT)',
+    ventricleGroup: 'rv',
     transmuralSite: '心内膜側〜筋層 (Thin Wall)',
     citation: {
       authors: '大西克実 (昭和大学医学部循環器内科) / 篠原徹二',
@@ -135,6 +137,7 @@ export const PRESETS = [
     name: 'LVOT 左冠尖 (LCC: Left Coronary Cusp)',
     subtitle: '早期移行帯とII/III比>1、Ito基準でLCCを確定',
     category: '左室流出路 (LVOT)',
+    ventricleGroup: 'lv',
     transmuralSite: '心内膜〜大動脈洞 (Aortic Cusp)',
     citation: {
       authors: '篠原徹二 (大分大学循環器内科) / 大西克実',
@@ -195,6 +198,7 @@ export const PRESETS = [
     name: 'LV Summit / 心外膜 (Epicardial)',
     subtitle: 'MDI延長と偽デルタ波、アブレーション最難治部',
     category: '左室心外膜側 (Epicardial)',
+    ventricleGroup: ['lv', 'other'],
     transmuralSite: '心外膜側 (Epicardial Focus)',
     citation: {
       authors: '服部正幸 (茨城県立中央病院), 山﨑浩 (筑波大学) / 篠原徹二',
@@ -251,6 +255,7 @@ export const PRESETS = [
     name: '特発性左室頻拍 (左脚後枝起源 - ILVT)',
     subtitle: '比較的シャープなQRS、RBBB＋左軸偏位、ベラパミル感受性',
     category: '束枝・プルキンエ (Fascicular)',
+    ventricleGroup: 'lv',
     transmuralSite: '心内膜下刺激伝導系 (Subendocardial)',
     citation: {
       authors: '篠原徹二 (大分大学) / 向井靖, 河合俊輔 (福岡赤十字病院)',
@@ -304,6 +309,7 @@ export const PRESETS = [
     name: '左室下壁・陳旧性心筋梗塞合併二次性PVC',
     subtitle: '上方軸＋右脚ブロック、下壁誘導の異常Q波が病因を証明',
     category: '器質的心疾患 (Ischemic / Scar)',
+    ventricleGroup: 'lv',
     transmuralSite: '瘢痕辺縁心内膜側 (Endocardial Borderzone)',
     citation: {
       authors: '大西克実 (昭和大学医学部循環器内科)',
@@ -357,6 +363,7 @@ export const PRESETS = [
     name: '左室後内側乳頭筋 (PMPM)',
     subtitle: 'RBBB型 ＋ 著明な左軸偏位（上軸）、幅広いQRS',
     category: '乳頭筋 (Papillary Muscle)',
+    ventricleGroup: 'lv',
     transmuralSite: '心内膜側隆起部 (Endocardial Trabecular)',
     citation: {
       authors: '向井靖, 河合俊輔 (福岡赤十字病院) / 服部正幸',
@@ -410,6 +417,7 @@ export const PRESETS = [
     name: '大動脈僧帽弁移行部 (AMC)',
     subtitle: 'V1〜V6全陽性 (Concordant R波)、著明な高R波',
     category: '流出路/弁輪移行部',
+    ventricleGroup: 'lv',
     transmuralSite: '心室基部線維筋部 (Basal Continuity)',
     citation: {
       authors: '向井靖, 河合俊輔 (福岡赤十字病院) / 篠原徹二',
@@ -465,6 +473,7 @@ export const PRESETS = [
     name: 'ヒス束近傍 / 三尖弁輪中隔 (Parahisian)',
     subtitle: 'LBBB型・狭いQRS・I/aVL陽性・II>>III解離・V1/V2純QS (Lin 2008)',
     category: '中隔 / 弁輪部 (Parahisian)',
+    ventricleGroup: 'rv',
     transmuralSite: '心内膜中隔側 (Endocardial Septum)',
     citation: {
       authors: 'Lin D, Marchlinski FE, et al. / Enriquez A, Garcia F.',
@@ -522,6 +531,7 @@ export const PRESETS = [
     name: '右室調整帯 (Moderator Band: MB)',
     subtitle: 'LBBB型＋左上方軸、著明に遅い移行帯(>V4)、悪性VFトリガー',
     category: '心腔内構造物 (Intracavitary)',
+    ventricleGroup: 'rv',
     transmuralSite: '右室腔内筋束・プルキンエ網 (Intracavitary Trabecular)',
     citation: {
       authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
@@ -575,6 +585,7 @@ export const PRESETS = [
     name: '三尖弁輪外側壁 (Lateral Tricuspid Annulus)',
     subtitle: 'LBBB型・遅延移行帯(>V3)・I/aVL陽性・下壁ノッチ・カテーテル不安定部位',
     category: '弁輪部 (Valvular Annulus)',
+    ventricleGroup: 'rv',
     transmuralSite: '心内膜側弁輪部 (Endocardial Annulus)',
     citation: {
       authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
@@ -628,6 +639,7 @@ export const PRESETS = [
     name: '心十字部 (Cardiac Crux / Basal Inferoseptal LV)',
     subtitle: 'LBBB型＋左上方軸、V2早期移行、下壁QS型、MDI>0.55、中心静脈マッピング',
     category: '心外膜・心底十字部 (Epicardial Crux)',
+    ventricleGroup: ['other', 'lv'],
     transmuralSite: '心外膜側〜中隔深部 (Epicardial Crux)',
     citation: {
       authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
@@ -681,6 +693,7 @@ export const PRESETS = [
     name: 'LVOT 右冠尖 (RCC: Right Coronary Cusp)',
     subtitle: 'V2 small R波出現と移行帯V3、III≥II (Lin et al. 2008)',
     category: '左室流出路 (Aortic Cusp)',
+    ventricleGroup: 'lv',
     transmuralSite: '大動脈洞 (Aortic Cusp)',
     citation: {
       authors: 'Lin D, Ilkhanoff L, Gerstenfeld E, Marchlinski FE, et al.',
@@ -738,6 +751,7 @@ export const PRESETS = [
     name: '僧帽弁輪 後中隔 (Posteroseptal MA)',
     subtitle: 'V1特異的qRパターン ＋ 上軸（下壁深いQS）、AMCとの軸鑑別 (Tada 2005)',
     category: '弁輪部 (Valvular Annulus)',
+    ventricleGroup: 'lv',
     transmuralSite: '僧帽弁輪中隔基部 (Mitral Annulus)',
     citation: {
       authors: 'Tada H, Ito S, Naito S, Kubota S, Nogami A, et al.',
@@ -792,6 +806,7 @@ export const PRESETS = [
     name: '僧帽弁輪 前側壁 (Anterolateral MA)',
     subtitle: 'V1単相性高R波 ＋ I/aVL深いQS ＋ 下壁ノッチ (Tada 2005 図A)',
     category: '弁輪部 (Valvular Annulus)',
+    ventricleGroup: 'lv',
     transmuralSite: '僧帽弁輪前側壁 (Mitral Annulus)',
     citation: {
       authors: 'Tada H, Ito S, Naito S, Kubota S, Nogami A, et al.',
@@ -845,6 +860,7 @@ export const PRESETS = [
     name: '僧帽弁輪 後壁 (Posterior MA)',
     subtitle: 'V1二峰性高R波 ＋ 上軸（深いQS） ＋ 下壁ノッチ (Tada 2005 図B)',
     category: '弁輪部 (Valvular Annulus)',
+    ventricleGroup: 'lv',
     transmuralSite: '僧帽弁輪後壁 (Mitral Annulus)',
     citation: {
       authors: 'Tada H, Ito S, Naito S, Kubota S, Nogami A, et al.',
@@ -898,6 +914,7 @@ export const PRESETS = [
     name: '左室前外側乳頭筋 (ALPM)',
     subtitle: 'RBBB型 ＋ 下方軸 ＋ V6 rS波形、頻拍誘発性心筋症 (東北大・近藤 2011)',
     category: '乳頭筋 (Papillary Muscle)',
+    ventricleGroup: 'lv',
     transmuralSite: '左室前側壁乳頭筋 (Anterior PM)',
     citation: {
       authors: '近藤正輝, 福田浩二, 中野誠, 若山裕司, 下川宏明 (東北大学循環器内科)',
@@ -951,6 +968,7 @@ export const PRESETS = [
     name: '右室乳頭筋 (RV Papillary Muscle)',
     subtitle: 'LBBB型 ＋ 下軸 ＋ I陽性、心腔内エコー(SOUND STAR)同心円通電 (心研・妹尾 2013)',
     category: '右室 (Right Ventricle)',
+    ventricleGroup: 'rv',
     transmuralSite: '右室前壁中隔側乳頭筋 (RV Papillary)',
     citation: {
       authors: '妹尾恵太郎, 大塚崇之, 相良耕一, 山下武志 (心臓血管研究所付属病院)',
@@ -1004,6 +1022,7 @@ export const PRESETS = [
     name: '脚枝間リエントリー性心室頻拍 (BBRVT)',
     subtitle: 'ヒス-プルキンエ系巨大リエントリー、3大旋回路と突然の軸変化 (櫻田 2017)',
     category: 'プルキンエ・束枝系',
+    ventricleGroup: 'other',
     transmuralSite: '刺激伝導系 (His-Purkinje System)',
     citation: {
       authors: '櫻田春水 (東京保健医療公社大久保病院 院長)',
