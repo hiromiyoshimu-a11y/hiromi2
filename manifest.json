@@ -1,22 +1,22 @@
 {
   "name": "吉村流！PVC The Origin - 12誘導心電図 不整脈起源同定",
-  "short_name": "吉村流！PVC",
+  "short_name": "PVC The Origin",
   "description": "12誘導心電図から心室性期外収縮(PVC)・心室頻拍(VT)の発生起源を高精度に同定・3D可視化する臨床支援アプリ",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#070c18",
-  "theme_color": "#dc2626",
+  "theme_color": "#070c18",
   "icons": [
     {
-      "src": "assets/icon-192.png",
-      "sizes": "192x192",
+      "src": "assets/title-logo.png",
+      "sizes": "192x192 512x512 1024x1024",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "assets/icon-512.png",
-      "sizes": "512x512",
+      "src": "assets/apple-touch-icon.png",
+      "sizes": "180x180",
       "type": "image/png",
       "purpose": "any maskable"
     }
