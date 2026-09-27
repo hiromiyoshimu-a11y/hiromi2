@@ -190,7 +190,11 @@ export class EcgImageAnalyzer {
           <!-- Canvasプレビュー (画面左右全幅拡大 ＆ ダブルタップ・タッチスワイプ操作付き) -->
           <div class="ia-canvas-wrapper" id="ia-canvas-wrapper" style="display: none;">
             <div class="ia-zoom-bar">
-              <span class="ia-zoom-hint">🔍 ダブルタップで拡大 ｜ スワイプで移動できます</span>
+              <div class="ia-legend-bar" id="ia-legend-bar" title="心電図解析ラインの凡例ガイド">
+                <span class="ia-legend-item"><span class="ia-legend-line line-limb"></span>🔴 四肢解析線</span>
+                <span class="ia-legend-item"><span class="ia-legend-line line-chest"></span>🟢 胸部解析線</span>
+                <span class="ia-legend-item"><span class="ia-widest-tag">⚡ 最広 Wide QRS</span></span>
+              </div>
               <div class="ia-zoom-controls">
                 <button type="button" class="ia-fullscreen-btn" id="ia-btn-fullscreen" title="画面全体（フルスクリーン）で大きく表示">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1801,16 +1805,12 @@ export class EcgImageAnalyzer {
       marker.style.top = `${b.yPct}%`;
       marker.title = `${b.groupName} 拍 ${b.beatNum} (${b.lead}): ドラッグまたはタップでマーカー位置調整`;
 
-      // PVC Wide QRS 解析ラインバッジ ＆ 最広Wide QRSタグ
-      let badgeHtml = '';
-      if (isTarget) {
-        let tagHtml = b.isWidest ? `<span class="ia-widest-tag">⚡ 最広 Wide QRS</span>` : '';
-        badgeHtml = `<div class="ia-analysis-badge ${badgeClass}">${badgeTitle}${tagHtml}</div>`;
-      }
+      // 最広 Wide QRS 心拍のみ、省スペースな極小⚡タグを表示（波形を隠さない設計）
+      let lightningHtml = b.isWidest ? `<div class="ia-marker-lightning-tag" title="全心拍中 一番Wideな(QRS幅の広い)拍">⚡最広</div>` : '';
 
       marker.innerHTML = `
         <div class="ia-beat-guideline"></div>
-        ${badgeHtml}
+        ${lightningHtml}
         <div class="ia-beat-pulse"></div>
         <div class="ia-beat-dot"></div>
       `;

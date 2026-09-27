@@ -4602,42 +4602,72 @@ body[data-text-size="lg"] .intramural-badge {
   filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.95));
 }
 
-/* PVC 解析バッジ・最広 Wide QRS バッジ */
-.ia-analysis-badge {
-  position: absolute;
-  top: -28px;
-  white-space: nowrap;
-  font-size: 0.70rem;
-  font-weight: 800;
-  padding: 2px 7px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
-  pointer-events: none;
-  z-index: 35;
-  letter-spacing: 0.02em;
+/* 心電図画像プレビュー用 解析凡例バー (Legend Bar) */
+.ia-legend-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(15, 23, 42, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 0.76rem;
+  color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-.ia-analysis-badge.limb-badge {
-  background: linear-gradient(135deg, #ef4444, #be123c);
-  color: #ffffff;
-  border: 1px solid #fda4af;
+.ia-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
 }
 
-.ia-analysis-badge.chest-badge {
-  background: linear-gradient(135deg, #10b981, #047857);
-  color: #ffffff;
-  border: 1px solid #6ee7b7;
+.ia-legend-line {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  border-bottom: 2px dashed #38bdf8;
+}
+
+.ia-legend-line.line-limb {
+  border-bottom: 2.5px dashed #f43f5e;
+  filter: drop-shadow(0 0 4px #f43f5e);
+}
+
+.ia-legend-line.line-chest {
+  border-bottom: 2.5px dashed #10b981;
+  filter: drop-shadow(0 0 4px #10b981);
 }
 
 .ia-widest-tag {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #000000;
+  font-size: 0.68rem;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.5);
+}
+
+/* マーカー上の超小型⚡マーク（波形を隠さない省スペース設計） */
+.ia-marker-lightning-tag {
+  position: absolute;
+  top: -14px;
   background: #f59e0b;
   color: #000000;
-  font-size: 0.65rem;
+  font-size: 0.60rem;
   font-weight: 900;
-  padding: 1px 5px;
-  border-radius: 8px;
-  margin-left: 4px;
+  padding: 0px 4px;
+  border-radius: 4px;
+  box-shadow: 0 0 6px #f59e0b;
+  pointer-events: none;
+  z-index: 35;
+  white-space: nowrap;
 }
 
 .ia-beat-label {
