@@ -384,9 +384,7 @@ function init() {
             applyDetectedParameters(detectedData);
           },
           onClear: () => {
-            isDiagnosisRevealed = false;
-            runAnalysis();
-            showToast('🗑️ 写真およびすべての診断結果を消去しました');
+            clearAllDiagnosisPanels();
           }
         });
       } catch(e) {
@@ -792,6 +790,40 @@ function applyDetectedParameters(detected) {
 
   // 写真自動解析ページにとどまり、パラメータ適用トーストを表示
   showToast('🩺 画像解析パラメータを適用し、不整脈起源を自動同定しました');
+}
+
+/**
+ * クリアボタン押下時用：すべての診断パネル・推論結果・論文・カードを1つ残らず完全非表示リセット
+ */
+function clearAllDiagnosisPanels() {
+  isDiagnosisRevealed = false;
+
+  const elementsToHide = [
+    'inline-image-diagnosis-result',
+    'inline-matrix-diagnosis-result',
+    'inline-diagnosis-result',
+    'card-ranking',
+    'card-reasoning',
+    'layer-verdict-grid',
+    'endo-epi-card',
+    'outflow-side-card',
+    'card-literature',
+    'ia-result-card'
+  ];
+
+  elementsToHide.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.style.display = 'none';
+    }
+  });
+
+  // 波形マーカー・結果コンテナもクリア
+  if (dom.reasoningContainer) dom.reasoningContainer.innerHTML = '';
+  if (dom.rankingContainer) dom.rankingContainer.innerHTML = '';
+  if (dom.literatureContainer) dom.literatureContainer.innerHTML = '';
+
+  showToast('🗑️ 写真およびすべての診断結果・推論パネルを消去しました');
 }
 
 /**

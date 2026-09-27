@@ -622,11 +622,22 @@ export class EcgImageAnalyzer {
       beatOverlay.style.display = 'none';
     }
 
-    // ★ 写真自動解析結果カード・各種診断結果表示を完全削除
-    const inlineImageResult = document.getElementById('inline-image-diagnosis-result');
-    if (inlineImageResult) inlineImageResult.style.display = 'none';
-    const inlineMatrixResult = document.getElementById('inline-matrix-diagnosis-result');
-    if (inlineMatrixResult) inlineMatrixResult.style.display = 'none';
+    // ★ 写真自動解析結果カード・各種診断結果パネル・論文等を完全一括削除
+    [
+      'inline-image-diagnosis-result',
+      'inline-matrix-diagnosis-result',
+      'inline-diagnosis-result',
+      'card-ranking',
+      'card-reasoning',
+      'layer-verdict-grid',
+      'endo-epi-card',
+      'outflow-side-card',
+      'card-literature',
+      'ia-result-card'
+    ].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
 
     // 初期ドロップ・カメラ読込プロンプトを再表示
     if (dropPrompt) dropPrompt.style.display = 'flex';
