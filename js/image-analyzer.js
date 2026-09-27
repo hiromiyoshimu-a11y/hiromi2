@@ -271,13 +271,6 @@ export class EcgImageAnalyzer {
               </svg>
               QRS再スキャン
             </button>
-            <button class="ia-next-btn" id="ia-btn-next-photo" title="次の写真を撮影または選択して連続解析">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                <circle cx="12" cy="13" r="4"/>
-              </svg>
-              次の写真を撮影 / 選択
-            </button>
             <button class="ia-clear-btn" id="ia-btn-clear-photo" title="画像を消去して初期状態に戻す">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -300,13 +293,11 @@ export class EcgImageAnalyzer {
             <!-- 検出パラメータのバッジ群 -->
           </div>
           <div class="ia-result-actions" style="display: flex; gap: 10px; width: 100%; margin-top: 10px; flex-wrap: wrap;">
-            <button class="ia-apply-btn" id="ia-btn-apply" style="flex: 2; min-width: 220px; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: 1px solid #34d399; font-weight: 800; font-size: 0.95rem; padding: 10px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            <button class="ia-next-btn" id="ia-btn-next-photo-result" style="flex: 1; width: 100%; background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(14, 165, 233, 0.25)); border: 1px solid #38bdf8; color: #38bdf8; font-weight: 800; font-size: 0.95rem; padding: 10px 16px; border-radius: 8px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.25);">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="margin-right: 6px; vertical-align: text-bottom;">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                <circle cx="12" cy="13" r="4"/>
               </svg>
-              🩺 この心電図で起源を診断する！
-            </button>
-            <button class="ia-next-btn" id="ia-btn-next-photo-result" style="flex: 1; min-width: 150px; background: rgba(56, 189, 248, 0.15); border: 1px solid #38bdf8; color: #38bdf8;">
               📷 次の写真を撮影・解析
             </button>
           </div>
