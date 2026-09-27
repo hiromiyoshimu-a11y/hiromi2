@@ -382,6 +382,12 @@ function init() {
           container: dom.imageAnalyzerRoot,
           onAnalysisComplete: (detectedData) => {
             applyDetectedParameters(detectedData);
+          },
+          onClear: () => {
+            isDiagnosisRevealed = false;
+            if (dom.inlineImageDiagnosisResult) dom.inlineImageDiagnosisResult.style.display = 'none';
+            if (dom.inlineMatrixDiagnosisResult) dom.inlineMatrixDiagnosisResult.style.display = 'none';
+            showToast('🗑️ 写真および診断結果を消去しました');
           }
         });
       } catch(e) {

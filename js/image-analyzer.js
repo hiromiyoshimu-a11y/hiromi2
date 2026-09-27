@@ -87,6 +87,7 @@ export class EcgImageAnalyzer {
   constructor(options) {
     this.container = options.container;
     this.onAnalysisComplete = options.onAnalysisComplete;
+    this.onClear = options.onClear;
     this.canvas = null;
     this.ctx = null;
     this.currentImage = null;
@@ -621,6 +622,12 @@ export class EcgImageAnalyzer {
       beatOverlay.style.display = 'none';
     }
 
+    // ★ 写真自動解析結果カード・各種診断結果表示を完全削除
+    const inlineImageResult = document.getElementById('inline-image-diagnosis-result');
+    if (inlineImageResult) inlineImageResult.style.display = 'none';
+    const inlineMatrixResult = document.getElementById('inline-matrix-diagnosis-result');
+    if (inlineMatrixResult) inlineMatrixResult.style.display = 'none';
+
     // 初期ドロップ・カメラ読込プロンプトを再表示
     if (dropPrompt) dropPrompt.style.display = 'flex';
 
@@ -631,6 +638,10 @@ export class EcgImageAnalyzer {
     if (cameraInput) cameraInput.value = '';
 
     this.resetGuideOffset();
+
+    if (this.onClear) {
+      this.onClear();
+    }
   }
 
   setLayout(layoutId) {
