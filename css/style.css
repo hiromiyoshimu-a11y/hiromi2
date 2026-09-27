@@ -4503,26 +4503,49 @@ body[data-text-size="lg"] .intramural-badge {
   z-index: 40;
 }
 
-/* 四肢誘導グループの色味（シアン/パープル） */
+/* 四肢誘導グループの色味（鮮明なレッド / ローズ赤） */
 .ia-beat-marker.group-limb .ia-beat-dot {
-  background: #a855f7;
+  background: #ef4444;
   border: 2px solid #ffffff;
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.9);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.95);
 }
 
 .ia-beat-marker.group-limb.is-target .ia-beat-dot {
-  background: #c084fc;
-  border-color: #f59e0b;
-  box-shadow: 0 0 14px #c084fc, 0 0 8px #f59e0b;
-  width: 20px;
-  height: 20px;
+  background: #f43f5e;
+  border-color: #ffd700;
+  box-shadow: 0 0 16px #f43f5e, 0 0 10px #ffd700;
+  width: 22px;
+  height: 22px;
 }
 
-.ia-beat-marker.group-limb.is-target .ia-beat-label {
-  background: linear-gradient(135deg, #a855f7, #7e22ce);
-  border-color: #f59e0b;
-  color: #ffffff;
-  font-weight: 900;
+.ia-beat-marker.group-limb.is-target .ia-beat-pulse {
+  border-color: rgba(244, 63, 94, 0.9);
+  width: 36px;
+  height: 36px;
+}
+
+/* 胸部誘導グループの色味（鮮明なエメラルドグリーン） */
+.ia-beat-marker.group-chest .ia-beat-dot,
+.ia-beat-marker.group-single .ia-beat-dot {
+  background: #10b981;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.95);
+}
+
+.ia-beat-marker.group-chest.is-target .ia-beat-dot,
+.ia-beat-marker.group-single.is-target .ia-beat-dot {
+  background: #34d399;
+  border-color: #ffd700;
+  box-shadow: 0 0 16px #34d399, 0 0 10px #ffd700;
+  width: 22px;
+  height: 22px;
+}
+
+.ia-beat-marker.group-chest.is-target .ia-beat-pulse,
+.ia-beat-marker.group-single.is-target .ia-beat-pulse {
+  border-color: rgba(52, 211, 153, 0.9);
+  width: 36px;
+  height: 36px;
 }
 
 .ia-beat-dot {
@@ -4552,18 +4575,69 @@ body[data-text-size="lg"] .intramural-badge {
   }
 }
 
-.ia-beat-marker.is-target .ia-beat-dot {
-  background: #10b981;
-  border-color: #f59e0b;
-  box-shadow: 0 0 14px #10b981, 0 0 8px #f59e0b;
-  width: 18px;
-  height: 18px;
+/* PVC Wide QRS 解析ライン スタイル */
+.ia-beat-guideline {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 1200px;
+  border-left: 2px dashed rgba(56, 189, 248, 0.7);
+  pointer-events: none;
+  z-index: 15;
+  filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.8));
 }
 
-.ia-beat-marker.is-target .ia-beat-pulse {
-  border-color: rgba(16, 185, 129, 0.85);
-  width: 34px;
-  height: 34px;
+.ia-beat-marker.group-limb.is-target .ia-beat-guideline {
+  border-left: 2.5px dashed #f43f5e;
+  box-shadow: 0 0 10px rgba(244, 63, 94, 0.9);
+  filter: drop-shadow(0 0 5px rgba(244, 63, 94, 0.95));
+}
+
+.ia-beat-marker.group-chest.is-target .ia-beat-guideline,
+.ia-beat-marker.group-single.is-target .ia-beat-guideline {
+  border-left: 2.5px dashed #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.9);
+  filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.95));
+}
+
+/* PVC 解析バッジ・最広 Wide QRS バッジ */
+.ia-analysis-badge {
+  position: absolute;
+  top: -28px;
+  white-space: nowrap;
+  font-size: 0.70rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  z-index: 35;
+  letter-spacing: 0.02em;
+}
+
+.ia-analysis-badge.limb-badge {
+  background: linear-gradient(135deg, #ef4444, #be123c);
+  color: #ffffff;
+  border: 1px solid #fda4af;
+}
+
+.ia-analysis-badge.chest-badge {
+  background: linear-gradient(135deg, #10b981, #047857);
+  color: #ffffff;
+  border: 1px solid #6ee7b7;
+}
+
+.ia-widest-tag {
+  display: inline-block;
+  background: #f59e0b;
+  color: #000000;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 1px 5px;
+  border-radius: 8px;
+  margin-left: 4px;
 }
 
 .ia-beat-label {

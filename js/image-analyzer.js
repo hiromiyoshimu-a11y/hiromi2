@@ -245,9 +245,13 @@ export class EcgImageAnalyzer {
             <button type="button" class="ia-align-btn" id="ia-btn-align-shrink" title="縮小">－ 縮小</button>
             <button type="button" class="ia-align-btn" id="ia-btn-align-reset" title="アライメントリセット">リセット</button>
             <span style="color: rgba(255,255,255,0.2);">｜</span>
-            <span class="ia-guide-align-title" style="color: #f59e0b;">📍 マーカー位置調整:</span>
-            <button type="button" class="ia-align-btn" id="ia-btn-marker-left" style="border-color: #f59e0b; color: #f59e0b;" title="選択中マーカーを微小左移動">◀ マーカー左へ</button>
-            <button type="button" class="ia-align-btn" id="ia-btn-marker-right" style="border-color: #f59e0b; color: #f59e0b;" title="選択中マーカーを微小右移動">マーカー右へ ▶</button>
+            <span class="ia-guide-align-title" style="color: #ef4444;">🔴 四肢(赤)マーカー:</span>
+            <button type="button" class="ia-align-btn" id="ia-btn-limb-marker-left" style="border-color: #ef4444; color: #fca5a5;" title="四肢マーカー(赤)を左へ微移動">◀ 左</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-limb-marker-right" style="border-color: #ef4444; color: #fca5a5;" title="四肢マーカー(赤)を右へ微移動">右 ▶</button>
+            <span style="color: rgba(255,255,255,0.2);">｜</span>
+            <span class="ia-guide-align-title" style="color: #10b981;">🟢 胸部(緑)マーカー:</span>
+            <button type="button" class="ia-align-btn" id="ia-btn-chest-marker-left" style="border-color: #10b981; color: #6ee7b7;" title="胸部マーカー(緑)を左へ微移動">◀ 左</button>
+            <button type="button" class="ia-align-btn" id="ia-btn-chest-marker-right" style="border-color: #10b981; color: #6ee7b7;" title="胸部マーカー(緑)を右へ微移動">右 ▶</button>
           </div>
 
           <div class="ia-action-buttons-group">
@@ -413,6 +417,14 @@ export class EcgImageAnalyzer {
     if (btnNextPhoto) btnNextPhoto.addEventListener('click', triggerNextPhoto);
     if (btnNextPhotoResult) btnNextPhotoResult.addEventListener('click', triggerNextPhoto);
 
+    // クリア (初期化) ボタン: 写真および解析データを完全削除して初期表示に復帰
+    const btnClearPhoto = this.container.querySelector('#ia-btn-clear-photo');
+    if (btnClearPhoto) {
+      btnClearPhoto.addEventListener('click', () => {
+        this.clearImage();
+      });
+    }
+
     // 画面全体表示（フルスクリーンモード）ボタン
     const btnFullscreen = this.container.querySelector('#ia-btn-fullscreen');
     if (btnFullscreen) {
@@ -497,30 +509,51 @@ export class EcgImageAnalyzer {
     const btnShrink = this.container.querySelector('#ia-btn-align-shrink');
     const btnResetAlign = this.container.querySelector('#ia-btn-align-reset');
 
-    // マーカー左右微調整ボタン
-    const btnMarkerLeft = this.container.querySelector('#ia-btn-marker-left');
-    const btnMarkerRight = this.container.querySelector('#ia-btn-marker-right');
-    if (btnMarkerLeft) btnMarkerLeft.addEventListener('click', () => this.nudgeSelectedBeat(-0.5));
-    if (btnMarkerRight) btnMarkerRight.addEventListener('click', () => this.nudgeSelectedBeat(0.5));
+    // 四肢マーカー(赤)左右微調整ボタン
+    const btnLimbLeft = this.container.querySelector('#ia-btn-limb-marker-left');
+    const btnLimbRight = this.container.querySelector('#ia-btn-limb-marker-right');
+    if (btnLimbLeft) btnLimbLeft.addEventListener('click', () => this.nudgeSelectedBeat('limb', -0.5));
+    if (btnLimbRight) btnLimbRight.addEventListener('click', () => this.nudgeSelectedBeat('limb', 0.5));
+
+    // 胸部マーカー(緑)左右微調整ボタン
+    const btnChestLeft = this.container.querySelector('#ia-btn-chest-marker-left');
+    const btnChestRight = this.container.querySelector('#ia-btn-chest-marker-right');
+    if (btnChestLeft) btnChestLeft.addEventListener('click', () => this.nudgeSelectedBeat('chest', -0.5));
+    if (btnChestRight) btnChestRight.addEventListener('click', () => this.nudgeSelectedBeat('chest', 0.5));
   }
 
-  nudgeSelectedBeat(dxPct) {
+  nudgeSelectedBeat(groupKey, dxPct) {
     if (!this.detectedBeats || this.detectedBeats.length === 0) return;
     
-    // 現在選択中の胸部または四肢マーカーのX座標を微調整
+    // 指定されたグループ（limb:四肢/赤, chest/single:胸部/緑）のみのマーカーX座標を独立して微調整
     this.detectedBeats.forEach(b => {
       let isTarget = false;
-      if (b.group === 'single' || b.group === 'chest') {
-        isTarget = (b.beatIndex === this.selectedChestBeatIndex);
-      } else if (b.group === 'limb') {
+      if (groupKey === 'limb' && b.group === 'limb') {
         isTarget = (b.beatIndex === this.selectedLimbBeatIndex);
+      } else if ((groupKey === 'chest' || groupKey === 'single') && (b.group === 'chest' || b.group === 'single')) {
+        isTarget = (b.beatIndex === this.selectedChestBeatIndex);
       }
+
       if (isTarget) {
-        b.xPct = parseFloat((b.xPct + dxPct).toFixed(2));
+        b.xPct = parseFloat(Math.max(0.5, Math.min(99.5, b.xPct + dxPct)).toFixed(2));
+        
+        // リアルタイム極性・解析データの再判定
+        if (b.group === 'limb') {
+          const pol = this.detectBeatPolarityAtX('II', b.xPct);
+          b.polarity = pol;
+          if (this.analyzedData) this.analyzedData.axis = (pol === 'positive') ? 'inferior' : 'superior';
+        } else {
+          const pol = this.detectBeatPolarityAtX('V1', b.xPct);
+          b.polarity = pol;
+          if (this.analyzedData) this.analyzedData.v1Pattern = (pol === 'positive') ? 'rbbb_r' : 'lbbb_qs';
+        }
       }
     });
 
     this.renderBeatMarkersOverlay();
+    if (this.analyzedData) {
+      this.displayAnalysisResults(this.analyzedData);
+    }
   }
 
   adjustGuideOffset(dx, dy) {
@@ -558,6 +591,45 @@ export class EcgImageAnalyzer {
     overlay.style.left = `${finalLeft.toFixed(2)}%`;
     overlay.style.width = `${finalWidth.toFixed(2)}%`;
     overlay.style.height = `${finalHeight.toFixed(2)}%`;
+  }
+
+  clearImage() {
+    this.currentImage = null;
+    this.analyzedData = null;
+    this.detectedBeats = [];
+
+    // Canvas の消去
+    if (this.ctx && this.canvas) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.canvas.width = 0;
+      this.canvas.height = 0;
+    }
+
+    // Canvas プレビュー、アクションバー、解析結果カードの非表示
+    const wrapper = this.container.querySelector('#ia-canvas-wrapper');
+    const actions = this.container.querySelector('#ia-actions');
+    const resultCard = this.container.querySelector('#ia-result-card');
+    const dropPrompt = this.container.querySelector('#ia-drop-prompt');
+    const beatOverlay = this.container.querySelector('#ia-beat-markers-overlay');
+
+    if (wrapper) wrapper.style.display = 'none';
+    if (actions) actions.style.display = 'none';
+    if (resultCard) resultCard.style.display = 'none';
+    if (beatOverlay) {
+      beatOverlay.innerHTML = '';
+      beatOverlay.style.display = 'none';
+    }
+
+    // 初期ドロップ・カメラ読込プロンプトを再表示
+    if (dropPrompt) dropPrompt.style.display = 'flex';
+
+    // file input のクリア
+    const fileInput = this.container.querySelector('#ia-file-input');
+    const cameraInput = this.container.querySelector('#ia-camera-input');
+    if (fileInput) fileInput.value = '';
+    if (cameraInput) cameraInput.value = '';
+
+    this.resetGuideOffset();
   }
 
   setLayout(layoutId) {
@@ -1606,14 +1678,39 @@ export class EcgImageAnalyzer {
    * 検出された全心拍の中から、波高(Vpp振幅)・QRS幅・RR間隔(期外性)を解析し、
    * 最もPVCの可能性が高い心拍を自動識別して標的PVC選択状態に自動セット
    */
+  /**
+   * 検出された全心拍の中から、波高(Vpp振幅)・QRS幅・RR間隔(期外性)を解析し、
+   * 最もPVCの可能性が高い心拍を自動識別して標的PVC選択状態に自動セット
+   * ★ 一番 wide な (QRS幅の広い) 心拍を自動タグ付け
+   */
   autoIdentifyTargetPvcBeat() {
     if (!this.detectedBeats || this.detectedBeats.length === 0) return;
 
     ['limb', 'chest', 'single'].forEach(groupKey => {
       const groupBeats = this.detectedBeats.filter(b => b.group === groupKey);
-      if (groupBeats.length < 2) return;
+      if (groupBeats.length === 0) return;
 
-      // 1. 各拍のRR間隔 (位置%の差) をスキャン
+      // 1. 最も Wide な (QRS振幅・エネルギーが最大の) 心拍を特定
+      let maxEnergy = -1;
+      let widestIndex = 0;
+      groupBeats.forEach(b => {
+        const e = b.energy || 10.0;
+        if (e > maxEnergy) {
+          maxEnergy = e;
+          widestIndex = b.beatIndex;
+        }
+      });
+      groupBeats.forEach(b => {
+        b.isWidest = (b.beatIndex === widestIndex);
+      });
+
+      if (groupBeats.length < 2) {
+        if (groupKey === 'limb') this.selectedLimbBeatIndex = widestIndex;
+        else this.selectedChestBeatIndex = widestIndex;
+        return;
+      }
+
+      // 2. 各拍のRR間隔 (位置%の差) をスキャン
       const rrIntervals = [];
       for (let i = 0; i < groupBeats.length; i++) {
         if (i === 0) {
@@ -1628,7 +1725,7 @@ export class EcgImageAnalyzer {
       const medianRR = sortedRR[Math.floor(sortedRR.length / 2)] || 1.0;
 
       let maxPvcScore = -1;
-      let pvcBeatIndex = 0;
+      let pvcBeatIndex = widestIndex;
 
       groupBeats.forEach((b, idx) => {
         // ① 早期出現度 (Prematurity): 直前拍との間隔が通常より短いほど高スコア
@@ -1639,8 +1736,8 @@ export class EcgImageAnalyzer {
           prematurityScore = prematurityRatio * 3.5;
         }
 
-        // ② 波高・エネルギー
-        const energyScore = (b.energy || 10.0) / 8.0;
+        // ② 波高・QRS幅エネルギー
+        const energyScore = (b.energy || 10.0) / 6.0;
 
         const totalPvcScore = prematurityScore + energyScore;
 
@@ -1659,7 +1756,8 @@ export class EcgImageAnalyzer {
   }
 
   /**
-   * 画像上に QRS認識点 (ビートマーカー) をオーバーレイ描画
+   * 画像上に QRS認識点 (ビートマーカー) & PVC Wide QRS 解析ラインをオーバーレイ描画
+   * 赤(四肢)・緑(胸部)の各マーカーを独立ドラッグ＆ボタン調整対応
    */
   renderBeatMarkersOverlay() {
     const zoomContainer = this.container.querySelector('#ia-zoom-container') || this.container.querySelector('#ia-canvas-wrapper');
@@ -1680,35 +1778,107 @@ export class EcgImageAnalyzer {
 
     this.detectedBeats.forEach((b) => {
       let isTarget = false;
-      let labelText = '';
+      let badgeClass = '';
+      let badgeTitle = '';
 
       if (b.group === 'single') {
         isTarget = (b.beatIndex === this.selectedChestBeatIndex);
-        labelText = isTarget ? '★ 標的PVC' : `拍 ${b.beatNum}`;
+        badgeClass = 'chest-badge';
+        badgeTitle = '🟢 PVC解析ライン';
       } else if (b.group === 'limb') {
         isTarget = (b.beatIndex === this.selectedLimbBeatIndex);
-        labelText = isTarget ? `★ 四肢:拍${b.beatNum}` : `四肢:拍${b.beatNum}`;
+        badgeClass = 'limb-badge';
+        badgeTitle = '🔴 四肢 PVC解析ライン';
       } else if (b.group === 'chest') {
         isTarget = (b.beatIndex === this.selectedChestBeatIndex);
-        labelText = isTarget ? `★ 胸部:拍${b.beatNum}` : `胸部:拍${b.beatNum}`;
+        badgeClass = 'chest-badge';
+        badgeTitle = '🟢 胸部 PVC解析ライン';
       }
 
       const marker = document.createElement('div');
       marker.className = `ia-beat-marker ${isTarget ? 'is-target' : ''} group-${b.group}`;
       marker.style.left = `${b.xPct}%`;
       marker.style.top = `${b.yPct}%`;
-      marker.title = `${b.groupName}誘導 拍 ${b.beatNum} (${b.lead}): クリックして標的PVCとして指定`;
+      marker.title = `${b.groupName} 拍 ${b.beatNum} (${b.lead}): ドラッグまたはタップでマーカー位置調整`;
+
+      // PVC Wide QRS 解析ラインバッジ ＆ 最広Wide QRSタグ
+      let badgeHtml = '';
+      if (isTarget) {
+        let tagHtml = b.isWidest ? `<span class="ia-widest-tag">⚡ 最広 Wide QRS</span>` : '';
+        badgeHtml = `<div class="ia-analysis-badge ${badgeClass}">${badgeTitle}${tagHtml}</div>`;
+      }
 
       marker.innerHTML = `
         <div class="ia-beat-guideline"></div>
+        ${badgeHtml}
         <div class="ia-beat-pulse"></div>
         <div class="ia-beat-dot"></div>
       `;
 
+      // クリック/タップで標的PVC選択
       marker.addEventListener('click', (e) => {
         e.stopPropagation();
         this.selectTargetBeat(b);
       });
+
+      // マーカーの直感的ドラッグ＆ドロップ（Pointer Down / Move / Up）
+      let isDraggingMarker = false;
+      let startX = 0;
+      let initialXPct = b.xPct;
+
+      const onPointerDown = (e) => {
+        e.stopPropagation();
+        isDraggingMarker = true;
+        startX = e.clientX || (e.touches && e.touches[0].clientX) || 0;
+        initialXPct = b.xPct;
+        this.selectTargetBeat(b);
+
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+        document.addEventListener('touchmove', onPointerMove, { passive: false });
+        document.addEventListener('touchend', onPointerUp);
+      };
+
+      const onPointerMove = (e) => {
+        if (!isDraggingMarker) return;
+        if (e.cancelable) e.preventDefault();
+        const clientX = e.clientX || (e.touches && e.touches[0].clientX) || startX;
+        const rect = overlay.getBoundingClientRect();
+        if (rect.width > 0) {
+          const deltaX = clientX - startX;
+          const deltaPct = (deltaX / rect.width) * 100;
+          const newPct = parseFloat(Math.max(0.5, Math.min(99.5, initialXPct + deltaPct)).toFixed(2));
+          b.xPct = newPct;
+          marker.style.left = `${newPct}%`;
+          
+          // 極性のリアルタイム再計算
+          if (b.group === 'limb') {
+            const pol = this.detectBeatPolarityAtX('II', newPct);
+            b.polarity = pol;
+            if (this.analyzedData) this.analyzedData.axis = (pol === 'positive') ? 'inferior' : 'superior';
+          } else {
+            const pol = this.detectBeatPolarityAtX('V1', newPct);
+            b.polarity = pol;
+            if (this.analyzedData) this.analyzedData.v1Pattern = (pol === 'positive') ? 'rbbb_r' : 'lbbb_qs';
+          }
+          if (this.analyzedData) {
+            this.displayAnalysisResults(this.analyzedData);
+          }
+        }
+      };
+
+      const onPointerUp = () => {
+        if (isDraggingMarker) {
+          isDraggingMarker = false;
+          document.removeEventListener('pointermove', onPointerMove);
+          document.removeEventListener('pointerup', onPointerUp);
+          document.removeEventListener('touchmove', onPointerMove);
+          document.removeEventListener('touchend', onPointerUp);
+          this.renderBeatMarkersOverlay();
+        }
+      };
+
+      marker.addEventListener('pointerdown', onPointerDown);
 
       overlay.appendChild(marker);
     });
