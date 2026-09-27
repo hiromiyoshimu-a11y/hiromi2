@@ -133,6 +133,284 @@ export const PRESETS = [
     }
   },
   {
+    id: 'tricuspid_lateral',
+    name: '三尖弁輪外側壁 (Lateral Tricuspid Annulus)',
+    subtitle: 'LBBB型・遅延移行帯(>V3)・I/aVL陽性・下壁ノッチ・カテーテル不安定部位',
+    category: '弁輪部 (Valvular Annulus)',
+    ventricleGroup: 'rv',
+    transmuralSite: '心内膜側弁輪部 (Endocardial Annulus)',
+    citation: {
+      authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
+      title: 'Mapping and Ablation of Premature Ventricular Complexes: State of the Art',
+      journal: 'J Am Coll Cardiol EP 2024; Vol.10 No.6: 1206-1222',
+      figure: 'Central Illustration & Figure 3B: Lateral tricuspid annulus',
+      doi: 'https://doi.org/10.1016/j.jacep.2024.02.008'
+    },
+    description: '三尖弁輪外側壁起源。LBBB型＋遅延移行帯(>V3)、幅広いQRS(>150ms)、下壁ノッチング。弁輪が右側・下方にあるためI誘導およびaVL誘導は陽性。カテーテル固定が極めて困難。',
+    clinicalInsights: {
+      mechanism: '三尖弁輪心室側外側壁の線維性筋組織における撃発活動。',
+      ecgKeyPoints: [
+        'LBBBパターン ＋ 胸部誘導の移行帯遅延（Transition > V3）。',
+        'V1誘導でrS型、下壁誘導 (II, III, aVF) に明瞭なノッチングを認める。',
+        'I誘導およびaVL誘導が陽性（TVがRVOTより右下方・後方にあるため）。',
+        '中隔から離れた外側壁起源のためQRS幅が広い（通常 >155ms）。'
+      ],
+      pitfalls: '三尖弁輪外側〜上方は血流と心拍動の影響を強く受け、カテーテルの安定した組織コンタクトを維持するのが最も困難な部位のひとつ。',
+      ablationStrategy: '大腿静脈アプローチでは逆Sカーブ（Reversed S curve: 弁尖と心室自由壁の間隙に先端をくぐらせる）または長シース（Agilis等）によるバックアップ。困難例では内頸静脈からの上部アプローチが奏功する。'
+    },
+    params: {
+      axis: 'inferior',
+      v1Pattern: 'lbbb_rs',
+      transition: 'V4',
+      lead1: 'positive',
+      leadAVL: 'positive',
+      qrsDuration: 162,
+      v2s_v3r_ratio: 2.1,
+      v2_trans_ratio: 0.45,
+      mdi: 0.45,
+      pseudoDelta: 28,
+      hasNotch: true,
+      leads: {
+        I: { pattern: 'R', amp: 1.1 },
+        II: { pattern: 'Notched_R', amp: 2.2 },
+        III: { pattern: 'Notched_R', amp: 2.1 },
+        aVR: { pattern: 'QS', amp: -1.4 },
+        aVL: { pattern: 'Rs', amp: 0.6 },
+        aVF: { pattern: 'Notched_R', amp: 2.2 },
+        V1: { pattern: 'rS', amp: -1.7 },
+        V2: { pattern: 'QS', amp: -2.1 },
+        V3: { pattern: 'rS', amp: -1.3 },
+        V4: { pattern: 'Rs', amp: 1.4 },
+        V5: { pattern: 'R', amp: 1.9 },
+        V6: { pattern: 'R', amp: 1.4 }
+      }
+    }
+  },
+  {
+    id: 'moderator_band',
+    name: '右室調整帯 (Moderator Band: MB)',
+    subtitle: 'LBBB型＋左上方軸、著明に遅い移行帯(>V4)、悪性VFトリガー',
+    category: '心腔内構造物 (Intracavitary)',
+    ventricleGroup: 'rv',
+    transmuralSite: '右室腔内筋束・プルキンエ網 (Intracavitary Trabecular)',
+    citation: {
+      authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
+      title: 'Mapping and Ablation of Premature Ventricular Complexes: State of the Art',
+      journal: 'J Am Coll Cardiol EP 2024; Vol.10 No.6: 1206-1222',
+      figure: 'Central Illustration & Figure 3D: Right ventricular moderator band',
+      doi: 'https://doi.org/10.1016/j.jacep.2024.02.008'
+    },
+    description: '右室心腔内を横断する筋束（MB）起源。LBBB型＋著明な左軸偏位（左上方軸）。移行帯はV4以降と著明に遅延（洞調律より遅い）。短連結期PVCが多く心室細動(VF)の主要トリガー。',
+    clinicalInsights: {
+      mechanism: 'モデレーターバンド内を走行する右脚プルキンエ線維網の撃発活動・異常自動能。',
+      ecgKeyPoints: [
+        'LBBBパターン ＋ 著明な左軸偏位（左上方軸: I, aVLで高R波、下壁誘導深いQS）。',
+        '胸部誘導移行帯が著しく遅延（Transition > V4、患者の洞調律移行帯より遅い）。',
+        '下壁誘導解離（II誘導が陽性、III誘導が深い陰性QS）。',
+        '短連結期（Coupling interval < 350ms）のPVCが多く、特発性心室細動（VF）の強力なトリガーとなる。'
+      ],
+      pitfalls: '器質的心疾患のない健康若年者でも心室細動（VF）・突然死のトリガーとなり得る。右室前・後乳頭筋起源との鑑別（乳頭筋は移行帯が早く下方軸）が肝要。',
+      ablationStrategy: '腔内心エコー（ICE）とCARTO-SOUNDによるMBの3Dジオメトリ構築が必須。鋭いプルキンエ電位を指標とし、出口が多岐にわたるため長軸に沿った複数点通電が必要。カテーテル安定性に優れるクライオアブレーションが有効。'
+    },
+    params: {
+      axis: 'superior',
+      v1Pattern: 'lbbb_qs',
+      transition: 'V5',
+      lead1: 'positive',
+      leadAVL: 'positive',
+      qrsDuration: 154,
+      v2s_v3r_ratio: 2.8,
+      v2_trans_ratio: 0.28,
+      mdi: 0.44,
+      pseudoDelta: 26,
+      hasNotch: true,
+      leads: {
+        I: { pattern: 'R', amp: 1.4 },
+        II: { pattern: 'rS', amp: -1.2 },
+        III: { pattern: 'QS', amp: -2.4 },
+        aVR: { pattern: 'rS', amp: -0.6 },
+        aVL: { pattern: 'R', amp: 1.6 },
+        aVF: { pattern: 'QS', amp: -2.0 },
+        V1: { pattern: 'QS', amp: -2.2 },
+        V2: { pattern: 'QS', amp: -2.5 },
+        V3: { pattern: 'QS', amp: -1.9 },
+        V4: { pattern: 'rS', amp: -1.1 },
+        V5: { pattern: 'Rs', amp: 1.5 },
+        V6: { pattern: 'R', amp: 1.3 }
+      }
+    }
+  },
+  {
+    id: 'rv_papillary',
+    name: '右室乳頭筋 (RV Papillary Muscle)',
+    subtitle: 'LBBB型 ＋ 下軸 ＋ I陽性、心腔内エコー(SOUND STAR)同心円通電 (心研・妹尾 2013)',
+    category: '右室 (Right Ventricle)',
+    ventricleGroup: 'rv',
+    transmuralSite: '右室前壁中隔側乳頭筋 (RV Papillary)',
+    citation: {
+      authors: '妹尾恵太郎, 大塚崇之, 相良耕一, 山下武志 (心臓血管研究所付属病院)',
+      title: '右室乳頭筋起源の心室性期外収縮の 1 例',
+      journal: '心臓 2013; Vol.45 Suppl.3: 124-129 (第25回 臨床不整脈研究会)',
+      figure: '図1: 12誘導心電図 (LBBB・下軸・I陽性) & 図6: CARTO Sound右室乳頭筋描出',
+      doi: '心臓 2013; 45(Suppl 3): 124-129'
+    },
+    description: '特発性PVCの約5%の中でも極めて稀な右室乳頭筋起源。LBBBパターン＋下方軸（II, III, aVF高R波）、I誘導陽性、移行帯V3〜V4。起源が乳頭筋深部にありexitと離れているためPace mapとActivation mapが不一致になりやすい。心腔内エコー（SOUND STAR®）ガイド下に乳頭筋周囲を同心円状に通電し根治。',
+    clinicalInsights: {
+      mechanism: '右室前壁中隔側の乳頭筋深部における異常自動能。',
+      ecgKeyPoints: [
+        'LBBBパターン（V1で深いQS波）。',
+        '下方軸（II, III, aVFで高いR波）。',
+        'I誘導で陽性波（右室前壁中隔側から左方向へ向かうベクトル）。',
+        '胸部誘導移行帯は V3〜V4。QRS幅 130ms。'
+      ],
+      pitfalls: 'Pace mapとActivation mapが乖離しやすく、通常の点状通電では深部焦点がつぶれず再発しやすい。',
+      ablationStrategy: '心腔内磁気センサー付き超音波カテーテル（SOUND STAR®）を用い、CARTO上で右室乳頭筋立体構造を再構築。イリゲーションカテーテルで乳頭筋周囲を同心円状に通電（25〜35W）しbreakoutを完全遮断。'
+    },
+    params: {
+      axis: 'inferior',
+      v1Pattern: 'lbbb_qs',
+      transition: 'V4',
+      lead1: 'positive',
+      leadAVL: 'negative_shallow',
+      qrsDuration: 130,
+      v2s_v3r_ratio: 1.8,
+      v2_trans_ratio: 0.45,
+      mdi: 0.42,
+      pseudoDelta: 24,
+      hasNotch: false,
+      leads: {
+        I: { pattern: 'R', amp: 0.9 },
+        II: { pattern: 'R', amp: 2.2 },
+        III: { pattern: 'R', amp: 1.8 },
+        aVR: { pattern: 'QS', amp: -1.6 },
+        aVL: { pattern: 'rS', amp: -0.5 },
+        aVF: { pattern: 'R', amp: 2.1 },
+        V1: { pattern: 'QS', amp: -1.9 },
+        V2: { pattern: 'QS', amp: -2.1 },
+        V3: { pattern: 'rS', amp: -1.4 },
+        V4: { pattern: 'Rs', amp: 1.5 },
+        V5: { pattern: 'R', amp: 1.8 },
+        V6: { pattern: 'R', amp: 1.5 }
+      }
+    }
+  },
+  {
+    id: 'parahisian_septal',
+    name: 'ヒス束近傍 / 三尖弁輪中隔 (Parahisian)',
+    subtitle: 'LBBB型・狭いQRS・I/aVL陽性・II>>III解離・V1/V2純QS (Lin 2008)',
+    category: '中隔 / 弁輪部 (Parahisian)',
+    ventricleGroup: 'rv',
+    transmuralSite: '心内膜中隔側 (Endocardial Septum)',
+    citation: {
+      authors: 'Lin D, Marchlinski FE, et al. / Enriquez A, Garcia F.',
+      title: 'Twelve-lead ECG characteristics of aortic cusp region / Mapping and Ablation of PVCs',
+      journal: 'Heart Rhythm 2008; 5: 663-669 / JACC EP 2024; 10: 1206-1222',
+      figure: 'Lin 2008 Figure 2: RVOT PVC just above the His',
+      doi: '10.1016/j.hrthm.2008.02.015'
+    },
+    description: '通常のRVOTよりも右下方、His記録部位直上の中隔起源。I誘導は高R波、IIIのR波高はIIより明らかに低い(II>>III)、V1・V2は純粋なQSパターン(small rなし)、aVL陽性(Q波小)、QRSノッチなし。',
+    clinicalInsights: {
+      mechanism: 'ヒス束直上・膜性中隔境界部の線維性中隔組織における異常自動能または撃発活動。',
+      ecgKeyPoints: [
+        'I誘導で高い単相性R波（波高大）。',
+        'III誘導のR波高は明らかにII誘導より低い (II >> III)。',
+        'V1・V2誘導ともに純粋なQS pattern（RCCと異なりsmall R波なし: Lin 2008）。',
+        'aVL誘導のQRS極性は陽性のことが多い（陰性でもQ波はaVRより小）。',
+        'QRS notchingなし（比較的シャープ <130ms）。'
+      ],
+      pitfalls: 'ヒス束電位記録部位から10mm以内のため、直接通電による完全房室ブロック（永久ペースメーカー植え込み）の危険性が極めて高い最厳重注意部位。',
+      ablationStrategy: '最早期部位でHis電位を記録する場合、隣接する無冠尖(NCC)や右冠尖(RCC)からの通電を第一選択として検討。10〜20Wの低出力から漸増し、AH延長や脚ブロック出現時は即時中止。安全のためクライオアブレーションも有効。'
+    },
+    params: {
+      axis: 'inferior',
+      v1Pattern: 'lbbb_qs',
+      transition: 'V3',
+      lead1: 'positive',
+      leadAVL: 'positive',
+      qrsDuration: 126,
+      v2s_v3r_ratio: 1.1,
+      v2_trans_ratio: 0.72,
+      mdi: 0.38,
+      pseudoDelta: 20,
+      hasNotch: false,
+      v2_has_small_r: false, // Lin 2008: V2 small Rなし(純QS)
+      ii_gt_iii: true, // II >> III
+      lead1_has_s_wave: false,
+      leads: {
+        I: { pattern: 'R', amp: 1.4 },
+        II: { pattern: 'R', amp: 2.3 },
+        III: { pattern: 'Rs', amp: 0.9 },
+        aVR: { pattern: 'QS', amp: -1.3 },
+        aVL: { pattern: 'Rs', amp: 0.8 },
+        aVF: { pattern: 'R', amp: 1.8 },
+        V1: { pattern: 'QS', amp: -1.6 },
+        V2: { pattern: 'QS', amp: -1.4 },
+        V3: { pattern: 'Rs', amp: 1.4 },
+        V4: { pattern: 'R', amp: 2.1 },
+        V5: { pattern: 'R', amp: 1.8 },
+        V6: { pattern: 'R', amp: 1.4 }
+      }
+    }
+  },
+  {
+    id: 'lvot_rcc',
+    name: 'LVOT 右冠尖 (RCC: Right Coronary Cusp)',
+    subtitle: 'V2 small R波出現と移行帯V3、III≥II (Lin et al. 2008)',
+    category: '左室流出路 (Aortic Cusp)',
+    ventricleGroup: 'lv',
+    transmuralSite: '大動脈洞 (Aortic Cusp)',
+    citation: {
+      authors: 'Lin D, Ilkhanoff L, Gerstenfeld E, Marchlinski FE, et al.',
+      title: 'Twelve-lead electrocardiographic characteristics of the aortic cusp region',
+      journal: 'Heart Rhythm 2008; Vol.5 No.5: 663-669',
+      figure: 'Figure 1 & 2: RCC PVC vs RVOT PVC just above the His',
+      doi: '10.1016/j.hrthm.2008.02.015'
+    },
+    description: '右冠尖(RCC)起源。心室中隔を挟んでRVOT His直上中隔と対向し心電図が酷似するが、RCCは解剖学的に後方・左室側に位置するためV2誘導に"small R波"が出現し移行帯がV3と早期。III誘導R波高≥II誘導。',
+    clinicalInsights: {
+      mechanism: '右冠尖線維性スリーブの異所性自動能・撃発活動。',
+      ecgKeyPoints: [
+        '胸部移行帯がV3と早期（RVOT中隔側は通常V3〜V4）。',
+        'V2誘導に初期小r波（"small R"）を認める（Lin 2008: 鑑別正診率>88%）。',
+        '下壁誘導でIII誘導のR波高 ≥ II誘導のR波高（右前方からのベクトル）。',
+        'I誘導は平坦〜陰性または二相性。'
+      ],
+      pitfalls: '右冠動脈（RCA）開口部およびヒス束・房室結節伝導系への近接。',
+      ablationStrategy: '大動脈弁逆行性アプローチ。CAG下にRCA開口部から10mm以上の安全距離を確認。His電位を避けて通電。'
+    },
+    params: {
+      axis: 'inferior',
+      v1Pattern: 'lbbb_qs',
+      transition: 'V3',
+      lead1: 'negative',
+      leadAVL: 'negative_shallow',
+      qrsDuration: 142,
+      v2s_v3r_ratio: 1.3,
+      v2_trans_ratio: 0.65,
+      mdi: 0.46,
+      pseudoDelta: 26,
+      hasNotch: false,
+      v2_has_small_r: true, // Lin 2008: V2 small R
+      ii_gt_iii: false, // III >= II
+      r_wave_duration_index: 0.42,
+      rs_amplitude_index: 0.28,
+      leads: {
+        I: { pattern: 'rS', amp: -0.4 },
+        II: { pattern: 'R', amp: 2.1 },
+        III: { pattern: 'R', amp: 2.3 },
+        aVR: { pattern: 'QS', amp: -1.6 },
+        aVL: { pattern: 'rS', amp: -0.5 },
+        aVF: { pattern: 'R', amp: 2.2 },
+        V1: { pattern: 'QS', amp: -1.8 },
+        V2: { pattern: 'rS', amp: -1.4 },
+        V3: { pattern: 'Rs', amp: 1.2 },
+        V4: { pattern: 'R', amp: 1.8 },
+        V5: { pattern: 'R', amp: 1.9 },
+        V6: { pattern: 'R', amp: 1.5 }
+      }
+    }
+  },
+  {
     id: 'lvot_lcc',
     name: 'LVOT 左冠尖 (LCC: Left Coronary Cusp)',
     subtitle: '早期移行帯とII/III比>1、Ito基準でLCCを確定',
@@ -251,168 +529,6 @@ export const PRESETS = [
     }
   },
   {
-    id: 'ilvt_fascicular',
-    name: '特発性左室頻拍 (左脚後枝起源 - ILVT)',
-    subtitle: '比較的シャープなQRS、RBBB＋左軸偏位、ベラパミル感受性',
-    category: '束枝・プルキンエ (Fascicular)',
-    ventricleGroup: 'lv',
-    transmuralSite: '心内膜下刺激伝導系 (Subendocardial)',
-    citation: {
-      authors: '篠原徹二 (大分大学) / 向井靖, 河合俊輔 (福岡赤十字病院)',
-      title: '特発性心室頻拍 (ベラパミル感受性心室頻拍) / Wide QRS tachycardia',
-      journal: 'Heart View 2022; Vol.26 No.12(増刊号): 110-114, 125',
-      figure: '図4: ベラパミル感受性心室頻拍の12誘導心電図 & 図5: ベラパミル静注の効果',
-      doi: 'Nogami A. PACE 2011; 34: 624-650'
-    },
-    description: '特殊心筋（プルキンエ網）を回路に含むリエントリー。立ち上がりが鋭くRS時間が短い（<60-80ms）。QRS幅は120-135msと比較的狭く、RBBB型＋著明な左軸偏位を示します。ベラパミル静注で停止。',
-    clinicalInsights: {
-      mechanism: '左脚後枝領域のプルキンエ線維網を中心とするカルシウム依存性マクロリエントリー。',
-      ecgKeyPoints: [
-        '右脚ブロック (RBBB) パターン（V1誘導でrsR\'または単相性R波）。',
-        '著明な左軸偏位（上方軸: I誘導で高いR波、II, III, aVFで深いrS波）。',
-        'QRS幅が比較的狭い（120〜130ms程度: 伝導系を利用するため）。',
-        '初期立ち上がりが極めて鋭峻（RS時間短縮、MDI 0.36と著明に低値）。'
-      ],
-      pitfalls: 'QRS幅が比較的狭いため、発作性上室頻拍（PSVT＋脚ブロック変行伝導）と誤診されやすい。房室解離の確認やベラパミル静注時の心電図変化が鑑別の鍵。',
-      ablationStrategy: '左室後中隔中下部において、局所心室電位に先行する鋭いプルキンエ電位（Purkinje Potential / P電位）を同定し通電。根治率が極めて高い。'
-    },
-    params: {
-      axis: 'superior',
-      v1Pattern: 'rbbb_rs',
-      transition: 'V3',
-      lead1: 'positive',
-      leadAVL: 'positive',
-      qrsDuration: 124,
-      v2s_v3r_ratio: 0.9,
-      v2_trans_ratio: 0.75,
-      mdi: 0.36, // < 0.55
-      pseudoDelta: 18, // < 34ms
-      hasNotch: false,
-      leads: {
-        I: { pattern: 'R', amp: 1.4 },
-        II: { pattern: 'rS', amp: -1.8 },
-        III: { pattern: 'rS', amp: -2.2 },
-        aVR: { pattern: 'rS', amp: -0.5 },
-        aVL: { pattern: 'R', amp: 1.5 },
-        aVF: { pattern: 'rS', amp: -2.0 },
-        V1: { pattern: 'rsR', amp: 1.6 },
-        V2: { pattern: 'Rs', amp: 1.4 },
-        V3: { pattern: 'Rs', amp: 1.1 },
-        V4: { pattern: 'rS', amp: -0.9 },
-        V5: { pattern: 'rS', amp: -1.2 },
-        V6: { pattern: 'rS', amp: -1.0 }
-      }
-    }
-  },
-  {
-    id: 'lv_inferior_omi',
-    name: '左室下壁・陳旧性心筋梗塞合併二次性PVC',
-    subtitle: '上方軸＋右脚ブロック、下壁誘導の異常Q波が病因を証明',
-    category: '器質的心疾患 (Ischemic / Scar)',
-    ventricleGroup: 'lv',
-    transmuralSite: '瘢痕辺縁心内膜側 (Endocardial Borderzone)',
-    citation: {
-      authors: '大西克実 (昭和大学医学部循環器内科)',
-      title: '心室期外収縮 (二次性PVCと陳旧性心筋梗塞)',
-      journal: 'Heart View 2022; Vol.26 No.12(増刊号): 100-106',
-      figure: '図2: 左室下壁の陳旧性心筋梗塞に合併した二次性PVC (実例心電図)',
-      doi: 'Heart View 2022 / Stevenson 1993'
-    },
-    description: '右冠動脈領域の陳旧性心筋梗塞瘢痕を基質とする二次性PVC。上方軸（下壁誘導深いQS）＋RBBB型。期外収縮だけでなく洞調律時の下壁誘導にも病的な異常Q波を認めます。',
-    clinicalInsights: {
-      mechanism: '心筋梗塞瘢痕組織辺縁（Borderzone）の伝導遅延・リエントリーまたは異常自動能。',
-      ecgKeyPoints: [
-        '上方軸（II, III, aVF誘導で深いQSパターン・異常Q波）。',
-        '胸部誘導は右脚ブロックパターン（V1でRまたはqR）。',
-        '期外収縮以外の洞調律心電図でも下壁誘導に病的な異常Q波・T波陰転を認める。',
-        'QRS幅は150ms以上と延長。'
-      ],
-      pitfalls: '特発性不整脈と誤診して単なる経過観察とせず、冠動脈造影（CAG）や心エコー等で虚血性心疾患・心機能低下の評価を必ず行うこと。',
-      ablationStrategy: '遅延造影MRIや3D電位マッピング（Voltage Mapping）で瘢痕境界領域の緩徐伝導峡部（Isthmus）を同定し、基質修飾アブレーション（Substrate Modification）を実施。'
-    },
-    params: {
-      axis: 'superior',
-      v1Pattern: 'rbbb_qr',
-      transition: 'V2',
-      lead1: 'positive',
-      leadAVL: 'positive',
-      qrsDuration: 158,
-      v2s_v3r_ratio: 0.5,
-      v2_trans_ratio: 0.88,
-      mdi: 0.46,
-      pseudoDelta: 28,
-      hasNotch: true,
-      leads: {
-        I: { pattern: 'R', amp: 1.2 },
-        II: { pattern: 'QS', amp: -2.2 },
-        III: { pattern: 'QS', amp: -2.6 },
-        aVR: { pattern: 'rS', amp: -0.6 },
-        aVL: { pattern: 'R', amp: 1.6 },
-        aVF: { pattern: 'QS', amp: -2.4 },
-        V1: { pattern: 'qR', amp: 1.5 },
-        V2: { pattern: 'Rs', amp: 1.3 },
-        V3: { pattern: 'rS', amp: -1.0 },
-        V4: { pattern: 'rS', amp: -1.5 },
-        V5: { pattern: 'QS', amp: -1.6 },
-        V6: { pattern: 'QS', amp: -1.3 }
-      }
-    }
-  },
-  {
-    id: 'lv_pmpm',
-    name: '左室後内側乳頭筋 (PMPM)',
-    subtitle: 'RBBB型 ＋ 著明な左軸偏位（上軸）、幅広いQRS',
-    category: '乳頭筋 (Papillary Muscle)',
-    ventricleGroup: 'lv',
-    transmuralSite: '心内膜側隆起部 (Endocardial Trabecular)',
-    citation: {
-      authors: '向井靖, 河合俊輔 (福岡赤十字病院) / 服部正幸',
-      title: 'Wide QRS tachycardiaの鑑別手順 / 器質的背景をもったVT',
-      journal: 'Heart View 2022; Vol.26 No.12(増刊号): 123-131, 116-122',
-      figure: '表3: QRS極性による鑑別法 & 図4b: 左室下壁起源のVTシェーマ',
-      doi: 'Good E, et al. Circ Arrhythm Electrophysiol 2011; 4: 837-843'
-    },
-    description: '後下壁寄りの乳頭筋頭部・基部起源。興奮が心尖・後壁から上方へ向かうため下壁誘導(II, III, aVF)は深いQS（上軸）。V1はRBBB型(qR)を示し、QRS幅は比較的広くノッチを伴います。',
-    clinicalInsights: {
-      mechanism: '乳頭筋深部の線維性構造周囲の微小リエントリーまたは撃発活動。',
-      ecgKeyPoints: [
-        '下壁誘導 (II, III, aVF) で深いQSパターン（上方軸）。',
-        'V1誘導でRBBBパターン（qR型またはR型）。',
-        'I誘導で高いR波（左軸偏位）。',
-        'QRS幅が150ms以上と広く、下壁誘導や胸部誘導に明瞭なノッチを伴う。'
-      ],
-      pitfalls: 'ILVT（左脚後枝）と軸・脚ブロック型が類似するが、QRS幅が明らかに広く、立ち上がりが鈍い点、ベラパミルが無効な点で鑑別可能。',
-      ablationStrategy: '腔内心エコー（ICE）ガイド下に乳頭筋頭部・基部へのカテーテルコンタクトを直視確認しながら通電。クライオアブレーションも有効。'
-    },
-    params: {
-      axis: 'superior',
-      v1Pattern: 'rbbb_qr',
-      transition: 'V2',
-      lead1: 'positive',
-      leadAVL: 'positive',
-      qrsDuration: 155,
-      v2s_v3r_ratio: 0.5,
-      v2_trans_ratio: 0.9,
-      mdi: 0.48,
-      pseudoDelta: 28,
-      hasNotch: true,
-      leads: {
-        I: { pattern: 'R', amp: 1.6 },
-        II: { pattern: 'QS', amp: -2.1 },
-        III: { pattern: 'QS', amp: -2.5 },
-        aVR: { pattern: 'rS', amp: -0.6 },
-        aVL: { pattern: 'R', amp: 1.8 },
-        aVF: { pattern: 'QS', amp: -2.3 },
-        V1: { pattern: 'qR', amp: 1.7 },
-        V2: { pattern: 'Rs', amp: 1.5 },
-        V3: { pattern: 'rS', amp: -0.8 },
-        V4: { pattern: 'rS', amp: -1.4 },
-        V5: { pattern: 'QS', amp: -1.8 },
-        V6: { pattern: 'QS', amp: -1.5 }
-      }
-    }
-  },
-  {
     id: 'amc_junction',
     name: '大動脈僧帽弁移行部 (AMC)',
     subtitle: 'V1〜V6全陽性 (Concordant R波)、著明な高R波',
@@ -465,339 +581,6 @@ export const PRESETS = [
         V4: { pattern: 'R', amp: 2.2 },
         V5: { pattern: 'R', amp: 1.8 },
         V6: { pattern: 'R', amp: 1.5 }
-      }
-    }
-  },
-  {
-    id: 'parahisian_septal',
-    name: 'ヒス束近傍 / 三尖弁輪中隔 (Parahisian)',
-    subtitle: 'LBBB型・狭いQRS・I/aVL陽性・II>>III解離・V1/V2純QS (Lin 2008)',
-    category: '中隔 / 弁輪部 (Parahisian)',
-    ventricleGroup: 'rv',
-    transmuralSite: '心内膜中隔側 (Endocardial Septum)',
-    citation: {
-      authors: 'Lin D, Marchlinski FE, et al. / Enriquez A, Garcia F.',
-      title: 'Twelve-lead ECG characteristics of aortic cusp region / Mapping and Ablation of PVCs',
-      journal: 'Heart Rhythm 2008; 5: 663-669 / JACC EP 2024; 10: 1206-1222',
-      figure: 'Lin 2008 Figure 2: RVOT PVC just above the His',
-      doi: '10.1016/j.hrthm.2008.02.015'
-    },
-    description: '通常のRVOTよりも右下方、His記録部位直上の中隔起源。I誘導は高R波、IIIのR波高はIIより明らかに低い(II>>III)、V1・V2は純粋なQSパターン(small rなし)、aVL陽性(Q波小)、QRSノッチなし。',
-    clinicalInsights: {
-      mechanism: 'ヒス束直上・膜性中隔境界部の線維性中隔組織における異常自動能または撃発活動。',
-      ecgKeyPoints: [
-        'I誘導で高い単相性R波（波高大）。',
-        'III誘導のR波高は明らかにII誘導より低い (II >> III)。',
-        'V1・V2誘導ともに純粋なQS pattern（RCCと異なりsmall R波なし: Lin 2008）。',
-        'aVL誘導のQRS極性は陽性のことが多い（陰性でもQ波はaVRより小）。',
-        'QRS notchingなし（比較的シャープ <130ms）。'
-      ],
-      pitfalls: 'ヒス束電位記録部位から10mm以内のため、直接通電による完全房室ブロック（永久ペースメーカー植え込み）の危険性が極めて高い最厳重注意部位。',
-      ablationStrategy: '最早期部位でHis電位を記録する場合、隣接する無冠尖(NCC)や右冠尖(RCC)からの通電を第一選択として検討。10〜20Wの低出力から漸増し、AH延長や脚ブロック出現時は即時中止。安全のためクライオアブレーションも有効。'
-    },
-    params: {
-      axis: 'inferior',
-      v1Pattern: 'lbbb_qs',
-      transition: 'V3',
-      lead1: 'positive',
-      leadAVL: 'positive',
-      qrsDuration: 126,
-      v2s_v3r_ratio: 1.1,
-      v2_trans_ratio: 0.72,
-      mdi: 0.38,
-      pseudoDelta: 20,
-      hasNotch: false,
-      v2_has_small_r: false, // Lin 2008: V2 small Rなし(純QS)
-      ii_gt_iii: true, // II >> III
-      lead1_has_s_wave: false,
-      leads: {
-        I: { pattern: 'R', amp: 1.4 },
-        II: { pattern: 'R', amp: 2.3 },
-        III: { pattern: 'Rs', amp: 0.9 },
-        aVR: { pattern: 'QS', amp: -1.3 },
-        aVL: { pattern: 'Rs', amp: 0.8 },
-        aVF: { pattern: 'R', amp: 1.8 },
-        V1: { pattern: 'QS', amp: -1.6 },
-        V2: { pattern: 'QS', amp: -1.4 },
-        V3: { pattern: 'Rs', amp: 1.4 },
-        V4: { pattern: 'R', amp: 2.1 },
-        V5: { pattern: 'R', amp: 1.8 },
-        V6: { pattern: 'R', amp: 1.4 }
-      }
-    }
-  },
-  {
-    id: 'moderator_band',
-    name: '右室調整帯 (Moderator Band: MB)',
-    subtitle: 'LBBB型＋左上方軸、著明に遅い移行帯(>V4)、悪性VFトリガー',
-    category: '心腔内構造物 (Intracavitary)',
-    ventricleGroup: 'rv',
-    transmuralSite: '右室腔内筋束・プルキンエ網 (Intracavitary Trabecular)',
-    citation: {
-      authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
-      title: 'Mapping and Ablation of Premature Ventricular Complexes: State of the Art',
-      journal: 'J Am Coll Cardiol EP 2024; Vol.10 No.6: 1206-1222',
-      figure: 'Central Illustration & Figure 3D: Right ventricular moderator band',
-      doi: 'https://doi.org/10.1016/j.jacep.2024.02.008'
-    },
-    description: '右室心腔内を横断する筋束（MB）起源。LBBB型＋著明な左軸偏位（左上方軸）。移行帯はV4以降と著明に遅延（洞調律より遅い）。短連結期PVCが多く心室細動(VF)の主要トリガー。',
-    clinicalInsights: {
-      mechanism: 'モデレーターバンド内を走行する右脚プルキンエ線維網の撃発活動・異常自動能。',
-      ecgKeyPoints: [
-        'LBBBパターン ＋ 著明な左軸偏位（左上方軸: I, aVLで高R波、下壁誘導深いQS）。',
-        '胸部誘導移行帯が著しく遅延（Transition > V4、患者の洞調律移行帯より遅い）。',
-        '下壁誘導解離（II誘導が陽性、III誘導が深い陰性QS）。',
-        '短連結期（Coupling interval < 350ms）のPVCが多く、特発性心室細動（VF）の強力なトリガーとなる。'
-      ],
-      pitfalls: '器質的心疾患のない健康若年者でも心室細動（VF）・突然死のトリガーとなり得る。右室前・後乳頭筋起源との鑑別（乳頭筋は移行帯が早く下方軸）が肝要。',
-      ablationStrategy: '腔内心エコー（ICE）とCARTO-SOUNDによるMBの3Dジオメトリ構築が必須。鋭いプルキンエ電位を指標とし、出口が多岐にわたるため長軸に沿った複数点通電が必要。カテーテル安定性に優れるクライオアブレーションが有効。'
-    },
-    params: {
-      axis: 'superior',
-      v1Pattern: 'lbbb_qs',
-      transition: 'V5',
-      lead1: 'positive',
-      leadAVL: 'positive',
-      qrsDuration: 154,
-      v2s_v3r_ratio: 2.8,
-      v2_trans_ratio: 0.28,
-      mdi: 0.44,
-      pseudoDelta: 26,
-      hasNotch: true,
-      leads: {
-        I: { pattern: 'R', amp: 1.4 },
-        II: { pattern: 'rS', amp: -1.2 },
-        III: { pattern: 'QS', amp: -2.4 },
-        aVR: { pattern: 'rS', amp: -0.6 },
-        aVL: { pattern: 'R', amp: 1.6 },
-        aVF: { pattern: 'QS', amp: -2.0 },
-        V1: { pattern: 'QS', amp: -2.2 },
-        V2: { pattern: 'QS', amp: -2.5 },
-        V3: { pattern: 'QS', amp: -1.9 },
-        V4: { pattern: 'rS', amp: -1.1 },
-        V5: { pattern: 'Rs', amp: 1.5 },
-        V6: { pattern: 'R', amp: 1.3 }
-      }
-    }
-  },
-  {
-    id: 'tricuspid_lateral',
-    name: '三尖弁輪外側壁 (Lateral Tricuspid Annulus)',
-    subtitle: 'LBBB型・遅延移行帯(>V3)・I/aVL陽性・下壁ノッチ・カテーテル不安定部位',
-    category: '弁輪部 (Valvular Annulus)',
-    ventricleGroup: 'rv',
-    transmuralSite: '心内膜側弁輪部 (Endocardial Annulus)',
-    citation: {
-      authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
-      title: 'Mapping and Ablation of Premature Ventricular Complexes: State of the Art',
-      journal: 'J Am Coll Cardiol EP 2024; Vol.10 No.6: 1206-1222',
-      figure: 'Central Illustration & Figure 3B: Lateral tricuspid annulus',
-      doi: 'https://doi.org/10.1016/j.jacep.2024.02.008'
-    },
-    description: '三尖弁輪外側壁起源。LBBB型＋遅延移行帯(>V3)、幅広いQRS(>150ms)、下壁ノッチング。弁輪が右側・下方にあるためI誘導およびaVL誘導は陽性。カテーテル固定が極めて困難。',
-    clinicalInsights: {
-      mechanism: '三尖弁輪心室側外側壁の線維性筋組織における撃発活動。',
-      ecgKeyPoints: [
-        'LBBBパターン ＋ 胸部誘導の移行帯遅延（Transition > V3）。',
-        'V1誘導でrS型、下壁誘導 (II, III, aVF) に明瞭なノッチングを認める。',
-        'I誘導およびaVL誘導が陽性（TVがRVOTより右下方・後方にあるため）。',
-        '中隔から離れた外側壁起源のためQRS幅が広い（通常 >155ms）。'
-      ],
-      pitfalls: '三尖弁輪外側〜上方は血流と心拍動の影響を強く受け、カテーテルの安定した組織コンタクトを維持するのが最も困難な部位のひとつ。',
-      ablationStrategy: '大腿静脈アプローチでは逆Sカーブ（Reversed S curve: 弁尖と心室自由壁の間隙に先端をくぐらせる）または長シース（Agilis等）によるバックアップ。困難例では内頸静脈からの上部アプローチが奏功する。'
-    },
-    params: {
-      axis: 'inferior',
-      v1Pattern: 'lbbb_rs',
-      transition: 'V4',
-      lead1: 'positive',
-      leadAVL: 'positive',
-      qrsDuration: 162,
-      v2s_v3r_ratio: 2.1,
-      v2_trans_ratio: 0.45,
-      mdi: 0.45,
-      pseudoDelta: 28,
-      hasNotch: true,
-      leads: {
-        I: { pattern: 'R', amp: 1.1 },
-        II: { pattern: 'Notched_R', amp: 2.2 },
-        III: { pattern: 'Notched_R', amp: 2.1 },
-        aVR: { pattern: 'QS', amp: -1.4 },
-        aVL: { pattern: 'Rs', amp: 0.6 },
-        aVF: { pattern: 'Notched_R', amp: 2.2 },
-        V1: { pattern: 'rS', amp: -1.7 },
-        V2: { pattern: 'QS', amp: -2.1 },
-        V3: { pattern: 'rS', amp: -1.3 },
-        V4: { pattern: 'Rs', amp: 1.4 },
-        V5: { pattern: 'R', amp: 1.9 },
-        V6: { pattern: 'R', amp: 1.4 }
-      }
-    }
-  },
-  {
-    id: 'cardiac_crux',
-    name: '心十字部 (Cardiac Crux / Basal Inferoseptal LV)',
-    subtitle: 'LBBB型＋左上方軸、V2早期移行、下壁QS型、MDI>0.55、中心静脈マッピング',
-    category: '心外膜・心底十字部 (Epicardial Crux)',
-    ventricleGroup: 'other',
-    transmuralSite: '心外膜側〜中隔深部 (Epicardial Crux)',
-    citation: {
-      authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
-      title: 'Mapping and Ablation of Premature Ventricular Complexes: State of the Art',
-      journal: 'J Am Coll Cardiol EP 2024; Vol.10 No.6: 1206-1222',
-      figure: 'Central Illustration: Crux & Text Page 1215: Cardiac Crux and Inferoseptal LV',
-      doi: 'https://doi.org/10.1016/j.jacep.2024.02.008'
-    },
-    description: '房室溝と後室間溝の交差部（Crux）起源。LBBB様＋著明な左上方軸（下壁誘導深いQS）、V2早期移行。MDI>0.55と心外膜特徴を示し、中心静脈(MCV)マッピングが鍵。冠動脈近接に警戒。',
-    clinicalInsights: {
-      mechanism: '心十字部・後下中隔心外膜側組織における異所性自動能・微小リエントリー。',
-      ecgKeyPoints: [
-        'LBBBパターン ＋ 著明な左上方軸（I, aVLで高R波、下壁誘導II, III, aVFで深いQS）。',
-        '胸部誘導はV2で早期移行（Early transition at V2）。',
-        '下壁誘導ですべてQSパターン（上方へ遠ざかる興奮）。',
-        '最大偏位指数（MDI）> 0.55、初期立ち上がりの緩徐な偽デルタ波（心外膜側特徴）。'
-      ],
-      pitfalls: '右冠動脈後下行枝（PDA）および中心静脈（MCV）が直近を走行するため、冠動脈造影（CAG）なしに通電すると冠動脈狭窄・下壁心筋梗塞の恐れがある。',
-      ablationStrategy: '冠静脈洞経由で中心静脈（MCV）内を多電極カテーテルでマッピング。MCV内通電は10〜20Wの低出力から開始し慎重に漸増（最大30W）。心内膜側からは右房下中隔（遅延伝導路近傍）または左室中隔基部からの対向通電を試みる。'
-    },
-    params: {
-      axis: 'superior',
-      v1Pattern: 'lbbb_qs',
-      transition: 'V2',
-      lead1: 'positive',
-      leadAVL: 'positive',
-      qrsDuration: 164,
-      v2s_v3r_ratio: 0.7,
-      v2_trans_ratio: 0.85,
-      mdi: 0.58, // > 0.55 => 心外膜
-      pseudoDelta: 38, // > 34ms => 心外膜
-      hasNotch: true,
-      leads: {
-        I: { pattern: 'R', amp: 1.3 },
-        II: { pattern: 'QS', amp: -2.3 },
-        III: { pattern: 'QS', amp: -2.5 },
-        aVR: { pattern: 'rS', amp: -0.5 },
-        aVL: { pattern: 'R', amp: 1.5 },
-        aVF: { pattern: 'QS', amp: -2.4 },
-        V1: { pattern: 'QS', amp: -1.7 },
-        V2: { pattern: 'Rs', amp: 1.3 },
-        V3: { pattern: 'R', amp: 1.8 },
-        V4: { pattern: 'R', amp: 1.9 },
-        V5: { pattern: 'R', amp: 1.5 },
-        V6: { pattern: 'rS', amp: -0.8 }
-      }
-    }
-  },
-  {
-    id: 'lvot_rcc',
-    name: 'LVOT 右冠尖 (RCC: Right Coronary Cusp)',
-    subtitle: 'V2 small R波出現と移行帯V3、III≥II (Lin et al. 2008)',
-    category: '左室流出路 (Aortic Cusp)',
-    ventricleGroup: 'lv',
-    transmuralSite: '大動脈洞 (Aortic Cusp)',
-    citation: {
-      authors: 'Lin D, Ilkhanoff L, Gerstenfeld E, Marchlinski FE, et al.',
-      title: 'Twelve-lead electrocardiographic characteristics of the aortic cusp region',
-      journal: 'Heart Rhythm 2008; Vol.5 No.5: 663-669',
-      figure: 'Figure 1 & 2: RCC PVC vs RVOT PVC just above the His',
-      doi: '10.1016/j.hrthm.2008.02.015'
-    },
-    description: '右冠尖(RCC)起源。心室中隔を挟んでRVOT His直上中隔と対向し心電図が酷似するが、RCCは解剖学的に後方・左室側に位置するためV2誘導に"small R波"が出現し移行帯がV3と早期。III誘導R波高≥II誘導。',
-    clinicalInsights: {
-      mechanism: '右冠尖線維性スリーブの異所性自動能・撃発活動。',
-      ecgKeyPoints: [
-        '胸部移行帯がV3と早期（RVOT中隔側は通常V3〜V4）。',
-        'V2誘導に初期小r波（"small R"）を認める（Lin 2008: 鑑別正診率>88%）。',
-        '下壁誘導でIII誘導のR波高 ≥ II誘導のR波高（右前方からのベクトル）。',
-        'I誘導は平坦〜陰性または二相性。'
-      ],
-      pitfalls: '右冠動脈（RCA）開口部およびヒス束・房室結節伝導系への近接。',
-      ablationStrategy: '大動脈弁逆行性アプローチ。CAG下にRCA開口部から10mm以上の安全距離を確認。His電位を避けて通電。'
-    },
-    params: {
-      axis: 'inferior',
-      v1Pattern: 'lbbb_qs',
-      transition: 'V3',
-      lead1: 'negative',
-      leadAVL: 'negative_shallow',
-      qrsDuration: 142,
-      v2s_v3r_ratio: 1.3,
-      v2_trans_ratio: 0.65,
-      mdi: 0.46,
-      pseudoDelta: 26,
-      hasNotch: false,
-      v2_has_small_r: true, // Lin 2008: V2 small R
-      ii_gt_iii: false, // III >= II
-      r_wave_duration_index: 0.42,
-      rs_amplitude_index: 0.28,
-      leads: {
-        I: { pattern: 'rS', amp: -0.4 },
-        II: { pattern: 'R', amp: 2.1 },
-        III: { pattern: 'R', amp: 2.3 },
-        aVR: { pattern: 'QS', amp: -1.6 },
-        aVL: { pattern: 'rS', amp: -0.5 },
-        aVF: { pattern: 'R', amp: 2.2 },
-        V1: { pattern: 'QS', amp: -1.8 },
-        V2: { pattern: 'rS', amp: -1.4 },
-        V3: { pattern: 'Rs', amp: 1.2 },
-        V4: { pattern: 'R', amp: 1.8 },
-        V5: { pattern: 'R', amp: 1.9 },
-        V6: { pattern: 'R', amp: 1.5 }
-      }
-    }
-  },
-  {
-    id: 'mva_posteroseptal',
-    name: '僧帽弁輪 後中隔 (Posteroseptal MA)',
-    subtitle: 'V1特異的qRパターン ＋ 上軸（下壁深いQS）、AMCとの軸鑑別 (Tada 2005)',
-    category: '弁輪部 (Valvular Annulus)',
-    ventricleGroup: 'lv',
-    transmuralSite: '僧帽弁輪中隔基部 (Mitral Annulus)',
-    citation: {
-      authors: 'Tada H, Ito S, Naito S, Kubota S, Nogami A, et al.',
-      title: 'Idiopathic ventricular arrhythmias originating from the mitral annulus',
-      journal: 'J Am Coll Cardiol 2005; Vol.45 No.6: 877-886',
-      figure: 'Figure 1C & 3: Posteroseptal MA with qR in lead V1',
-      doi: '10.1016/j.jacc.2004.11.053'
-    },
-    description: '僧帽弁輪後中隔起源。V1誘導に極めて特異的な「qRパターン」を形成。左室基部後下方に位置するため電気軸は上軸（II, III, aVFですべて深いQS型）。AMC前部（下軸）との軸対比で完全同定可能。',
-    clinicalInsights: {
-      mechanism: '僧帽弁輪後中隔筋束における異所性撃発活動。',
-      ecgKeyPoints: [
-        'V1誘導で特異的な「qRパターン」（微小初期q波＋高R波: Tada 2005）。',
-        '下壁誘導 (II, III, aVF) で深いQSパターン（著明な上軸）。',
-        '胸部誘導全陽性傾向（V2〜V6高R波）。',
-        'I誘導・aVL誘導は陽性R波。'
-      ],
-      pitfalls: '冠静脈洞近傍・左房中隔下部に近接。食道や左房後壁との解剖学的距離を考慮。',
-      ablationStrategy: '経心房中隔穿刺（Transseptal）による左房側弁輪アプローチ、または大動脈弁逆行性左室心内膜アプローチ。'
-    },
-    params: {
-      axis: 'superior',
-      v1Pattern: 'rbbb_qr',
-      transition: 'V1',
-      lead1: 'positive',
-      leadAVL: 'positive',
-      qrsDuration: 138,
-      v2s_v3r_ratio: 0.3,
-      v2_trans_ratio: 0.95,
-      mdi: 0.44,
-      pseudoDelta: 24,
-      hasNotch: false,
-      v1_qr_pattern: true, // Tada 2005: V1 qR
-      leads: {
-        I: { pattern: 'R', amp: 1.4 },
-        II: { pattern: 'QS', amp: -2.2 },
-        III: { pattern: 'QS', amp: -2.5 },
-        aVR: { pattern: 'rS', amp: -0.6 },
-        aVL: { pattern: 'R', amp: 1.6 },
-        aVF: { pattern: 'QS', amp: -2.4 },
-        V1: { pattern: 'qR', amp: 1.6 },
-        V2: { pattern: 'R', amp: 2.2 },
-        V3: { pattern: 'R', amp: 2.5 },
-        V4: { pattern: 'R', amp: 2.3 },
-        V5: { pattern: 'R', amp: 1.9 },
-        V6: { pattern: 'R', amp: 1.4 }
       }
     }
   },
@@ -910,6 +693,61 @@ export const PRESETS = [
     }
   },
   {
+    id: 'mva_posteroseptal',
+    name: '僧帽弁輪 後中隔 (Posteroseptal MA)',
+    subtitle: 'V1特異的qRパターン ＋ 上軸（下壁深いQS）、AMCとの軸鑑別 (Tada 2005)',
+    category: '弁輪部 (Valvular Annulus)',
+    ventricleGroup: 'lv',
+    transmuralSite: '僧帽弁輪中隔基部 (Mitral Annulus)',
+    citation: {
+      authors: 'Tada H, Ito S, Naito S, Kubota S, Nogami A, et al.',
+      title: 'Idiopathic ventricular arrhythmias originating from the mitral annulus',
+      journal: 'J Am Coll Cardiol 2005; Vol.45 No.6: 877-886',
+      figure: 'Figure 1C & 3: Posteroseptal MA with qR in lead V1',
+      doi: '10.1016/j.jacc.2004.11.053'
+    },
+    description: '僧帽弁輪後中隔起源。V1誘導に極めて特異的な「qRパターン」を形成。左室基部後下方に位置するため電気軸は上軸（II, III, aVFですべて深いQS型）。AMC前部（下軸）との軸対比で完全同定可能。',
+    clinicalInsights: {
+      mechanism: '僧帽弁輪後中隔筋束における異所性撃発活動。',
+      ecgKeyPoints: [
+        'V1誘導で特異的な「qRパターン」（微小初期q波＋高R波: Tada 2005）。',
+        '下壁誘導 (II, III, aVF) で深いQSパターン（著明な上軸）。',
+        '胸部誘導全陽性傾向（V2〜V6高R波）。',
+        'I誘導・aVL誘導は陽性R波。'
+      ],
+      pitfalls: '冠静脈洞近傍・左房中隔下部に近接。食道や左房後壁との解剖学的距離を考慮。',
+      ablationStrategy: '経心房中隔穿刺（Transseptal）による左房側弁輪アプローチ、または大動脈弁逆行性左室心内膜アプローチ。'
+    },
+    params: {
+      axis: 'superior',
+      v1Pattern: 'rbbb_qr',
+      transition: 'V1',
+      lead1: 'positive',
+      leadAVL: 'positive',
+      qrsDuration: 138,
+      v2s_v3r_ratio: 0.3,
+      v2_trans_ratio: 0.95,
+      mdi: 0.44,
+      pseudoDelta: 24,
+      hasNotch: false,
+      v1_qr_pattern: true, // Tada 2005: V1 qR
+      leads: {
+        I: { pattern: 'R', amp: 1.4 },
+        II: { pattern: 'QS', amp: -2.2 },
+        III: { pattern: 'QS', amp: -2.5 },
+        aVR: { pattern: 'rS', amp: -0.6 },
+        aVL: { pattern: 'R', amp: 1.6 },
+        aVF: { pattern: 'QS', amp: -2.4 },
+        V1: { pattern: 'qR', amp: 1.6 },
+        V2: { pattern: 'R', amp: 2.2 },
+        V3: { pattern: 'R', amp: 2.5 },
+        V4: { pattern: 'R', amp: 2.3 },
+        V5: { pattern: 'R', amp: 1.9 },
+        V6: { pattern: 'R', amp: 1.4 }
+      }
+    }
+  },
+  {
     id: 'lv_alpm',
     name: '左室前外側乳頭筋 (ALPM)',
     subtitle: 'RBBB型 ＋ 下方軸 ＋ V6 rS波形、頻拍誘発性心筋症 (東北大・近藤 2011)',
@@ -964,56 +802,218 @@ export const PRESETS = [
     }
   },
   {
-    id: 'rv_papillary',
-    name: '右室乳頭筋 (RV Papillary Muscle)',
-    subtitle: 'LBBB型 ＋ 下軸 ＋ I陽性、心腔内エコー(SOUND STAR)同心円通電 (心研・妹尾 2013)',
-    category: '右室 (Right Ventricle)',
-    ventricleGroup: 'rv',
-    transmuralSite: '右室前壁中隔側乳頭筋 (RV Papillary)',
+    id: 'lv_pmpm',
+    name: '左室後内側乳頭筋 (PMPM)',
+    subtitle: 'RBBB型 ＋ 著明な左軸偏位（上軸）、幅広いQRS',
+    category: '乳頭筋 (Papillary Muscle)',
+    ventricleGroup: 'lv',
+    transmuralSite: '心内膜側隆起部 (Endocardial Trabecular)',
     citation: {
-      authors: '妹尾恵太郎, 大塚崇之, 相良耕一, 山下武志 (心臓血管研究所付属病院)',
-      title: '右室乳頭筋起源の心室性期外収縮の 1 例',
-      journal: '心臓 2013; Vol.45 Suppl.3: 124-129 (第25回 臨床不整脈研究会)',
-      figure: '図1: 12誘導心電図 (LBBB・下軸・I陽性) & 図6: CARTO Sound右室乳頭筋描出',
-      doi: '心臓 2013; 45(Suppl 3): 124-129'
+      authors: '向井靖, 河合俊輔 (福岡赤十字病院) / 服部正幸',
+      title: 'Wide QRS tachycardiaの鑑別手順 / 器質的背景をもったVT',
+      journal: 'Heart View 2022; Vol.26 No.12(増刊号): 123-131, 116-122',
+      figure: '表3: QRS極性による鑑別法 & 図4b: 左室下壁起源のVTシェーマ',
+      doi: 'Good E, et al. Circ Arrhythm Electrophysiol 2011; 4: 837-843'
     },
-    description: '特発性PVCの約5%の中でも極めて稀な右室乳頭筋起源。LBBBパターン＋下方軸（II, III, aVF高R波）、I誘導陽性、移行帯V3〜V4。起源が乳頭筋深部にありexitと離れているためPace mapとActivation mapが不一致になりやすい。心腔内エコー（SOUND STAR®）ガイド下に乳頭筋周囲を同心円状に通電し根治。',
+    description: '後下壁寄りの乳頭筋頭部・基部起源。興奮が心尖・後壁から上方へ向かうため下壁誘導(II, III, aVF)は深いQS（上軸）。V1はRBBB型(qR)を示し、QRS幅は比較的広くノッチを伴います。',
     clinicalInsights: {
-      mechanism: '右室前壁中隔側の乳頭筋深部における異常自動能。',
+      mechanism: '乳頭筋深部の線維性構造周囲の微小リエントリーまたは撃発活動。',
       ecgKeyPoints: [
-        'LBBBパターン（V1で深いQS波）。',
-        '下方軸（II, III, aVFで高いR波）。',
-        'I誘導で陽性波（右室前壁中隔側から左方向へ向かうベクトル）。',
-        '胸部誘導移行帯は V3〜V4。QRS幅 130ms。'
+        '下壁誘導 (II, III, aVF) で深いQSパターン（上方軸）。',
+        'V1誘導でRBBBパターン（qR型またはR型）。',
+        'I誘導で高いR波（左軸偏位）。',
+        'QRS幅が150ms以上と広く、下壁誘導や胸部誘導に明瞭なノッチを伴う。'
       ],
-      pitfalls: 'Pace mapとActivation mapが乖離しやすく、通常の点状通電では深部焦点がつぶれず再発しやすい。',
-      ablationStrategy: '心腔内磁気センサー付き超音波カテーテル（SOUND STAR®）を用い、CARTO上で右室乳頭筋立体構造を再構築。イリゲーションカテーテルで乳頭筋周囲を同心円状に通電（25〜35W）しbreakoutを完全遮断。'
+      pitfalls: 'ILVT（左脚後枝）と軸・脚ブロック型が類似するが、QRS幅が明らかに広く、立ち上がりが鈍い点、ベラパミルが無効な点で鑑別可能。',
+      ablationStrategy: '腔内心エコー（ICE）ガイド下に乳頭筋頭部・基部へのカテーテルコンタクトを直視確認しながら通電。クライオアブレーションも有効。'
     },
     params: {
-      axis: 'inferior',
-      v1Pattern: 'lbbb_qs',
-      transition: 'V4',
+      axis: 'superior',
+      v1Pattern: 'rbbb_qr',
+      transition: 'V2',
       lead1: 'positive',
-      leadAVL: 'negative_shallow',
-      qrsDuration: 130,
-      v2s_v3r_ratio: 1.8,
-      v2_trans_ratio: 0.45,
-      mdi: 0.42,
-      pseudoDelta: 24,
+      leadAVL: 'positive',
+      qrsDuration: 155,
+      v2s_v3r_ratio: 0.5,
+      v2_trans_ratio: 0.9,
+      mdi: 0.48,
+      pseudoDelta: 28,
+      hasNotch: true,
+      leads: {
+        I: { pattern: 'R', amp: 1.6 },
+        II: { pattern: 'QS', amp: -2.1 },
+        III: { pattern: 'QS', amp: -2.5 },
+        aVR: { pattern: 'rS', amp: -0.6 },
+        aVL: { pattern: 'R', amp: 1.8 },
+        aVF: { pattern: 'QS', amp: -2.3 },
+        V1: { pattern: 'qR', amp: 1.7 },
+        V2: { pattern: 'Rs', amp: 1.5 },
+        V3: { pattern: 'rS', amp: -0.8 },
+        V4: { pattern: 'rS', amp: -1.4 },
+        V5: { pattern: 'QS', amp: -1.8 },
+        V6: { pattern: 'QS', amp: -1.5 }
+      }
+    }
+  },
+  {
+    id: 'ilvt_fascicular',
+    name: '特発性左室頻拍 (左脚後枝起源 - ILVT)',
+    subtitle: '比較的シャープなQRS、RBBB＋左軸偏位、ベラパミル感受性',
+    category: '束枝・プルキンエ (Fascicular)',
+    ventricleGroup: 'lv',
+    transmuralSite: '心内膜下刺激伝導系 (Subendocardial)',
+    citation: {
+      authors: '篠原徹二 (大分大学) / 向井靖, 河合俊輔 (福岡赤十字病院)',
+      title: '特発性心室頻拍 (ベラパミル感受性心室頻拍) / Wide QRS tachycardia',
+      journal: 'Heart View 2022; Vol.26 No.12(増刊号): 110-114, 125',
+      figure: '図4: ベラパミル感受性心室頻拍の12誘導心電図 & 図5: ベラパミル静注の効果',
+      doi: 'Nogami A. PACE 2011; 34: 624-650'
+    },
+    description: '特殊心筋（プルキンエ網）を回路に含むリエントリー。立ち上がりが鋭くRS時間が短い（<60-80ms）。QRS幅は120-135msと比較的狭く、RBBB型＋著明な左軸偏位を示します。ベラパミル静注で停止。',
+    clinicalInsights: {
+      mechanism: '左脚後枝領域のプルキンエ線維網を中心とするカルシウム依存性マクロリエントリー。',
+      ecgKeyPoints: [
+        '右脚ブロック (RBBB) パターン（V1誘導でrsR\'または単相性R波）。',
+        '著明な左軸偏位（上方軸: I誘導で高いR波、II, III, aVFで深いrS波）。',
+        'QRS幅が比較的狭い（120〜130ms程度: 伝導系を利用するため）。',
+        '初期立ち上がりが極めて鋭峻（RS時間短縮、MDI 0.36と著明に低値）。'
+      ],
+      pitfalls: 'QRS幅が比較的狭いため、発作性上室頻拍（PSVT＋脚ブロック変行伝導）と誤診されやすい。房室解離の確認やベラパミル静注時の心電図変化が鑑別の鍵。',
+      ablationStrategy: '左室後中隔中下部において、局所心室電位に先行する鋭いプルキンエ電位（Purkinje Potential / P電位）を同定し通電。根治率が極めて高い。'
+    },
+    params: {
+      axis: 'superior',
+      v1Pattern: 'rbbb_rs',
+      transition: 'V3',
+      lead1: 'positive',
+      leadAVL: 'positive',
+      qrsDuration: 124,
+      v2s_v3r_ratio: 0.9,
+      v2_trans_ratio: 0.75,
+      mdi: 0.36, // < 0.55
+      pseudoDelta: 18, // < 34ms
       hasNotch: false,
       leads: {
-        I: { pattern: 'R', amp: 0.9 },
-        II: { pattern: 'R', amp: 2.2 },
-        III: { pattern: 'R', amp: 1.8 },
-        aVR: { pattern: 'QS', amp: -1.6 },
-        aVL: { pattern: 'rS', amp: -0.5 },
-        aVF: { pattern: 'R', amp: 2.1 },
-        V1: { pattern: 'QS', amp: -1.9 },
-        V2: { pattern: 'QS', amp: -2.1 },
-        V3: { pattern: 'rS', amp: -1.4 },
-        V4: { pattern: 'Rs', amp: 1.5 },
-        V5: { pattern: 'R', amp: 1.8 },
-        V6: { pattern: 'R', amp: 1.5 }
+        I: { pattern: 'R', amp: 1.4 },
+        II: { pattern: 'rS', amp: -1.8 },
+        III: { pattern: 'rS', amp: -2.2 },
+        aVR: { pattern: 'rS', amp: -0.5 },
+        aVL: { pattern: 'R', amp: 1.5 },
+        aVF: { pattern: 'rS', amp: -2.0 },
+        V1: { pattern: 'rsR', amp: 1.6 },
+        V2: { pattern: 'Rs', amp: 1.4 },
+        V3: { pattern: 'Rs', amp: 1.1 },
+        V4: { pattern: 'rS', amp: -0.9 },
+        V5: { pattern: 'rS', amp: -1.2 },
+        V6: { pattern: 'rS', amp: -1.0 }
+      }
+    }
+  },
+  {
+    id: 'lv_inferior_omi',
+    name: '左室下壁・陳旧性心筋梗塞合併二次性PVC',
+    subtitle: '上方軸＋右脚ブロック、下壁誘導の異常Q波が病因を証明',
+    category: '器質的心疾患 (Ischemic / Scar)',
+    ventricleGroup: 'lv',
+    transmuralSite: '瘢痕辺縁心内膜側 (Endocardial Borderzone)',
+    citation: {
+      authors: '大西克実 (昭和大学医学部循環器内科)',
+      title: '心室期外収縮 (二次性PVCと陳旧性心筋梗塞)',
+      journal: 'Heart View 2022; Vol.26 No.12(増刊号): 100-106',
+      figure: '図2: 左室下壁の陳旧性心筋梗塞に合併した二次性PVC (実例心電図)',
+      doi: 'Heart View 2022 / Stevenson 1993'
+    },
+    description: '右冠動脈領域の陳旧性心筋梗塞瘢痕を基質とする二次性PVC。上方軸（下壁誘導深いQS）＋RBBB型。期外収縮だけでなく洞調律時の下壁誘導にも病的な異常Q波を認めます。',
+    clinicalInsights: {
+      mechanism: '心筋梗塞瘢痕組織辺縁（Borderzone）の伝導遅延・リエントリーまたは異常自動能。',
+      ecgKeyPoints: [
+        '上方軸（II, III, aVF誘導で深いQSパターン・異常Q波）。',
+        '胸部誘導は右脚ブロックパターン（V1でRまたはqR）。',
+        '期外収縮以外の洞調律心電図でも下壁誘導に病的な異常Q波・T波陰転を認める。',
+        'QRS幅は150ms以上と延長。'
+      ],
+      pitfalls: '特発性不整脈と誤診して単なる経過観察とせず、冠動脈造影（CAG）や心エコー等で虚血性心疾患・心機能低下の評価を必ず行うこと。',
+      ablationStrategy: '遅延造影MRIや3D電位マッピング（Voltage Mapping）で瘢痕境界領域の緩徐伝導峡部（Isthmus）を同定し、基質修飾アブレーション（Substrate Modification）を実施。'
+    },
+    params: {
+      axis: 'superior',
+      v1Pattern: 'rbbb_qr',
+      transition: 'V2',
+      lead1: 'positive',
+      leadAVL: 'positive',
+      qrsDuration: 158,
+      v2s_v3r_ratio: 0.5,
+      v2_trans_ratio: 0.88,
+      mdi: 0.46,
+      pseudoDelta: 28,
+      hasNotch: true,
+      leads: {
+        I: { pattern: 'R', amp: 1.2 },
+        II: { pattern: 'QS', amp: -2.2 },
+        III: { pattern: 'QS', amp: -2.6 },
+        aVR: { pattern: 'rS', amp: -0.6 },
+        aVL: { pattern: 'R', amp: 1.6 },
+        aVF: { pattern: 'QS', amp: -2.4 },
+        V1: { pattern: 'qR', amp: 1.5 },
+        V2: { pattern: 'Rs', amp: 1.3 },
+        V3: { pattern: 'rS', amp: -1.0 },
+        V4: { pattern: 'rS', amp: -1.5 },
+        V5: { pattern: 'QS', amp: -1.6 },
+        V6: { pattern: 'QS', amp: -1.3 }
+      }
+    }
+  },
+  {
+    id: 'cardiac_crux',
+    name: '心十字部 (Cardiac Crux / Basal Inferoseptal LV)',
+    subtitle: 'LBBB型＋左上方軸、V2早期移行、下壁QS型、MDI>0.55、中心静脈マッピング',
+    category: '心外膜・心底十字部 (Epicardial Crux)',
+    ventricleGroup: 'other',
+    transmuralSite: '心外膜側〜中隔深部 (Epicardial Crux)',
+    citation: {
+      authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
+      title: 'Mapping and Ablation of Premature Ventricular Complexes: State of the Art',
+      journal: 'J Am Coll Cardiol EP 2024; Vol.10 No.6: 1206-1222',
+      figure: 'Central Illustration: Crux & Text Page 1215: Cardiac Crux and Inferoseptal LV',
+      doi: 'https://doi.org/10.1016/j.jacep.2024.02.008'
+    },
+    description: '房室溝と後室間溝の交差部（Crux）起源。LBBB様＋著明な左上方軸（下壁誘導深いQS）、V2早期移行。MDI>0.55と心外膜特徴を示し、中心静脈(MCV)マッピングが鍵。冠動脈近接に警戒。',
+    clinicalInsights: {
+      mechanism: '心十字部・後下中隔心外膜側組織における異所性自動能・微小リエントリー。',
+      ecgKeyPoints: [
+        'LBBBパターン ＋ 著明な左上方軸（I, aVLで高R波、下壁誘導II, III, aVFで深いQS）。',
+        '胸部誘導はV2で早期移行（Early transition at V2）。',
+        '下壁誘導ですべてQSパターン（上方へ遠ざかる興奮）。',
+        '最大偏位指数（MDI）> 0.55、初期立ち上がりの緩徐な偽デルタ波（心外膜側特徴）。'
+      ],
+      pitfalls: '右冠動脈後下行枝（PDA）および中心静脈（MCV）が直近を走行するため、冠動脈造影（CAG）なしに通電すると冠動脈狭窄・下壁心筋梗塞の恐れがある。',
+      ablationStrategy: '冠静脈洞経由で中心静脈（MCV）内を多電極カテーテルでマッピング。MCV内通電は10〜20Wの低出力から開始し慎重に漸増（最大30W）。心内膜側からは右房下中隔（遅延伝導路近傍）または左室中隔基部からの対向通電を試みる。'
+    },
+    params: {
+      axis: 'superior',
+      v1Pattern: 'lbbb_qs',
+      transition: 'V2',
+      lead1: 'positive',
+      leadAVL: 'positive',
+      qrsDuration: 164,
+      v2s_v3r_ratio: 0.7,
+      v2_trans_ratio: 0.85,
+      mdi: 0.58, // > 0.55 => 心外膜
+      pseudoDelta: 38, // > 34ms => 心外膜
+      hasNotch: true,
+      leads: {
+        I: { pattern: 'R', amp: 1.3 },
+        II: { pattern: 'QS', amp: -2.3 },
+        III: { pattern: 'QS', amp: -2.5 },
+        aVR: { pattern: 'rS', amp: -0.5 },
+        aVL: { pattern: 'R', amp: 1.5 },
+        aVF: { pattern: 'QS', amp: -2.4 },
+        V1: { pattern: 'QS', amp: -1.7 },
+        V2: { pattern: 'Rs', amp: 1.3 },
+        V3: { pattern: 'R', amp: 1.8 },
+        V4: { pattern: 'R', amp: 1.9 },
+        V5: { pattern: 'R', amp: 1.5 },
+        V6: { pattern: 'rS', amp: -0.8 }
       }
     }
   },
