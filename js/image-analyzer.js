@@ -1684,7 +1684,7 @@ export class EcgImageAnalyzer {
    */
   /**
    * 検出された全心拍の中から、波高(Vpp振幅)・QRS幅・RR間隔(期外性)を解析し、
-   * 最もPVCの可能性が高い心拍を自動識別して標的PVC選択状態に自動セット
+   * 四肢誘導(赤)・胸部誘導(緑)それぞれの最有力PVC拍を識別して自動的に解析ライン(標的選択)をセット
    * ★ 一番 wide な (QRS幅の広い) 心拍を自動タグ付け
    */
   autoIdentifyTargetPvcBeat() {
@@ -1696,7 +1696,7 @@ export class EcgImageAnalyzer {
 
       // 1. 最も Wide な (QRS振幅・エネルギーが最大の) 心拍を特定
       let maxEnergy = -1;
-      let widestIndex = 0;
+      let widestIndex = groupBeats[0].beatIndex;
       groupBeats.forEach(b => {
         const e = b.energy || 10.0;
         if (e > maxEnergy) {
@@ -1708,7 +1708,7 @@ export class EcgImageAnalyzer {
         b.isWidest = (b.beatIndex === widestIndex);
       });
 
-      if (groupBeats.length < 2) {
+      if (groupBeats.length === 1) {
         if (groupKey === 'limb') this.selectedLimbBeatIndex = widestIndex;
         else this.selectedChestBeatIndex = widestIndex;
         return;
@@ -1736,12 +1736,12 @@ export class EcgImageAnalyzer {
         const currentRR = rrIntervals[idx];
         const prematurityRatio = medianRR / Math.max(0.1, currentRR);
         let prematurityScore = 0;
-        if (prematurityRatio > 1.10) {
-          prematurityScore = prematurityRatio * 3.5;
+        if (prematurityRatio > 1.08) {
+          prematurityScore = prematurityRatio * 4.0;
         }
 
-        // ② 波高・QRS幅エネルギー
-        const energyScore = (b.energy || 10.0) / 6.0;
+        // ② 波高・QRS幅エネルギー (Wide QRS)
+        const energyScore = (b.energy || 10.0) / 5.0;
 
         const totalPvcScore = prematurityScore + energyScore;
 
