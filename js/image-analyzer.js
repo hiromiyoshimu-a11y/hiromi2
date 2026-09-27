@@ -1046,16 +1046,20 @@ export class EcgImageAnalyzer {
     const polIII = leadPolarities['III'] || 'positive';
     const polAVF = leadPolarities['aVF'] || 'positive';
 
-    const inferiorPos = (polII === 'positive' ? 1 : 0) + 
-                       (polIII === 'positive' ? 1 : 0) + 
-                       (polAVF === 'positive' ? 1 : 0);
+    const inferiorPosCount = (polII === 'positive' ? 1 : 0) + 
+                             (polIII === 'positive' ? 1 : 0) + 
+                             (polAVF === 'positive' ? 1 : 0);
 
-    if (inferiorPos >= 1 || polII === 'positive' || polAVF === 'positive') {
-      detectedAxis = 'inferior'; // 下方軸 (流出路系 / 弁輪部)
-    } else if (polII === 'negative' && polIII === 'negative' && polAVF === 'negative') {
-      detectedAxis = 'superior'; // 上方軸 (乳頭筋 / 心尖部)
+    const inferiorNegCount = (polII === 'negative' ? 1 : 0) + 
+                             (polIII === 'negative' ? 1 : 0) + 
+                             (polAVF === 'negative' ? 1 : 0);
+
+    if (inferiorNegCount >= 2 || (polII === 'negative' && polAVF === 'negative')) {
+      detectedAxis = 'superior'; // 上方軸 (II/III/aVF 陰性 ➔ 乳頭筋 / 心尖部 / 下後壁)
+    } else if (inferiorPosCount >= 2 || (polII === 'positive' && polAVF === 'positive')) {
+      detectedAxis = 'inferior'; // 下方軸 (II/III/aVF 陽性 ➔ 流出路 / 弁輪部)
     } else {
-      detectedAxis = 'inferior'; // PVCにおいて下壁誘導に陽性成分があれば下方軸
+      detectedAxis = 'normal';   // 中間軸
     }
 
     // 2. V1形態 (LBBB型 vs RBBB型)
@@ -1285,12 +1289,14 @@ export class EcgImageAnalyzer {
       const isLimb = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF'].includes(leadName);
 
       if (isLimb) {
-        // ★ 四肢誘導 (I, II, III, aVR, aVL, aVF) の電気軸判定:
-        // 上向きR波高 (maxTopDev) が S波深さを上回る、または上向き面積 (upperArea) が勝る場合は 100% 陽性 (positive) ➔ 下方軸
-        if (maxTopDev >= maxBotDev * 0.90 || upperArea >= lowerArea * 0.85) {
+        // ★ 四肢誘導 (I, II, III, aVR, aVL, aVF) の局所極性判定:
+        // 主波ピーク振幅 (下向きQS/S波深さ maxBotDev vs 上向きR波高 maxTopDev) に基づく絶対評価
+        if (maxBotDev > maxTopDev * 1.05 || lowerArea > upperArea * 1.15) {
+          return 'negative'; // 下向き QS/S波 (陰性)
+        } else if (maxTopDev > maxBotDev * 1.05 || upperArea > lowerArea * 1.15) {
           return 'positive'; // 上向き R波 (陽性)
         } else {
-          return 'negative'; // 下向き QS/S波 (陰性)
+          return (upperArea >= lowerArea) ? 'positive' : 'negative';
         }
       } else if (leadName === 'V1') {
         // ★ V1誘導: 脚ブロック形態 (LBBB vs RBBB) 判定
