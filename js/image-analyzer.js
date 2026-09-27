@@ -1805,12 +1805,8 @@ export class EcgImageAnalyzer {
       marker.style.top = `${b.yPct}%`;
       marker.title = `${b.groupName} 拍 ${b.beatNum} (${b.lead}): ドラッグまたはタップでマーカー位置調整`;
 
-      // 最広 Wide QRS 心拍のみ、省スペースな極小⚡タグを表示（波形を隠さない設計）
-      let lightningHtml = b.isWidest ? `<div class="ia-marker-lightning-tag" title="全心拍中 一番Wideな(QRS幅の広い)拍">⚡最広</div>` : '';
-
       marker.innerHTML = `
         <div class="ia-beat-guideline"></div>
-        ${lightningHtml}
         <div class="ia-beat-pulse"></div>
         <div class="ia-beat-dot"></div>
       `;
