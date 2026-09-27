@@ -1,6 +1,6 @@
 {
   "name": "吉村流！PVC The Origin - 12誘導心電図 不整脈起源同定",
-  "short_name": "PVC The Origin",
+  "short_name": "吉村流！PVC The Origin",
   "description": "12誘導心電図から心室性期外収縮(PVC)・心室頻拍(VT)の発生起源を高精度に同定・3D可視化する臨床支援アプリ",
   "start_url": "./index.html",
   "display": "standalone",
