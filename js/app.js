@@ -385,9 +385,8 @@ function init() {
           },
           onClear: () => {
             isDiagnosisRevealed = false;
-            if (dom.inlineImageDiagnosisResult) dom.inlineImageDiagnosisResult.style.display = 'none';
-            if (dom.inlineMatrixDiagnosisResult) dom.inlineMatrixDiagnosisResult.style.display = 'none';
-            showToast('🗑️ 写真および診断結果を消去しました');
+            runAnalysis();
+            showToast('🗑️ 写真およびすべての診断結果を消去しました');
           }
         });
       } catch(e) {
