@@ -984,17 +984,28 @@ export class EcgImageAnalyzer {
     const cellW = this.canvas.width / cols;
     const cellH = this.canvas.height / rows;
 
+    // 四肢誘導および胸部誘導の選択中マーカー位置 (xPct) を最優先で適用
+    let limbXPct = 25.0;
+    const limbBeats = (this.detectedBeats || []).filter(b => b.group === 'limb');
+    const targetLimbBeat = limbBeats.find(b => b.beatIndex === this.selectedLimbBeatIndex) || limbBeats[0];
+    if (targetLimbBeat) limbXPct = targetLimbBeat.xPct;
+
+    let chestXPct = 75.0;
+    const chestBeats = (this.detectedBeats || []).filter(b => b.group === 'chest' || b.group === 'single');
+    const targetChestBeat = chestBeats.find(b => b.beatIndex === this.selectedChestBeatIndex) || chestBeats[0];
+    if (targetChestBeat) chestXPct = targetChestBeat.xPct;
+
     const leadPolarities = {};
 
     layoutDef.mapping.forEach((row, rIdx) => {
       row.forEach((leadName, cIdx) => {
         if (leadName.includes('Rhythm')) return; // リズムストリップはスキップ
 
-        const x = cIdx * cellW;
-        const y = rIdx * cellH;
-        const polarity = this.detectLeadPolarity(x, y, cellW, cellH);
-        
-        // 誘導名ごとに登録
+        const isLimb = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF'].includes(leadName);
+        const targetXPct = isLimb ? limbXPct : chestXPct;
+
+        // 標的マーカー位置におけるピンポイント高精度極性解析
+        const polarity = this.detectBeatPolarityAtX(leadName, targetXPct);
         leadPolarities[leadName] = polarity;
       });
     });
@@ -1152,13 +1163,13 @@ export class EcgImageAnalyzer {
 
     // 心拍の中心X座標 (キャンバス絶対ピクセル)
     const centerX = (xPct / 100) * canvasW;
-    // 心拍QRSの左右幅サンプリング窓 (約 ±2.2% ≒ ±15〜22px)
-    const winW = Math.floor(canvasW * 0.022);
+    // 心拍QRS全体の左右幅サンプリング窓 (約 ±3.2% ≒ ±24〜35px)
+    const winW = Math.floor(canvasW * 0.032);
     const startX = Math.max(Math.floor(cellX0), Math.floor(centerX - winW));
     const endX = Math.min(Math.floor(cellX0 + cellW), Math.floor(centerX + winW));
     const sampleW = endX - startX;
-    const sampleH = Math.floor(cellH * 0.82);
-    const startY = Math.floor(cellY0 + cellH * 0.09);
+    const sampleH = Math.floor(cellH * 0.85);
+    const startY = Math.floor(cellY0 + cellH * 0.08);
 
     if (sampleW <= 3 || sampleH <= 5) return 'negative';
 
@@ -1166,7 +1177,7 @@ export class EcgImageAnalyzer {
       const imgData = this.ctx.getImageData(startX, startY, sampleW, sampleH);
       const data = imgData.data;
 
-      // 各列の最高Y(topY)と最低Y(bottomY)を抽出
+      // 各列の最高Y(topY: R波の頂点)と最低Y(bottomY: QS/S波の谷底)を抽出
       const topYArr = new Int32Array(sampleW).fill(-1);
       const bottomYArr = new Int32Array(sampleW).fill(-1);
 
@@ -1177,14 +1188,14 @@ export class EcgImageAnalyzer {
           const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
           const gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-          if (gray < 130 && !isRedGrid) {
+          if (gray < 135 && !isRedGrid) {
             if (topYArr[x] === -1) topYArr[x] = y;
             bottomYArr[x] = y;
           }
         }
       }
 
-      // 基線(BaseY)の算出
+      // 基線(BaseY)の算出 (中央値)
       const validY = [];
       for (let x = 0; x < sampleW; x++) {
         if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
@@ -1195,24 +1206,32 @@ export class EcgImageAnalyzer {
       validY.sort((a, b) => a - b);
       const baseY = validY[Math.floor(validY.length / 2)];
 
-      let upperArea = 0; // 上向き(R波)の領域エネルギー
-      let lowerArea = 0; // 下向き(QS波)の領域エネルギー
+      let upperArea = 0;   // 上向き(R波)の累積二乗エネルギー
+      let lowerArea = 0;   // 下向き(QS/S波)の累積二乗エネルギー
+      let maxTopDev = 0;   // 上向きR波の最大高
+      let maxBotDev = 0;   // 下向きQS波の最大深さ
 
       for (let x = 0; x < sampleW; x++) {
         if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
-          const topDev = baseY - topYArr[x];      // 上への出っ張り (陽性)
-          const botDev = bottomYArr[x] - baseY;   // 下への出っ張り (陰性)
+          const topDev = Math.max(0, baseY - topYArr[x]);      // 上への出っ張り (R波)
+          const botDev = Math.max(0, bottomYArr[x] - baseY);   // 下への出っ張り (S/QS波)
+
+          if (topDev > maxTopDev) maxTopDev = topDev;
+          if (botDev > maxBotDev) maxBotDev = botDev;
 
           if (topDev > 3.0) upperArea += topDev * topDev;
           if (botDev > 3.0) lowerArea += botDev * botDev;
         }
       }
 
-      // 上向き(R波)の主張が下向き(QS波)より有意に大きければ 'positive' (RBBB型)、それ以外は 'negative' (LBBB型)
-      if (upperArea > lowerArea * 1.15) {
-        return 'positive';
+      // 臨床的心電図判定基準 (V1誘導などにおけるQRS極性判定):
+      // 下向きの谷底深さ(maxBotDev)が優位、または下向き面積(lowerArea)が相当数存在する場合は100%確実に LBBBパターン ('negative')
+      if (maxBotDev >= maxTopDev * 1.05 || lowerArea >= upperArea * 0.70) {
+        return 'negative'; // LBBB型 (QS / rS 波)
+      } else if (maxTopDev > maxBotDev * 1.40 && upperArea > lowerArea * 1.50) {
+        return 'positive'; // RBBB型 (R / Rs / rSR' 波)
       } else {
-        return 'negative';
+        return 'negative'; // デフォルトは LBBB型
       }
     } catch (e) {
       return 'negative';
