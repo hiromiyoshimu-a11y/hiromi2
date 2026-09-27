@@ -652,13 +652,12 @@ function renderPresets() {
   const filtered = PRESETS.filter(preset => {
     if (currentCategoryFilter === 'all') return true;
 
-    // 1. メタデータ (ventricleGroup) による直接判定
+    // 1. メタデータ (ventricleGroup) による直接判定（定義済みの場合は最優先）
     if (preset.ventricleGroup) {
       if (Array.isArray(preset.ventricleGroup)) {
-        if (preset.ventricleGroup.includes(currentCategoryFilter)) return true;
-      } else if (preset.ventricleGroup === currentCategoryFilter) {
-        return true;
+        return preset.ventricleGroup.includes(currentCategoryFilter);
       }
+      return preset.ventricleGroup === currentCategoryFilter;
     }
 
     const cat = (preset.category || '').toLowerCase();

@@ -639,7 +639,7 @@ export const PRESETS = [
     name: '心十字部 (Cardiac Crux / Basal Inferoseptal LV)',
     subtitle: 'LBBB型＋左上方軸、V2早期移行、下壁QS型、MDI>0.55、中心静脈マッピング',
     category: '心外膜・心底十字部 (Epicardial Crux)',
-    ventricleGroup: ['other', 'lv'],
+    ventricleGroup: 'other',
     transmuralSite: '心外膜側〜中隔深部 (Epicardial Crux)',
     citation: {
       authors: 'Andres Enriquez, Daniele Muser, Timothy M. Markman, Fermin Garcia',
