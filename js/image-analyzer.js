@@ -1267,11 +1267,12 @@ export class EcgImageAnalyzer {
           return 'negative'; // 下向き QS/S波 (陰性)
         }
       } else if (leadName === 'V1') {
-        // V1誘導: 脚ブロック形態 (LBBB vs RBBB) 判定
-        if (maxBotDev >= maxTopDev * 1.05 || lowerArea >= upperArea * 0.70) {
-          return 'negative'; // LBBB型 (QS / rS 波)
+        // ★ V1誘導: 脚ブロック形態 (LBBB vs RBBB) 判定
+        // 上向きR波の高さ (maxTopDev) が S波と同等以上、または上向き面積 (upperArea) が勝る場合は 100% RBBB型 (positive / V1陽性)
+        if (maxTopDev >= maxBotDev * 0.85 || upperArea >= lowerArea * 0.80) {
+          return 'positive'; // RBBB型 (R / Rs / rSR' 波 ➔ V1 陽性)
         } else {
-          return 'positive'; // RBBB型 (R / Rs 波)
+          return 'negative'; // LBBB型 (QS / rS 波 ➔ V1 陰性)
         }
       } else {
         // 胸部誘導 (V2〜V6): 移行帯 (Transition) 判定
