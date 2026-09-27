@@ -239,6 +239,14 @@ function refreshDomReferences() {
   dom.inlineBadgeEndoEpi = document.getElementById('inline-badge-endo-epi');
   dom.inlineBadgeOutflow = document.getElementById('inline-badge-outflow');
 
+  dom.inlineImageDiagnosisResult = document.getElementById('inline-image-diagnosis-result');
+  dom.inlineImageWinnerProb = document.getElementById('inline-image-winner-prob');
+  dom.inlineImageWinnerNameJa = document.getElementById('inline-image-winner-name-ja');
+  dom.inlineImageWinnerNameEn = document.getElementById('inline-image-winner-name-en');
+  dom.inlineImageWinnerFeatures = document.getElementById('inline-image-winner-features');
+  dom.inlineImageBadgeEndoEpi = document.getElementById('inline-image-badge-endo-epi');
+  dom.inlineImageBadgeOutflow = document.getElementById('inline-image-badge-outflow');
+
   dom.inlineMatrixDiagnosisResult = document.getElementById('inline-matrix-diagnosis-result');
   dom.inlineMatrixWinnerProb = document.getElementById('inline-matrix-winner-prob');
   dom.inlineMatrixWinnerNameJa = document.getElementById('inline-matrix-winner-name-ja');
@@ -1819,6 +1827,37 @@ function runAnalysis() {
     }
   }
 
+  // 2-C. 写真自動解析用インライン結果カードの更新
+  if (dom.inlineImageDiagnosisResult) {
+    if (dom.inlineImageWinnerProb) dom.inlineImageWinnerProb.textContent = `確率: ${winner.probability}%`;
+    if (dom.inlineImageWinnerNameJa) dom.inlineImageWinnerNameJa.textContent = winner.nameJa || '-';
+    if (dom.inlineImageWinnerNameEn) dom.inlineImageWinnerNameEn.textContent = `${winner.nameEn || ''} / ${winner.category || ''}`;
+    if (dom.inlineImageWinnerFeatures) dom.inlineImageWinnerFeatures.textContent = winner.keyFeatures || '-';
+
+    if (dom.inlineImageBadgeEndoEpi && result.endoVsEpi) {
+      const isEndo = result.endoVsEpi.layer === 'endocardial' || (result.endoVsEpi.endoProb >= result.endoVsEpi.epiProb);
+      const endoLabel = isEndo ? '心内膜側 (Endocardial)' : '心外膜側 (Epicardial)';
+      dom.inlineImageBadgeEndoEpi.textContent = endoLabel;
+      dom.inlineImageBadgeEndoEpi.style.background = isEndo ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+      dom.inlineImageBadgeEndoEpi.style.color = isEndo ? '#34d399' : '#f87171';
+      dom.inlineImageBadgeEndoEpi.style.borderColor = isEndo ? 'rgba(16, 185, 129, 0.4)' : 'rgba(239, 68, 68, 0.4)';
+    }
+
+    if (dom.inlineImageBadgeOutflow) {
+      if (showOutflowCard && result.outflowAnalysis) {
+        const isRight = result.outflowAnalysis.verdict === 'right_rvot' || result.outflowAnalysis.verdict === 'right' || (result.outflowAnalysis.rightProb >= result.outflowAnalysis.leftProb);
+        const outflowLabel = isRight ? '右室流出路 (RVOT)' : '左室流出路 (LVOT/LCC)';
+        dom.inlineImageBadgeOutflow.textContent = outflowLabel;
+        dom.inlineImageBadgeOutflow.style.background = isRight ? 'rgba(56, 189, 248, 0.2)' : 'rgba(245, 158, 11, 0.2)';
+        dom.inlineImageBadgeOutflow.style.color = isRight ? '#38bdf8' : '#fbbf24';
+        dom.inlineImageBadgeOutflow.style.borderColor = isRight ? 'rgba(56, 189, 248, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+        dom.inlineImageBadgeOutflow.style.display = 'inline-block';
+      } else {
+        dom.inlineImageBadgeOutflow.style.display = 'none';
+      }
+    }
+  }
+
   // 3. 鑑別候補ランキング (Rank 2 & 3)
   if (dom.rankingContainer) {
     dom.rankingContainer.innerHTML = '';
@@ -1864,6 +1903,7 @@ function runAnalysis() {
   if (isDiagnosisRevealed) {
     if (dom.inlineDiagnosisResult) dom.inlineDiagnosisResult.style.display = 'block';
     if (dom.inlineMatrixDiagnosisResult) dom.inlineMatrixDiagnosisResult.style.display = 'block';
+    if (dom.inlineImageDiagnosisResult) dom.inlineImageDiagnosisResult.style.display = 'block';
     if (dom.layerVerdictGrid) dom.layerVerdictGrid.style.display = 'grid';
     if (dom.endoEpiCard) dom.endoEpiCard.style.display = 'block';
 
