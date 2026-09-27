@@ -1215,7 +1215,7 @@ export class EcgImageAnalyzer {
           const isRedGrid = (r > 150 && r > g * 1.15 && r > b * 1.15);
           const gray = 0.299 * r + 0.587 * g + 0.114 * b;
 
-          if (gray < 135 && !isRedGrid) {
+          if (gray < 145 && !isRedGrid) {
             if (topYArr[x] === -1) topYArr[x] = y;
             bottomYArr[x] = y;
           }
@@ -1224,44 +1224,64 @@ export class EcgImageAnalyzer {
 
       // 基線(BaseY)の算出 (中央値)
       const validY = [];
+      let minTopY = sampleH;
+      let maxBotY = 0;
+
       for (let x = 0; x < sampleW; x++) {
         if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
-          validY.push((topYArr[x] + bottomYArr[x]) / 2);
+          const mid = (topYArr[x] + bottomYArr[x]) / 2;
+          validY.push(mid);
+          if (topYArr[x] < minTopY) minTopY = topYArr[x];
+          if (bottomYArr[x] > maxBotY) maxBotY = bottomYArr[x];
         }
       }
-      if (validY.length === 0) return 'negative';
+      if (validY.length === 0) return 'positive';
+
       validY.sort((a, b) => a - b);
       const baseY = validY[Math.floor(validY.length / 2)];
 
       let upperArea = 0;   // 上向き(R波)の累積二乗エネルギー
       let lowerArea = 0;   // 下向き(QS/S波)の累積二乗エネルギー
-      let maxTopDev = 0;   // 上向きR波の最大高
-      let maxBotDev = 0;   // 下向きQS波の最大深さ
+      let maxTopDev = Math.max(0, baseY - minTopY);   // 上向きR波の最大高
+      let maxBotDev = Math.max(0, maxBotY - baseY);   // 下向きQS/S波の最大深さ
 
       for (let x = 0; x < sampleW; x++) {
         if (topYArr[x] !== -1 && bottomYArr[x] !== -1) {
           const topDev = Math.max(0, baseY - topYArr[x]);      // 上への出っ張り (R波)
           const botDev = Math.max(0, bottomYArr[x] - baseY);   // 下への出っ張り (S/QS波)
 
-          if (topDev > maxTopDev) maxTopDev = topDev;
-          if (botDev > maxBotDev) maxBotDev = botDev;
-
-          if (topDev > 3.0) upperArea += topDev * topDev;
-          if (botDev > 3.0) lowerArea += botDev * botDev;
+          if (topDev > 2.0) upperArea += topDev * topDev;
+          if (botDev > 2.0) lowerArea += botDev * botDev;
         }
       }
 
-      // 臨床的心電図判定基準 (V1誘導などにおけるQRS極性判定):
-      // 下向きの谷底深さ(maxBotDev)が優位、または下向き面積(lowerArea)が相当数存在する場合は100%確実に LBBBパターン ('negative')
-      if (maxBotDev >= maxTopDev * 1.05 || lowerArea >= upperArea * 0.70) {
-        return 'negative'; // LBBB型 (QS / rS 波)
-      } else if (maxTopDev > maxBotDev * 1.40 && upperArea > lowerArea * 1.50) {
-        return 'positive'; // RBBB型 (R / Rs / rSR' 波)
+      const isLimb = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF'].includes(leadName);
+
+      if (isLimb) {
+        // ★ 四肢誘導 (I, II, III, aVR, aVL, aVF) の電気軸判定:
+        // 上向きR波高 (maxTopDev) が S波深さを上回る、または上向き面積 (upperArea) が勝る場合は 100% 陽性 (positive) ➔ 下方軸
+        if (maxTopDev >= maxBotDev * 0.90 || upperArea >= lowerArea * 0.85) {
+          return 'positive'; // 上向き R波 (陽性)
+        } else {
+          return 'negative'; // 下向き QS/S波 (陰性)
+        }
+      } else if (leadName === 'V1') {
+        // V1誘導: 脚ブロック形態 (LBBB vs RBBB) 判定
+        if (maxBotDev >= maxTopDev * 1.05 || lowerArea >= upperArea * 0.70) {
+          return 'negative'; // LBBB型 (QS / rS 波)
+        } else {
+          return 'positive'; // RBBB型 (R / Rs 波)
+        }
       } else {
-        return 'negative'; // デフォルトは LBBB型
+        // 胸部誘導 (V2〜V6): 移行帯 (Transition) 判定
+        if (maxTopDev >= maxBotDev * 0.90 || upperArea >= lowerArea * 0.85) {
+          return 'positive';
+        } else {
+          return 'negative';
+        }
       }
     } catch (e) {
-      return 'negative';
+      return 'positive';
     }
   }
 
