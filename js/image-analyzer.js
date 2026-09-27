@@ -451,11 +451,10 @@ export class EcgImageAnalyzer {
     applyButtons.forEach(btn => {
       if (btn) {
         btn.addEventListener('click', () => {
-          if (!this.analyzedData) {
-            this.runImageAnalysis();
-          }
+          const dataToApply = this.analyzedData || this.extractEcgFeaturesFromCanvas();
+          this.analyzedData = dataToApply;
+          this.displayAnalysisResults(dataToApply);
           if (this.onAnalysisComplete) {
-            const dataToApply = this.analyzedData || this.extractEcgFeaturesFromCanvas();
             this.onAnalysisComplete(dataToApply);
           }
         });
@@ -548,9 +547,12 @@ export class EcgImageAnalyzer {
     this.renderBeatMarkersOverlay();
     const features = this.extractEcgFeaturesFromCanvas();
     this.analyzedData = features;
-    this.displayAnalysisResults(features);
-    if (this.onAnalysisComplete) {
-      this.onAnalysisComplete(features);
+    const card = this.container.querySelector('#ia-result-card');
+    if (card && card.style.display !== 'none') {
+      this.displayAnalysisResults(features);
+      if (this.onAnalysisComplete) {
+        this.onAnalysisComplete(features);
+      }
     }
   }
 
@@ -765,6 +767,8 @@ export class EcgImageAnalyzer {
     if (wrapper) wrapper.style.display = 'none';
     if (actions) actions.style.display = 'none';
     if (resultCard) resultCard.style.display = 'none';
+    const inlineResult = document.getElementById('inline-image-diagnosis-result');
+    if (inlineResult) inlineResult.style.display = 'none';
     if (prompt) prompt.style.display = 'flex';
   }
 
@@ -777,6 +781,11 @@ export class EcgImageAnalyzer {
     wrapper.style.display = 'block';
     actions.style.display = 'flex';
 
+    const resultCard = this.container.querySelector('#ia-result-card');
+    if (resultCard) resultCard.style.display = 'none';
+    const inlineResult = document.getElementById('inline-image-diagnosis-result');
+    if (inlineResult) inlineResult.style.display = 'none';
+
     this.drawImageToCanvas(img);
     // 画像貼り付け・読み込み時に全自動でOCR構造解析・レイアウト判別を実行
     this.autoDetectEcgLayoutByOcr();
@@ -785,7 +794,7 @@ export class EcgImageAnalyzer {
     this.detectBeatsFromImage();
     this.renderBeatMarkersOverlay();
     
-    // 画像ロード時に自動解析を即時実行
+    // 画像ロード時に自動解析を即時実行 (内部データ準備)
     this.runImageAnalysis();
   }
 
@@ -956,11 +965,6 @@ export class EcgImageAnalyzer {
     setTimeout(() => {
       const features = this.extractEcgFeaturesFromCanvas();
       this.analyzedData = features;
-      this.displayAnalysisResults(features);
-
-      if (this.onAnalysisComplete) {
-        this.onAnalysisComplete(features);
-      }
 
       if (btnAnalyze) {
         btnAnalyze.disabled = false;
@@ -1843,12 +1847,25 @@ export class EcgImageAnalyzer {
       marker.title = `${b.groupName} 拍 ${b.beatNum} (${b.lead}): ドラッグまたはタップでマーカー位置調整`;
 
       marker.innerHTML = `
-        <div class="ia-beat-guideline">
-          ${showLightning ? '<div class="ia-lightning-bottom" title="最広 Wide QRS">⚡</div>' : ''}
-        </div>
+        <div class="ia-beat-guideline"></div>
         <div class="ia-beat-pulse"></div>
         <div class="ia-beat-dot"></div>
       `;
+
+      // 解析ラインの一番下 (画像下端) に輝く雷マーク⚡を配置
+      let lightningBadge = null;
+      if (showLightning) {
+        lightningBadge = document.createElement('div');
+        lightningBadge.className = `ia-lightning-bottom group-${b.group} ${isTarget ? 'is-target' : ''}`;
+        lightningBadge.style.left = `${b.xPct}%`;
+        lightningBadge.title = `最広 Wide QRS 解析ライン (${b.groupName}): タップで選択`;
+        lightningBadge.innerHTML = `⚡`;
+        lightningBadge.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.selectTargetBeat(b);
+        });
+        overlay.appendChild(lightningBadge);
+      }
 
       // クリック/タップで標的PVC選択
       marker.addEventListener('click', (e) => {
@@ -1885,6 +1902,7 @@ export class EcgImageAnalyzer {
           const newPct = parseFloat(Math.max(0.5, Math.min(99.5, initialXPct + deltaPct)).toFixed(2));
           b.xPct = newPct;
           marker.style.left = `${newPct}%`;
+          if (lightningBadge) lightningBadge.style.left = `${newPct}%`;
           
           // 極性のリアルタイム再計算
           if (b.group === 'limb') {
@@ -1913,9 +1931,13 @@ export class EcgImageAnalyzer {
 
           const features = this.extractEcgFeaturesFromCanvas();
           this.analyzedData = features;
-          this.displayAnalysisResults(features);
-          if (this.onAnalysisComplete) {
-            this.onAnalysisComplete(features);
+
+          const card = this.container.querySelector('#ia-result-card');
+          if (card && card.style.display !== 'none') {
+            this.displayAnalysisResults(features);
+            if (this.onAnalysisComplete) {
+              this.onAnalysisComplete(features);
+            }
           }
         }
       };
@@ -1941,12 +1963,16 @@ export class EcgImageAnalyzer {
     // マーカーオーバーレイの更新
     this.renderBeatMarkersOverlay();
 
-    // 選択された拍位置に基づく最新特徴量の全抽出とアプリ全体への連動反映
+    // 選択された拍位置に基づく最新特徴量の抽出
     const features = this.extractEcgFeaturesFromCanvas();
     this.analyzedData = features;
-    this.displayAnalysisResults(features);
-    if (this.onAnalysisComplete) {
-      this.onAnalysisComplete(features);
+
+    const card = this.container.querySelector('#ia-result-card');
+    if (card && card.style.display !== 'none') {
+      this.displayAnalysisResults(features);
+      if (this.onAnalysisComplete) {
+        this.onAnalysisComplete(features);
+      }
     }
   }
 
