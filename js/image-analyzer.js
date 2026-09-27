@@ -1307,11 +1307,11 @@ export class EcgImageAnalyzer {
           return 'negative'; // LBBB型 (QS / rS 波 ➔ V1 陰性)
         }
       } else {
-        // 胸部誘導 (V2〜V6): 移行帯 (Transition) 判定
-        if (maxTopDev >= maxBotDev * 0.90 || upperArea >= lowerArea * 0.85) {
-          return 'positive';
+        // ★ 胸部誘導 (V2〜V6): 移行帯 (Transition) 判定 (R/S ≧ 1.0 ➔ R波がS波を上回る誘導)
+        if (maxTopDev >= maxBotDev * 1.05 || (maxTopDev >= maxBotDev * 0.98 && upperArea >= lowerArea * 1.05)) {
+          return 'positive'; // R/S ≧ 1.0 (R波優位 ➔ 移行帯到達)
         } else {
-          return 'negative';
+          return 'negative'; // R/S < 1.0 (S波優位 ➔ 未到達)
         }
       }
     } catch (e) {
