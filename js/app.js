@@ -777,8 +777,43 @@ function applyDetectedParameters(detected) {
   isDiagnosisRevealed = true;
   runAnalysis();
 
-  // ステップ診断タブに自動切替して確認させる
-  switchTab('wizard');
+  // 写真自動解析ページにとどまり、パラメータ適用トーストを表示
+  showToast('🩺 画像解析パラメータを適用し、不整脈起源を自動同定しました');
+}
+
+/**
+ * 簡易トースト通知ヘパー
+ */
+function showToast(message) {
+  let toast = document.querySelector('#app-global-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'app-global-toast';
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      border: 1px solid #10b981;
+      color: #34d399;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+      z-index: 9999;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      opacity: 0;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.style.opacity = '1';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+  }, 3500);
 }
 
 /**
