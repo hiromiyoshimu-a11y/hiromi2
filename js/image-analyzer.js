@@ -546,8 +546,11 @@ export class EcgImageAnalyzer {
     });
 
     this.renderBeatMarkersOverlay();
-    if (this.analyzedData) {
-      this.displayAnalysisResults(this.analyzedData);
+    const features = this.extractEcgFeaturesFromCanvas();
+    this.analyzedData = features;
+    this.displayAnalysisResults(features);
+    if (this.onAnalysisComplete) {
+      this.onAnalysisComplete(features);
     }
   }
 
@@ -955,14 +958,20 @@ export class EcgImageAnalyzer {
       this.analyzedData = features;
       this.displayAnalysisResults(features);
 
-      btnAnalyze.disabled = false;
-      btnAnalyze.innerHTML = `
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-        </svg>
-        再解析を実行
-      `;
-    }, 500);
+      if (this.onAnalysisComplete) {
+        this.onAnalysisComplete(features);
+      }
+
+      if (btnAnalyze) {
+        btnAnalyze.disabled = false;
+        btnAnalyze.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          再解析を実行
+        `;
+      }
+    }, 400);
   }
 
   /**
@@ -1152,10 +1161,33 @@ export class EcgImageAnalyzer {
     const cellX0 = gridX + targetCell.cIdx * cellW;
     const cellY0 = gridY + targetCell.rIdx * cellH;
 
-    // 心拍の中心X座標 (キャンバス絶対ピクセル)
-    const centerX = (xPct / 100) * canvasW;
+    // ★ 四肢・胸部ごとの領域相対X座標マッピング
+    const isLimbLead = ['I', 'II', 'III', 'aVR', 'aVL', 'aVF'].includes(leadName);
+    let centerX = (xPct / 100) * canvasW;
+
+    if (this.currentLayoutId === '3x4' || this.currentLayoutId === '3x4_rhythm') {
+      if (isLimbLead) {
+        const limbRelRatio = Math.max(0, Math.min(1, (xPct - 0) / 50));
+        centerX = cellX0 + cellW * limbRelRatio;
+      } else {
+        const chestRelRatio = Math.max(0, Math.min(1, (xPct - 50) / 50));
+        centerX = cellX0 + cellW * chestRelRatio;
+      }
+    } else if (this.currentLayoutId === '6x2') {
+      if (isLimbLead) {
+        const limbRelRatio = Math.max(0, Math.min(1, (xPct - 0) / 50));
+        centerX = cellX0 + cellW * limbRelRatio;
+      } else {
+        const chestRelRatio = Math.max(0, Math.min(1, (xPct - 50) / 50));
+        centerX = cellX0 + cellW * chestRelRatio;
+      }
+    } else {
+      const relRatio = Math.max(0, Math.min(1, (xPct - 0) / 100));
+      centerX = cellX0 + cellW * relRatio;
+    }
+
     // 心拍QRS全体の左右幅サンプリング窓 (約 ±3.2% ≒ ±24〜35px)
-    const winW = Math.floor(canvasW * 0.032);
+    const winW = Math.floor(canvasW * 0.035);
     const startX = Math.max(Math.floor(cellX0), Math.floor(centerX - winW));
     const endX = Math.min(Math.floor(cellX0 + cellW), Math.floor(centerX + winW));
     const sampleW = endX - startX;
@@ -1792,31 +1824,28 @@ export class EcgImageAnalyzer {
 
     this.detectedBeats.forEach((b) => {
       let isTarget = false;
-      let badgeClass = '';
-      let badgeTitle = '';
 
       if (b.group === 'single') {
         isTarget = (b.beatIndex === this.selectedChestBeatIndex);
-        badgeClass = 'chest-badge';
-        badgeTitle = '🟢 PVC解析ライン';
       } else if (b.group === 'limb') {
         isTarget = (b.beatIndex === this.selectedLimbBeatIndex);
-        badgeClass = 'limb-badge';
-        badgeTitle = '🔴 四肢 PVC解析ライン';
       } else if (b.group === 'chest') {
         isTarget = (b.beatIndex === this.selectedChestBeatIndex);
-        badgeClass = 'chest-badge';
-        badgeTitle = '🟢 胸部 PVC解析ライン';
       }
 
+      const isWidest = !!b.isWidest;
+      const showLightning = isWidest || isTarget;
+
       const marker = document.createElement('div');
-      marker.className = `ia-beat-marker ${isTarget ? 'is-target' : ''} group-${b.group}`;
+      marker.className = `ia-beat-marker ${isTarget ? 'is-target' : ''} ${isWidest ? 'is-widest' : ''} group-${b.group}`;
       marker.style.left = `${b.xPct}%`;
       marker.style.top = `${b.yPct}%`;
       marker.title = `${b.groupName} 拍 ${b.beatNum} (${b.lead}): ドラッグまたはタップでマーカー位置調整`;
 
       marker.innerHTML = `
-        <div class="ia-beat-guideline"></div>
+        <div class="ia-beat-guideline">
+          ${showLightning ? '<div class="ia-lightning-bottom" title="最広 Wide QRS">⚡</div>' : ''}
+        </div>
         <div class="ia-beat-pulse"></div>
         <div class="ia-beat-dot"></div>
       `;
@@ -1881,6 +1910,13 @@ export class EcgImageAnalyzer {
           document.removeEventListener('touchmove', onPointerMove);
           document.removeEventListener('touchend', onPointerUp);
           this.renderBeatMarkersOverlay();
+
+          const features = this.extractEcgFeaturesFromCanvas();
+          this.analyzedData = features;
+          this.displayAnalysisResults(features);
+          if (this.onAnalysisComplete) {
+            this.onAnalysisComplete(features);
+          }
         }
       };
 
@@ -1905,19 +1941,12 @@ export class EcgImageAnalyzer {
     // マーカーオーバーレイの更新
     this.renderBeatMarkersOverlay();
 
-    // 解析結果の再計算 & サマリー表示の更新
-    if (this.analyzedData) {
-      // 選択拍の場所で実際に画像から判定された極性(polarity)を動的リアルタイム再判定
-      if (targetBeat.group === 'limb') {
-        const pol = this.detectBeatPolarityAtX('II', targetBeat.xPct);
-        targetBeat.polarity = pol;
-        this.analyzedData.axis = (pol === 'positive') ? 'inferior' : 'superior';
-      } else {
-        const pol = this.detectBeatPolarityAtX('V1', targetBeat.xPct);
-        targetBeat.polarity = pol;
-        this.analyzedData.v1Pattern = (pol === 'positive') ? 'rbbb_r' : 'lbbb_qs';
-      }
-      this.displayAnalysisResults(this.analyzedData);
+    // 選択された拍位置に基づく最新特徴量の全抽出とアプリ全体への連動反映
+    const features = this.extractEcgFeaturesFromCanvas();
+    this.analyzedData = features;
+    this.displayAnalysisResults(features);
+    if (this.onAnalysisComplete) {
+      this.onAnalysisComplete(features);
     }
   }
 

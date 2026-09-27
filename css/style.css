@@ -4464,6 +4464,7 @@ body[data-text-size="lg"] .intramural-badge {
   height: 100%;
   pointer-events: none;
   z-index: 25;
+  overflow: hidden;
 }
 
 .ia-beat-guideline {
@@ -4600,6 +4601,40 @@ body[data-text-size="lg"] .intramural-badge {
   border-left: 2.5px dashed #10b981;
   box-shadow: 0 0 10px rgba(16, 185, 129, 0.9);
   filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.95));
+}
+
+/* 一番 wide な QRS 解析ライン下端の雷マーク ⚡ スタイル */
+.ia-lightning-bottom {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #f59e0b;
+  color: #0f172a;
+  font-size: 1.1rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 14px #f59e0b, 0 0 8px #ffd700;
+  border: 2px solid #ffffff;
+  pointer-events: auto;
+  z-index: 35;
+  animation: ia-lightning-pulse 1.8s infinite ease-in-out;
+}
+
+@keyframes ia-lightning-pulse {
+  0%, 100% {
+    transform: translateX(-50%) scale(1);
+    box-shadow: 0 0 12px #f59e0b;
+  }
+  50% {
+    transform: translateX(-50%) scale(1.18);
+    box-shadow: 0 0 20px #ffd700, 0 0 10px #f59e0b;
+  }
 }
 
 /* 心電図画像プレビュー用 解析凡例バー (Legend Bar) */
