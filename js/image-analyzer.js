@@ -547,9 +547,10 @@ export class EcgImageAnalyzer {
     this.renderBeatMarkersOverlay();
     const features = this.extractEcgFeaturesFromCanvas();
     this.analyzedData = features;
-    const card = this.container.querySelector('#ia-result-card');
-    if (card && card.style.display !== 'none') {
-      this.displayAnalysisResults(features);
+    this.displayAnalysisResults(features);
+
+    const inlineDiag = document.getElementById('inline-image-diagnosis-result');
+    if (inlineDiag && inlineDiag.style.display !== 'none') {
       if (this.onAnalysisComplete) {
         this.onAnalysisComplete(features);
       }
@@ -965,6 +966,9 @@ export class EcgImageAnalyzer {
     setTimeout(() => {
       const features = this.extractEcgFeaturesFromCanvas();
       this.analyzedData = features;
+
+      // ★ 波形自動検出結果パネル (#ia-result-card) を自動表示
+      this.displayAnalysisResults(features);
 
       if (btnAnalyze) {
         btnAnalyze.disabled = false;
@@ -1953,10 +1957,11 @@ export class EcgImageAnalyzer {
 
           const features = this.extractEcgFeaturesFromCanvas();
           this.analyzedData = features;
+          // 波形自動検出結果パネル (#ia-result-card) を自動更新表示
+          this.displayAnalysisResults(features);
 
-          const card = this.container.querySelector('#ia-result-card');
-          if (card && card.style.display !== 'none') {
-            this.displayAnalysisResults(features);
+          const inlineDiag = document.getElementById('inline-image-diagnosis-result');
+          if (inlineDiag && inlineDiag.style.display !== 'none') {
             if (this.onAnalysisComplete) {
               this.onAnalysisComplete(features);
             }
@@ -1985,13 +1990,13 @@ export class EcgImageAnalyzer {
     // マーカーオーバーレイの更新
     this.renderBeatMarkersOverlay();
 
-    // 選択された拍位置に基づく最新特徴量の抽出
+    // 選択された拍位置に基づく最新特徴量の抽出と自動検出結果パネルの表示
     const features = this.extractEcgFeaturesFromCanvas();
     this.analyzedData = features;
+    this.displayAnalysisResults(features);
 
-    const card = this.container.querySelector('#ia-result-card');
-    if (card && card.style.display !== 'none') {
-      this.displayAnalysisResults(features);
+    const inlineDiag = document.getElementById('inline-image-diagnosis-result');
+    if (inlineDiag && inlineDiag.style.display !== 'none') {
       if (this.onAnalysisComplete) {
         this.onAnalysisComplete(features);
       }
