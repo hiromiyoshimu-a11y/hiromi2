@@ -1023,12 +1023,13 @@ export class EcgImageAnalyzer {
     const inferiorPos = (polII === 'positive' ? 1 : 0) + 
                        (polIII === 'positive' ? 1 : 0) + 
                        (polAVF === 'positive' ? 1 : 0);
-    if (inferiorPos >= 2) {
-      detectedAxis = 'inferior'; // 下軸 (流出路系)
-    } else if (polII === 'negative' && polIII === 'negative') {
-      detectedAxis = 'superior'; // 上軸 (乳頭筋・心尖部)
+
+    if (inferiorPos >= 1 || polII === 'positive' || polAVF === 'positive') {
+      detectedAxis = 'inferior'; // 下方軸 (流出路系 / 弁輪部)
+    } else if (polII === 'negative' && polIII === 'negative' && polAVF === 'negative') {
+      detectedAxis = 'superior'; // 上方軸 (乳頭筋 / 心尖部)
     } else {
-      detectedAxis = 'normal';
+      detectedAxis = 'inferior'; // PVCにおいて下壁誘導に陽性成分があれば下方軸
     }
 
     // 2. V1形態 (LBBB型 vs RBBB型)
@@ -1190,15 +1191,15 @@ export class EcgImageAnalyzer {
       centerX = cellX0 + cellW * relRatio;
     }
 
-    // 心拍QRS全体の左右幅サンプリング窓 (約 ±3.2% ≒ ±24〜35px)
-    const winW = Math.floor(canvasW * 0.035);
-    const startX = Math.max(Math.floor(cellX0), Math.floor(centerX - winW));
-    const endX = Math.min(Math.floor(cellX0 + cellW), Math.floor(centerX + winW));
+    // 心拍QRS全体の左右幅サンプリング窓 (約 ±4.0% ≒ ±30〜45px)
+    const winW = Math.floor(canvasW * 0.040);
+    const startX = Math.max(0, Math.floor(centerX - winW));
+    const endX = Math.min(canvasW, Math.floor(centerX + winW));
     const sampleW = endX - startX;
-    const sampleH = Math.floor(cellH * 0.85);
-    const startY = Math.floor(cellY0 + cellH * 0.08);
+    const sampleH = Math.floor(cellH * 0.88);
+    const startY = Math.floor(cellY0 + cellH * 0.06);
 
-    if (sampleW <= 3 || sampleH <= 5) return 'negative';
+    if (sampleW <= 3 || sampleH <= 5) return 'positive';
 
     try {
       const imgData = this.ctx.getImageData(startX, startY, sampleW, sampleH);
